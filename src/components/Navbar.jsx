@@ -39,6 +39,19 @@ export const Navbar = () => {
     return () => document.removeEventListener('mousedown', h);
   }, []);
 
+  // Keyboard shortcut: Ctrl+Shift+A to go to admin
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        window.location.hash = '#admin';
+        setCurrentView('admin');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setCurrentView]);
+
   const handleLogout = () => {
     // Reset user to guest state instead of null to prevent crashes
     setUser({
@@ -273,6 +286,20 @@ export const Navbar = () => {
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     <User size={15} /> My Account
+                  </button>
+
+                  <button
+                    onClick={() => { setCurrentView('admin'); setShowUserMenu(false); window.location.hash = '#admin'; }}
+                    style={{
+                      width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                      color: '#6C63FF', fontWeight: 600,
+                      display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    title="Ctrl+Shift+A"
+                  >
+                    🛡️ Admin Panel
                   </button>
 
                   <button

@@ -60,7 +60,8 @@ export const ShopProvider = ({ children }) => {
   };
 
   const [currentView, setCurrentView] = useState(() => {
-    if (window.location.hash === '#admin' || window.location.pathname.includes('/admin')) {
+    const hash = window.location.hash;
+    if (hash === '#admin' || hash === '#/admin' || window.location.pathname.includes('/admin')) {
       return 'admin';
     }
     return 'store';
@@ -240,8 +241,11 @@ export const ShopProvider = ({ children }) => {
   // Handle URL hash changes
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#admin') {
+      const hash = window.location.hash;
+      if (hash === '#admin' || hash === '#/admin') {
         setCurrentView('admin');
+      } else if (hash === '' || hash === '#' || hash === '#/') {
+        setCurrentView('store');
       }
     };
     window.addEventListener('hashchange', handleHashChange);
