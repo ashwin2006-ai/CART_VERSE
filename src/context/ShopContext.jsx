@@ -110,14 +110,14 @@ export const ShopProvider = ({ children }) => {
     token: null,
     adminUser: {
       id: 'adm-001',
-      name: 'Elena Vance (Lead Admin)',
-      email: 'admin@cartverse.io',
+      name: 'Ashwin Admin',
+      email: 'ashwin@cartverse.io',
       role: 'Super Administrator',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
       lastLogin: '2026-08-25 12:45 PM',
       twoFactorEnabled: true
     },
-    passwordHash: 'Admin@2026!'
+    passwordHash: 'Ashwin@123!'
   }));
 
   // Applied Promo Coupon
