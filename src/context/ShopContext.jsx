@@ -41,7 +41,7 @@ export const ShopProvider = ({ children }) => {
 
   // State Declarations
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('cartverse_theme') || 'dark';
+    return localStorage.getItem('cartverse_theme') || 'light';
   });
 
   const toggleTheme = () => {

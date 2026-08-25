@@ -103,7 +103,7 @@ export const ProductCard = ({ product }) => {
               fontWeight: 800,
               boxShadow: '0 2px 8px rgba(40, 116, 240, 0.4)'
             }}>
-              🛍️ Flipkart Assured
+              🛍️ Marketplace Partner (Flipkart)
             </span>
           )}
 
