@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import {
   User,
@@ -69,11 +70,12 @@ export const AccountView = () => {
 
   // Profile Edit State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const safeUser = user || { name: '', email: '', phone: '', avatar: '' };
   const [profileForm, setProfileForm] = useState({
-    name: user.name || '',
-    email: user.email || '',
-    phone: user.phone || '',
-    avatar: user.avatar || ''
+    name: safeUser.name || '',
+    email: safeUser.email || '',
+    phone: safeUser.phone || '',
+    avatar: safeUser.avatar || ''
   });
 
   const handleImageUpload = (e) => {
@@ -539,7 +541,7 @@ export const AccountView = () => {
           >
             {[
               { id: 'orders', label: 'My Orders', icon: Package, count: orders.length },
-              { id: 'addresses', label: 'Saved Addresses', icon: MapPin, count: user.addresses.length },
+              { id: 'addresses', label: 'Saved Addresses', icon: MapPin, count: (user?.addresses?.length || 0) },
               { id: 'wishlist', label: 'Wishlist', icon: Heart, count: wishlist.length },
               { id: 'returns', label: 'Return Requests', icon: RotateCcw }
             ].map((tab) => {
@@ -808,7 +810,7 @@ export const AccountView = () => {
                   </form>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-                    {user.addresses.map((addr, index) => (
+                    {(user?.addresses || []).map((addr, index) => (
                       <div
                         key={addr.id}
                         className="glass-panel"

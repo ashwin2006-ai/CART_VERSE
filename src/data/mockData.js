@@ -890,7 +890,16 @@ export const INITIAL_COUPONS = [
   { code: 'FLAT500',   type: 'fixed',   discount: 500,minSpend: 3999, description: '₹500 off on orders above ₹3,999', active: true },
 ];
 
-export const INITIAL_USER = null; // Force login on first visit
+export const INITIAL_USER = {
+  id: 'user-guest',
+  name: 'Guest User',
+  email: 'guest@cartverse.local',
+  phone: '+91-9876543210',
+  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
+  tier: 'Standard',
+  rewardPoints: 0,
+  addresses: []
+};
 
 export const INITIAL_ORDERS = [];
 

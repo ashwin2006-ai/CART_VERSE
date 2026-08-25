@@ -36,14 +36,15 @@ export const CheckoutModal = () => {
   const [step, setStep] = useState(1);
 
   // Address selection / new address form
+  const safeUser = user || { name: 'Guest', phone: '', addresses: [] };
   const [selectedAddressId, setSelectedAddressId] = useState(
-    user.addresses.find(a => a.isDefault)?.id || (user.addresses[0] && user.addresses[0].id) || ''
+    safeUser.addresses?.find(a => a.isDefault)?.id || (safeUser.addresses?.[0] && safeUser.addresses[0].id) || ''
   );
-  const [isAddingNewAddr, setIsAddingNewAddr] = useState(user.addresses.length === 0);
+  const [isAddingNewAddr, setIsAddingNewAddr] = useState((safeUser.addresses?.length || 0) === 0);
   const [newAddress, setNewAddress] = useState({
     title: 'Home',
-    fullName: user.name || '',
-    phone: user.phone || '',
+    fullName: safeUser.name || '',
+    phone: safeUser.phone || '',
     street: '',
     landmark: '',
     city: '',
@@ -62,7 +63,7 @@ export const CheckoutModal = () => {
   const [upiId, setUpiId] = useState('alex@okaxis');
   const [cardData, setCardData] = useState({
     number: '4242 •••• •••• 4242',
-    name: user.name || 'Alex Mercer',
+    name: safeUser.name || 'Alex Mercer',
     expiry: '08/29',
     cvv: '888'
   });
@@ -101,7 +102,7 @@ export const CheckoutModal = () => {
     setIsAddingNewAddr(false);
   };
 
-  const selectedAddressObj = user.addresses.find(a => a.id === selectedAddressId) || user.addresses[0] || newAddress;
+  const selectedAddressObj = safeUser.addresses?.find(a => a.id === selectedAddressId) || safeUser.addresses?.[0] || newAddress;
 
   const handleConfirmOrder = () => {
     setIsProcessing(true);
