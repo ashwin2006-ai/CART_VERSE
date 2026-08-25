@@ -1,0 +1,17 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "FLIPKART_AFFILIATE_ID",
+      "description": "Flipkart affiliate tracking ID (optional; defaults to 'cartvers01'). Obtain from Flipkart Affiliate dashboard.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "FLIPKART_AFFILIATE_TOKEN",
+      "description": "Flipkart affiliate API token (optional; not required to boot). Obtain from Flipkart Affiliate dashboard.",
+      "requiredAtBoot": false
+    }
+  ]
+}
