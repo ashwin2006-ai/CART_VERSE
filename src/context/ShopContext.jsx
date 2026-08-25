@@ -70,7 +70,33 @@ export const ShopProvider = ({ children }) => {
   const [categories, setCategories] = useState(() => loadLocal('categories', INITIAL_CATEGORIES));
   const [reviews, setReviews] = useState(() => loadLocal('reviews', INITIAL_REVIEWS));
   const [coupons, setCoupons] = useState(() => loadLocal('coupons', INITIAL_COUPONS));
-  const [user, setUser] = useState(() => loadLocal('user', INITIAL_USER));
+  const [user, setUser] = useState(() => {
+    const loaded = loadLocal('user', INITIAL_USER);
+    // Ensure user always has required properties
+    if (!loaded || typeof loaded !== 'object') {
+      return INITIAL_USER;
+    }
+    return {
+      ...INITIAL_USER,
+      ...loaded,
+      addresses: loaded.addresses || INITIAL_USER.addresses || []
+    };
+  });
+
+  // Safe user setter that ensures addresses exists
+  const safeSetUser = (updater) => {
+    setUser(prev => {
+      const updated = typeof updater === 'function' ? updater(prev) : updater;
+      if (!updated || typeof updated !== 'object') {
+        return INITIAL_USER;
+      }
+      return {
+        ...prev,
+        ...updated,
+        addresses: updated.addresses || prev.addresses || []
+      };
+    });
+  };
   const [orders, setOrders] = useState(() => loadLocal('orders', INITIAL_ORDERS));
   const [cart, setCart] = useState(() => loadLocal('cart', []));
   const [wishlist, setWishlist] = useState(() => loadLocal('wishlist', ['prod-1', 'prod-4']));
@@ -674,8 +700,8 @@ export const ShopProvider = ({ children }) => {
       ...addr,
       id: 'addr-' + Date.now()
     };
-    setUser(prev => {
-      let list = [...prev.addresses];
+    safeSetUser(prev => {
+      let list = [...(prev.addresses || [])];
       if (newAddr.isDefault) {
         list = list.map(a => ({ ...a, isDefault: false }));
       }
@@ -685,8 +711,8 @@ export const ShopProvider = ({ children }) => {
   };
 
   const updateAddress = (addrId, updated) => {
-    setUser(prev => {
-      let list = prev.addresses.map(a => (a.id === addrId ? { ...a, ...updated } : a));
+    safeSetUser(prev => {
+      let list = (prev.addresses || []).map(a => (a.id === addrId ? { ...a, ...updated } : a));
       if (updated.isDefault) {
         list = list.map(a => (a.id === addrId ? a : { ...a, isDefault: false }));
       }
@@ -696,17 +722,17 @@ export const ShopProvider = ({ children }) => {
   };
 
   const deleteAddress = (addrId) => {
-    setUser(prev => ({
+    safeSetUser(prev => ({
       ...prev,
-      addresses: prev.addresses.filter(a => a.id !== addrId)
+      addresses: (prev.addresses || []).filter(a => a.id !== addrId)
     }));
     addToast({ type: 'info', title: 'Address Removed', message: 'Saved address deleted.' });
   };
 
   const setDefaultAddress = (addrId) => {
-    setUser(prev => ({
+    safeSetUser(prev => ({
       ...prev,
-      addresses: prev.addresses.map(a => ({ ...a, isDefault: a.id === addrId }))
+      addresses: (prev.addresses || []).map(a => ({ ...a, isDefault: a.id === addrId }))
     }));
   };
 
