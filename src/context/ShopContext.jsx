@@ -27,6 +27,11 @@ export const ShopProvider = ({ children }) => {
       if (typeof window === 'undefined' || !window.localStorage) {
         return fallback;
       }
+      // FORCE RESET: Clear old admin_auth to prevent caching issues
+      if (key === 'admin_auth') {
+        localStorage.removeItem('aura_admin_auth');
+        return fallback;
+      }
       const saved = localStorage.getItem(`aura_${key}`);
       return saved ? JSON.parse(saved) : fallback;
     } catch {

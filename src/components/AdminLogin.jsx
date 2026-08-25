@@ -5,8 +5,8 @@ import { ShieldCheck, Lock, Mail, Eye, EyeOff, KeyRound, ArrowLeft, Sparkles, Ch
 export const AdminLogin = () => {
   const { adminLogin, setCurrentView, adminAuth } = useShop();
 
-  const [email, setEmail] = useState('admin@cartverse.io');
-  const [password, setPassword] = useState('Admin@2026!');
+  const [email, setEmail] = useState('ashwin@cartverse.io');
+  const [password, setPassword] = useState('Ashwin@123!');
   const [showPassword, setShowPassword] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState('884-291');
   const [errorMsg, setErrorMsg] = useState('');
@@ -27,8 +27,8 @@ export const AdminLogin = () => {
   };
 
   const handleFillDemo = () => {
-    setEmail('admin@cartverse.io');
-    setPassword(adminAuth.passwordHash || 'Admin@2026!');
+    setEmail('ashwin@cartverse.io');
+    setPassword(adminAuth.passwordHash || 'Ashwin@123!');
     setErrorMsg('');
   };
 
@@ -130,8 +130,8 @@ export const AdminLogin = () => {
           title="Click to fill demo credentials"
         >
           <div style={{ fontSize: '0.78rem', color: '#fbbf24', lineHeight: 1.4 }}>
-            <div>🔑 <strong>Demo Access:</strong> admin@cartverse.io</div>
-            <div>Password: <strong>Admin@2026!</strong></div>
+            <div>🔑 <strong>Demo Access:</strong> ashwin@cartverse.io</div>
+            <div>Password: <strong>Ashwin@123!</strong></div>
           </div>
           <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--accent-gold)', background: 'rgba(245, 158, 11, 0.2)', padding: '3px 8px', borderRadius: '4px' }}>
             Auto Fill
