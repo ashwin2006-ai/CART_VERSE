@@ -60,7 +60,7 @@ export const ShopProvider = ({ children }) => {
     return 'store';
   }); // 'store', 'admin', 'account'
 
-  const [products, setProducts] = useState(() => loadLocal('products', INITIAL_PRODUCTS));
+  const [products, setProducts] = useState(INITIAL_PRODUCTS); // always start fresh
   const [categories, setCategories] = useState(() => loadLocal('categories', INITIAL_CATEGORIES));
   const [reviews, setReviews] = useState(() => loadLocal('reviews', INITIAL_REVIEWS));
   const [coupons, setCoupons] = useState(() => loadLocal('coupons', INITIAL_COUPONS));
@@ -112,99 +112,50 @@ export const ShopProvider = ({ children }) => {
   // Toasts
   const [toasts, setToasts] = useState([]);
 
-  // Flipkart Integration State
-  const [flipkartProducts, setFlipkartProducts] = useState([]);
-  const [isFlipkartLoading, setIsFlipkartLoading] = useState(false);
-  const [catalogSource, setCatalogSource] = useState('all'); // 'all', 'cartverse', 'flipkart'
-  const [flipkartConfig, setFlipkartConfig] = useState(null);
+  // Product loading from API
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreProducts, setHasMoreProducts] = useState(true);
 
-  // Fetch Flipkart Feed & Status on Mount
-  const loadFlipkartData = async (query = '') => {
+  // Fetch real products from MySQL backend API
+  const fetchProducts = async (page = 1, replace = false) => {
     try {
-      setIsFlipkartLoading(true);
-      const url = query
-        ? `/api/flipkart/search?query=${encodeURIComponent(query)}`
-        : `/api/flipkart/feed`;
-      const res = await fetch(url);
+      setIsLoadingProducts(true);
+      const apiUrl = import.meta.env.VITE_API_URL || '/api';
+      const res = await fetch(`${apiUrl}/products?page=${page}&limit=100`);
       const data = await res.json();
       if (data.success) {
-        setFlipkartProducts(data.products || data.deals || []);
+        setProducts(prev => replace ? data.data : [...prev, ...data.data]);
+        setTotalProducts(data.total || data.data.length);
+        setCurrentPage(page);
+        setHasMoreProducts(page < (data.totalPages || 1));
       }
     } catch (err) {
-      console.warn('Flipkart Proxy fetch:', err.message);
+      console.warn('API unavailable, using local data:', err.message);
     } finally {
-      setIsFlipkartLoading(false);
+      setIsLoadingProducts(false);
     }
   };
 
-  const loadFlipkartConfig = async () => {
+  // Fetch categories from API
+  const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/flipkart/config');
+      const apiUrl = import.meta.env.VITE_API_URL || '/api';
+      const res = await fetch(`${apiUrl}/products/categories`);
       const data = await res.json();
-      if (data.success) setFlipkartConfig(data);
-    } catch (e) {}
+      if (data.success && data.data.length > 0) {
+        setCategories([{ id: 'all', name: 'All', slug: 'all', icon: 'LayoutGrid', count: data.data.reduce((s, c) => s + (c.count || 0), 0) }, ...data.data]);
+      }
+    } catch {}
   };
 
+  const loadMoreProducts = () => fetchProducts(currentPage + 1, false);
+
   useEffect(() => {
-    loadFlipkartData();
-    loadFlipkartConfig();
+    fetchProducts(1, true);
+    fetchCategories();
   }, []);
-
-  // When search query changes, query Flipkart proxy as well
-  useEffect(() => {
-    if (searchQuery.trim().length > 1) {
-      loadFlipkartData(searchQuery.trim());
-    } else if (!searchQuery) {
-      loadFlipkartData();
-    }
-  }, [searchQuery]);
-
-  const syncFlipkartCategory = async (category = 'all', keyword = '') => {
-    try {
-      const res = await fetch('/api/flipkart/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, keyword })
-      });
-      const data = await res.json();
-      if (data.success) {
-        addToast({
-          type: 'success',
-          title: 'Flipkart Sync Completed ⚡',
-          message: data.message
-        });
-        loadFlipkartData();
-        loadFlipkartConfig();
-        return true;
-      }
-    } catch (err) {
-      addToast({ type: 'error', title: 'Sync Failed', message: err.message });
-      return false;
-    }
-  };
-
-  const updateFlipkartKeys = async (affiliateId, affiliateToken) => {
-    try {
-      const res = await fetch('/api/flipkart/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ affiliateId, affiliateToken })
-      });
-      const data = await res.json();
-      if (data.success) {
-        addToast({
-          type: 'success',
-          title: 'Flipkart Keys Saved 🔑',
-          message: data.message
-        });
-        loadFlipkartConfig();
-        return true;
-      }
-    } catch (e) {
-      addToast({ type: 'error', title: 'Update Failed', message: e.message });
-      return false;
-    }
-  };
 
   // Apply Theme to document root
   useEffect(() => {
@@ -214,8 +165,7 @@ export const ShopProvider = ({ children }) => {
     localStorage.setItem('cartverse_theme', theme);
   }, [theme]);
 
-  // Sync to LocalStorage
-  useEffect(() => { saveLocal('products', products); }, [products]);
+  // Sync to LocalStorage — skip products (always fetched fresh)
   useEffect(() => { saveLocal('categories', categories); }, [categories]);
   useEffect(() => { saveLocal('reviews', reviews); }, [reviews]);
   useEffect(() => { saveLocal('coupons', coupons); }, [coupons]);
@@ -867,8 +817,12 @@ export const ShopProvider = ({ children }) => {
     addToast({ type: 'info', title: 'Coupon Deleted', message: `Code ${code} removed.` });
   };
 
-  // Direct Buy Now trigger
+  // Direct Buy Now trigger — requires login
   const buyNow = (product, color = null, size = null) => {
+    if (!user) {
+      addToast({ type: 'error', title: 'Login Required', message: 'Please sign in to place an order.' });
+      return;
+    }
     const selectedColor = color || (product.colors && product.colors[0]?.name) || 'Default';
     const selectedSize = size || (product.sizes && product.sizes[0]) || 'Standard';
 
@@ -975,16 +929,13 @@ export const ShopProvider = ({ children }) => {
     adminAddCoupon,
     adminToggleCoupon,
     adminDeleteCoupon,
+    isLoadingProducts,
+    totalProducts,
+    hasMoreProducts,
+    loadMoreProducts,
+    fetchProducts,
+    fetchCategories,
     buyNow,
-    // Flipkart Integration Exports
-    flipkartProducts,
-    isFlipkartLoading,
-    catalogSource,
-    setCatalogSource,
-    flipkartConfig,
-    loadFlipkartData,
-    syncFlipkartCategory,
-    updateFlipkartKeys
   };
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;

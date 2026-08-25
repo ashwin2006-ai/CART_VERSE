@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: e-commerce-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cartverse-db
+          property: connectionString
+    routes:
+      - type: http
+        path: /api
+        priority: 100
+
+databases:
+  - name: cartverse-db
+    engine: mysql
+    version: "8"
+    plan: free
