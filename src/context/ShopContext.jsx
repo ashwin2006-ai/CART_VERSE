@@ -21,9 +21,12 @@ export const useShop = () => {
 };
 
 export const ShopProvider = ({ children }) => {
-  // Persistence Helpers
+  // Persistence Helpers - Safe for mobile
   const loadLocal = (key, fallback) => {
     try {
+      if (typeof window === 'undefined' || !window.localStorage) {
+        return fallback;
+      }
       const saved = localStorage.getItem(`aura_${key}`);
       return saved ? JSON.parse(saved) : fallback;
     } catch {
@@ -33,6 +36,9 @@ export const ShopProvider = ({ children }) => {
 
   const saveLocal = (key, val) => {
     try {
+      if (typeof window === 'undefined' || !window.localStorage) {
+        return;
+      }
       localStorage.setItem(`aura_${key}`, JSON.stringify(val));
     } catch (e) {
       console.warn('Failed to save to localStorage', e);
@@ -122,16 +128,29 @@ export const ShopProvider = ({ children }) => {
   const fetchProducts = async (page = 1, replace = false) => {
     try {
       setIsLoadingProducts(true);
-      const res = await fetch(`/api/products?page=${page}&limit=100`);
+      const res = await fetch(`/api/products?page=${page}&limit=100`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      
       const data = await res.json();
-      if (data.success) {
+      if (data && data.success && data.data) {
         setProducts(prev => replace ? data.data : [...prev, ...data.data]);
         setTotalProducts(data.total || data.data.length);
         setCurrentPage(page);
         setHasMoreProducts(page < (data.totalPages || 1));
+      } else {
+        throw new Error('Invalid response format');
       }
     } catch (err) {
       console.warn('API unavailable, using local data:', err.message);
+      // Fallback to local data
+      if (replace) {
+        setProducts(INITIAL_PRODUCTS);
+        setTotalProducts(INITIAL_PRODUCTS.length);
+      }
     } finally {
       setIsLoadingProducts(false);
     }
@@ -140,12 +159,23 @@ export const ShopProvider = ({ children }) => {
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/products/categories');
+      const res = await fetch('/api/products/categories', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      
       const data = await res.json();
-      if (data.success && data.data.length > 0) {
+      if (data && data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
         setCategories([{ id: 'all', name: 'All', slug: 'all', icon: 'LayoutGrid', count: data.data.reduce((s, c) => s + (c.count || 0), 0) }, ...data.data]);
+      } else {
+        throw new Error('Invalid categories response');
       }
-    } catch {}
+    } catch (err) {
+      console.warn('Categories API failed, using local data:', err.message);
+      setCategories(INITIAL_CATEGORIES);
+    }
   };
 
   const loadMoreProducts = () => fetchProducts(currentPage + 1, false);
@@ -157,10 +187,16 @@ export const ShopProvider = ({ children }) => {
 
   // Apply Theme to document root
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.body.style.backgroundColor = 'var(--bg-main)';
-    document.body.style.color = 'var(--text-primary)';
-    localStorage.setItem('cartverse_theme', theme);
+    try {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.body.style.backgroundColor = 'var(--bg-main)';
+      document.body.style.color = 'var(--text-primary)';
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('cartverse_theme', theme);
+      }
+    } catch (e) {
+      console.warn('Theme setup error:', e);
+    }
   }, [theme]);
 
   // Sync to LocalStorage — skip products (always fetched fresh)
