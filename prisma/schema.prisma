@@ -60,10 +60,11 @@ model Address {
   fullName  String
   phone     String
   street    String
+  landmark  String?
   city      String
   state     String
   pincode   String
-  country   String   @default("United States")
+  country   String   @default("India")
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
 

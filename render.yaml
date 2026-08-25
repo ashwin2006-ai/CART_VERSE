@@ -11,16 +11,14 @@ services:
       - key: PORT
         value: 10000
       - key: DATABASE_URL
-        fromDatabase:
-          name: cartverse-db
-          property: connectionString
-    routes:
-      - type: http
-        path: /api
-        priority: 100
-
-databases:
-  - name: cartverse-db
-    engine: mysql
-    version: "8"
-    plan: free
+        sync: false
+      - key: JWT_SECRET
+        value: cartverse_jwt_secret_key_2026_super_secure_production
+      - key: FLIPKART_AFFILIATE_ID
+        value: cartvers01
+      - key: FLIPKART_AFFILIATE_TOKEN
+        value: fk_aff_tok_998a4e12e345b801a6bc
+      - key: FLIPKART_API_BASE_URL
+        value: https://affiliate-api.flipkart.net/affiliate/1.0
+      - key: CORS_ORIGIN
+        value: https://e-commerce-virid-delta.vercel.app
