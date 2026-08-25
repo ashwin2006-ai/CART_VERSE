@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import React, { useRef, useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import {
   User,
