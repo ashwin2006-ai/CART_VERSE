@@ -8,9 +8,10 @@ export default defineConfig({
     port: 3000,
     strictPort: true, // Guarantees Vite will always run strictly on port 3000
     open: false,
+    allowedHosts: true, // allow the preview's external hostname
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: process.env.VITE_API_PROXY_TARGET || 'http://localhost:5000',
         changeOrigin: true,
         secure: false
       }
