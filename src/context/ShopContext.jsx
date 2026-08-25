@@ -118,12 +118,11 @@ export const ShopProvider = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
 
-  // Fetch real products from MySQL backend API
+  // Fetch real products from API
   const fetchProducts = async (page = 1, replace = false) => {
     try {
       setIsLoadingProducts(true);
-      const apiUrl = import.meta.env.VITE_API_URL || '/api';
-      const res = await fetch(`${apiUrl}/products?page=${page}&limit=100`);
+      const res = await fetch(`/api/products?page=${page}&limit=100`);
       const data = await res.json();
       if (data.success) {
         setProducts(prev => replace ? data.data : [...prev, ...data.data]);
@@ -141,8 +140,7 @@ export const ShopProvider = ({ children }) => {
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '/api';
-      const res = await fetch(`${apiUrl}/products/categories`);
+      const res = await fetch('/api/products/categories');
       const data = await res.json();
       if (data.success && data.data.length > 0) {
         setCategories([{ id: 'all', name: 'All', slug: 'all', icon: 'LayoutGrid', count: data.data.reduce((s, c) => s + (c.count || 0), 0) }, ...data.data]);
