@@ -351,14 +351,14 @@ export const CheckoutModal = () => {
                     </div>
                     <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                       <button type="submit" className="btn btn-primary btn-sm">Save &amp; Use Address</button>
-                      {user.addresses.length > 0 && (
+                      {safeUser.addresses?.length > 0 && (
                         <button type="button" onClick={() => setIsAddingNewAddr(false)} className="btn btn-secondary btn-sm">Cancel</button>
                       )}
                     </div>
                   </form>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {user.addresses.map((addr, index) => (
+                    {(safeUser.addresses || []).map((addr, index) => (
                       <div
                         key={addr.id}
                         onClick={() => setSelectedAddressId(addr.id)}

@@ -40,11 +40,21 @@ export const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    setUser(null);
+    // Reset user to guest state instead of null to prevent crashes
+    setUser({
+      id: 'user-guest',
+      name: 'Guest User',
+      email: '',
+      phone: '',
+      addresses: [],
+      isLoggedIn: false
+    });
     localStorage.removeItem('cartverse_token');
     localStorage.removeItem('aura_user');
     setShowUserMenu(false);
-    window.location.reload();
+    // Navigate to store instead of reload to avoid full page refresh
+    setCurrentView('store');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const getInitials = (n) => {
