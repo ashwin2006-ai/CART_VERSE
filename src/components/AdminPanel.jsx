@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import { AdminDashboard } from './AdminDashboard';
+import { AdminSystemStatus } from './AdminSystemStatus';
 import {
   LayoutDashboard,
   Package,
@@ -36,7 +37,8 @@ import {
   Sparkles,
   CheckCircle2,
   Calendar,
-  CreditCard
+  CreditCard,
+  Server
 } from 'lucide-react';
 
 export const AdminPanel = () => {
@@ -297,6 +299,7 @@ export const AdminPanel = () => {
   // Nav Items definition
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'system', label: 'System Status', icon: Server, badge: null },
     { id: 'products', label: 'Product Management', icon: Package, badge: products.length },
     { id: 'categories', label: 'Category Management', icon: Layers, badge: categories.length },
     { id: 'inventory', label: 'Inventory & Stock', icon: Boxes, badge: lowStockItems.length + outOfStockItems.length > 0 ? `${lowStockItems.length + outOfStockItems.length} alert` : null, badgeColor: 'rose' },
@@ -695,6 +698,9 @@ export const AdminPanel = () => {
 
           {/* DASHBOARD */}
           {activeTab === 'dashboard' && <AdminDashboard />}
+
+          {/* SYSTEM STATUS */}
+          {activeTab === 'system' && <AdminSystemStatus />}
 
           {/* 2. PRODUCT MANAGEMENT */}
           {activeTab === 'products' && (
