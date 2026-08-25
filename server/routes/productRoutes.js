@@ -2,6 +2,7 @@ import express from 'express';
 import {
   getProducts,
   getProductById,
+  getCategories,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -12,6 +13,7 @@ import { protect, adminOnly } from '../middleware/auth.js';
 const router = express.Router();
 
 // Public Storefront Routes
+router.get('/categories', getCategories);
 router.get('/', getProducts);
 router.get('/:id', getProductById);
 

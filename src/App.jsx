@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
@@ -17,118 +17,254 @@ import { AiAssistant } from './components/AiAssistant';
 import { ToastContainer } from './components/ToastContainer';
 import { Footer } from './components/Footer';
 import { MobileBottomNav } from './components/MobileBottomNav';
-
+import { CustomerAuthModal } from './components/CustomerAuthModal';
 import {
-  SlidersHorizontal,
-  Flame,
-  Sparkles,
-  TrendingUp,
-  Clock,
-  RotateCcw,
-  Star,
-  Search,
-  Filter,
-  CheckCircle2,
-  X
+  ChevronRight, Search, X, Loader2, ChevronDown, ArrowUp, HelpCircle
 } from 'lucide-react';
 
+// â”€â”€â”€ Back to Top â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const BackToTop = ({ isDark }) => {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const h = () => setVisible(window.scrollY > 400);
+    window.addEventListener('scroll', h, { passive: true });
+    return () => window.removeEventListener('scroll', h);
+  }, []);
+
+  if (!visible) return null;
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      style={{
+        position: 'fixed', bottom: '76px', left: '16px', zIndex: 1300,
+        width: '40px', height: '40px', borderRadius: '50%',
+        background: isDark ? '#1e293b' : '#ffffff',
+        border: `1.5px solid ${isDark ? '#334155' : '#e5e7eb'}`,
+        color: isDark ? '#94a3b8' : '#374151',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.1)',
+        transition: 'all 0.2s',
+      }}
+      title="Back to top"
+    >
+      <ArrowUp size={17} />
+    </button>
+  );
+};
+
+
+// â”€â”€â”€ Section Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const SectionHeader = ({ title, subtitle, onViewAll, isDark }) => (
+  <div style={{
+    display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+    marginBottom: '16px', padding: '0 2px',
+  }}>
+    <div>
+      <h2 style={{
+        fontSize: 'clamp(1rem, 3vw, 1.2rem)', fontWeight: 800,
+        color: isDark ? '#f1f5f9' : '#111827',
+        letterSpacing: '-0.02em', margin: 0,
+        fontFamily: "'Inter', sans-serif",
+      }}>{title}</h2>
+      {subtitle && (
+        <p style={{ fontSize: '0.78rem', color: isDark ? '#64748b' : '#9ca3af', margin: '3px 0 0', fontWeight: 400 }}>{subtitle}</p>
+      )}
+    </div>
+    {onViewAll && (
+      <button onClick={onViewAll} style={{
+        display: 'flex', alignItems: 'center', gap: '4px',
+        color: '#6C63FF', fontSize: '0.8rem', fontWeight: 700,
+        flexShrink: 0, paddingBottom: '2px',
+      }}>
+        View all <ChevronRight size={14} />
+      </button>
+    )}
+  </div>
+);
+
+// â”€â”€â”€ Product Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const ProductGrid = ({ products: prods, isLoading, hasMore, onLoadMore, totalCount, isDark }) => (
+  <section>
+    {isLoading && prods.length === 0 ? (
+      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+        <Loader2 size={32} style={{ color: '#6C63FF', animation: 'spin 1s linear infinite', marginBottom: '12px' }} />
+        <p style={{ color: isDark ? '#64748b' : '#9ca3af', fontSize: '0.88rem' }}>Loading products...</p>
+      </div>
+    ) : prods.length === 0 ? (
+      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '12px' }}>ðŸ”</div>
+        <h3 style={{ fontWeight: 700, color: isDark ? '#f1f5f9' : '#111827', marginBottom: '6px' }}>No Products Found</h3>
+        <p style={{ color: isDark ? '#64748b' : '#9ca3af', fontSize: '0.84rem' }}>Try adjusting your search or filters.</p>
+      </div>
+    ) : (
+      <>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+          gap: '12px',
+        }}>
+          {prods.map(p => <ProductCard key={p.id} product={p} />)}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '0.78rem', color: isDark ? '#64748b' : '#9ca3af' }}>
+          Showing <strong style={{ color: isDark ? '#f1f5f9' : '#111827' }}>{prods.length}</strong> of <strong style={{ color: isDark ? '#f1f5f9' : '#111827' }}>{totalCount}</strong> products
+        </div>
+
+        {hasMore && (
+          <div style={{ textAlign: 'center', marginTop: '16px' }}>
+            <button
+              onClick={onLoadMore}
+              disabled={isLoading}
+              style={{
+                padding: '11px 32px', borderRadius: '10px',
+                background: '#6C63FF', color: '#fff',
+                fontWeight: 700, fontSize: '0.88rem',
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                opacity: isLoading ? 0.7 : 1,
+                boxShadow: '0 4px 16px rgba(108,99,255,0.3)',
+              }}
+            >
+              {isLoading ? <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <ChevronDown size={15} />}
+              {isLoading ? 'Loading...' : 'Load More Products'}
+            </button>
+          </div>
+        )}
+      </>
+    )}
+  </section>
+);
+
+// â”€â”€â”€ Help Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const HelpWidget = ({ isDark }) => {
+  const [open, setOpen] = useState(false);
+  const bg = isDark ? '#1e293b' : '#ffffff';
+  const border = isDark ? '#334155' : '#e5e7eb';
+  const text = isDark ? '#f1f5f9' : '#111827';
+  const muted = isDark ? '#64748b' : '#9ca3af';
+
+  const options = [
+    { icon: MessageCircle, label: 'Live Chat', sub: 'Avg response: 2 min', color: '#6C63FF', action: () => alert('Chat support coming soon!') },
+    { icon: Phone, label: 'Call Us', sub: '1800-XXX-XXXX (Toll free)', color: '#10b981', action: () => window.open('tel:18001234567') },
+    { icon: Mail, label: 'Email Support', sub: 'support@cartverse.io', color: '#f59e0b', action: () => window.open('mailto:support@cartverse.io') },
+  ];
+
+  return (
+    <div style={{ position: 'fixed', bottom: '76px', right: '16px', zIndex: 1300 }}>
+      {open && (
+        <div style={{
+          position: 'absolute', bottom: '56px', right: 0,
+          background: bg, border: `1px solid ${border}`,
+          borderRadius: '16px', minWidth: '240px',
+          boxShadow: isDark ? '0 12px 40px rgba(0,0,0,0.5)' : '0 12px 40px rgba(0,0,0,0.12)',
+          overflow: 'hidden', animation: 'slideUp 0.2s ease',
+        }}>
+          <div style={{ padding: '14px 16px', borderBottom: `1px solid ${border}` }}>
+            <div style={{ fontWeight: 800, color: text, fontSize: '0.88rem' }}>How can we help?</div>
+            <div style={{ fontSize: '0.74rem', color: muted, marginTop: '2px' }}>We typically respond within minutes</div>
+          </div>
+          {options.map(opt => {
+            const Icon = opt.icon;
+            return (
+              <button key={opt.label} onClick={opt.action}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+                  padding: '12px 16px', textAlign: 'left', transition: 'background 0.1s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f8fafc'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <div style={{
+                  width: '36px', height: '36px', borderRadius: '10px',
+                  background: `${opt.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <Icon size={16} color={opt.color} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.84rem', fontWeight: 700, color: text }}>{opt.label}</div>
+                  <div style={{ fontSize: '0.72rem', color: muted, marginTop: '1px' }}>{opt.sub}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: '46px', height: '46px', borderRadius: '50%',
+          background: open ? '#374151' : '#6C63FF',
+          color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 20px rgba(108,99,255,0.4)',
+          transition: 'all 0.2s',
+          transform: open ? 'rotate(45deg)' : 'rotate(0)',
+        }}
+        title="Help & Support"
+      >
+        {open ? <X size={20} /> : <HelpCircle size={20} />}
+      </button>
+      <style>{`@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+    </div>
+  );
+};
+
+// â”€â”€â”€ Main App â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function App() {
   const {
-    currentView,
-    adminAuth,
-    products,
-    flipkartProducts,
-    catalogSource,
-    searchQuery,
-    setSearchQuery,
-    selectedCategory,
-    setSelectedCategory,
-    priceRange,
-    setPriceRange,
-    minRating,
-    setMinRating,
-    inStockOnly,
-    setInStockOnly,
-    sortBy,
-    setSortBy,
+    currentView, adminAuth, user, products, theme,
+    searchQuery, setSearchQuery,
+    selectedCategory, setSelectedCategory,
+    minRating, setMinRating,
+    inStockOnly, setInStockOnly,
+    sortBy, setSortBy,
     recentlyViewed,
-    setActiveProductId
+    isLoadingProducts, totalProducts, hasMoreProducts, loadMoreProducts,
   } = useShop();
 
-  // Combine Cartverse direct products with live/cached Flipkart catalog
-  const combinedCatalog = useMemo(() => {
-    const normalizedFk = (flipkartProducts || []).map(fk => ({
-      id: fk.id,
-      name: fk.title || fk.name,
-      category: fk.category || 'electronics',
-      price: fk.price,
-      originalPrice: fk.mrp || (fk.price * 1.25),
-      discount: fk.discount || 10,
-      rating: fk.rating || 4.6,
-      reviewCount: fk.reviewCount || 120,
-      stock: fk.inStock ? 50 : 0,
-      featured: false,
-      bestSeller: true,
-      isNew: false,
-      images: fk.imageUrl ? [fk.imageUrl] : (fk.images || ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80']),
-      description: fk.title,
-      specs: fk.specs || {},
-      offers: fk.offers || [],
-      brand: fk.brand,
-      productUrl: fk.productUrl,
-      affiliateUrl: fk.affiliateUrl,
-      isFlipkart: true
-    }));
+  const isDark = theme === 'dark';
+  const bg = isDark ? '#0b0f1a' : '#f7f8fa';
+  const cardBg = isDark ? '#0f172a' : '#ffffff';
+  const border = isDark ? 'rgba(255,255,255,0.07)' : '#e5e7eb';
+  const text = isDark ? '#f1f5f9' : '#111827';
+  const muted = isDark ? '#64748b' : '#9ca3af';
 
-    if (catalogSource === 'flipkart') return normalizedFk;
-    if (catalogSource === 'cartverse') return products;
-    return [...products, ...normalizedFk];
-  }, [products, flipkartProducts, catalogSource]);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  useEffect(() => {
+    const handler = () => setShowAuthModal(true);
+    window.addEventListener('cartverse:open-auth', handler);
+    return () => window.removeEventListener('cartverse:open-auth', handler);
+  }, []);
 
-  // Filtered and Sorted Products computation
   const filteredProducts = useMemo(() => {
-    return combinedCatalog.filter((p) => {
-      // Search query
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchName = p.name.toLowerCase().includes(q);
-        const matchCat = p.category ? p.category.toLowerCase().includes(q) : false;
-        const matchDesc = p.description ? p.description.toLowerCase().includes(q) : false;
-        const matchBrand = p.brand ? p.brand.toLowerCase().includes(q) : false;
-        if (!matchName && !matchCat && !matchDesc && !matchBrand) return false;
-      }
+    let list = [...products];
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        (p.category || '').toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q)
+      );
+    }
+    if (selectedCategory !== 'all') list = list.filter(p => p.category === selectedCategory);
+    if (minRating > 0) list = list.filter(p => p.rating >= minRating);
+    if (inStockOnly) list = list.filter(p => p.stock > 0);
+    switch (sortBy) {
+      case 'price-low':  list.sort((a, b) => a.price - b.price); break;
+      case 'price-high': list.sort((a, b) => b.price - a.price); break;
+      case 'rating':     list.sort((a, b) => b.rating - a.rating); break;
+      case 'newest':     list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0)); break;
+      default: break;
+    }
+    return list;
+  }, [products, searchQuery, selectedCategory, minRating, inStockOnly, sortBy]);
 
-      // Category
-      if (selectedCategory !== 'all' && p.category !== selectedCategory) {
-        return false;
-      }
+  const isFiltered = !!(searchQuery || (selectedCategory && selectedCategory !== 'all'));
 
-      // Min Rating
-      if (minRating > 0 && p.rating < minRating) {
-        return false;
-      }
+  const featured   = useMemo(() => products.filter(p => p.featured).slice(0, 8), [products]);
+  const dealProds  = useMemo(() => products.filter(p => p.dealOfTheDay || p.discount >= 25).slice(0, 8), [products]);
+  const bestSell   = useMemo(() => products.filter(p => p.bestSeller).slice(0, 8), [products]);
+  const newArrivals= useMemo(() => products.filter(p => p.isNew).slice(0, 8), [products]);
+  const recentProds= useMemo(() => products.filter(p => recentlyViewed.includes(p.id)).slice(0, 4), [products, recentlyViewed]);
 
-      // Stock
-      if (inStockOnly && p.stock <= 0) {
-        return false;
-      }
-
-      return true;
-    }).sort((a, b) => {
-      if (sortBy === 'price-low') return a.price - b.price;
-      if (sortBy === 'price-high') return b.price - a.price;
-      if (sortBy === 'rating') return b.rating - a.rating;
-      if (sortBy === 'newest') return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
-      return 0; // default featured
-    });
-  }, [combinedCatalog, searchQuery, selectedCategory, minRating, inStockOnly, sortBy]);
-
-  // Curated Subsections
-  const bestSellers = products.filter(p => p.bestSeller);
-  const deals = products.filter(p => p.dealOfTheDay || p.discount >= 25);
-  const recentlyViewedProducts = products.filter(p => recentlyViewed.includes(p.id));
-
-  // IF ADMIN ROUTE SELECTED:
   if (currentView === 'admin') {
     return (
       <>
@@ -138,304 +274,236 @@ export function App() {
     );
   }
 
-  // CUSTOMER STOREFRONT & ACCOUNT EXPERIENCE:
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Toast Alerts System */}
+    <div style={{ minHeight: '100vh', background: bg, paddingBottom: '68px', fontFamily: "'Inter', sans-serif" }}>
       <ToastContainer />
-
-      {/* Sticky Glass Navbar */}
       <Navbar />
 
-      {/* Main View Switcher */}
-      <main style={{ flex: 1 }}>
-        {/* CUSTOMER STOREFRONT */}
+      <main>
         {currentView === 'store' && (
-          <div>
-            {/* Hero Carousel & Trust Badges */}
-            {!searchQuery && selectedCategory === 'all' && <HeroBanner />}
-
-            {/* Visual Category Filter Bar */}
+          <>
             <CategoryBar />
 
-            {/* Discovery & Products Grid Section */}
-            <section style={{ marginBottom: '48px' }}>
-              <div className="container">
-                {/* Search / Filter Control Header */}
-                <div
-                  className="glass-panel"
-                  style={{
-                    padding: '20px 24px',
-                    borderRadius: 'var(--radius-lg)',
-                    marginBottom: '28px',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '16px'
-                  }}
-                >
-                  {/* Left: Active Title & Results Count */}
+            {/* â”€â”€ Filtered / Search Results â”€â”€ */}
+            {isFiltered ? (
+              <div style={{ padding: '16px 12px', maxWidth: '1400px', margin: '0 auto' }}>
+                {/* Filter bar */}
+                <div style={{
+                  background: cardBg,
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  border: `1px solid ${border}`,
+                  display: 'flex', alignItems: 'center',
+                  justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px',
+                }}>
                   <div>
-                    <h2 style={{ fontSize: '1.35rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {searchQuery ? (
-                        <>Results for "{searchQuery}"</>
-                      ) : selectedCategory === 'all' ? (
-                        <>All Curated Products</>
-                      ) : (
-                        <span style={{ textTransform: 'capitalize' }}>{selectedCategory} Collection</span>
-                      )}
+                    <h2 style={{ fontSize: '0.98rem', fontWeight: 700, color: text, margin: 0 }}>
+                      {searchQuery ? `Results for "${searchQuery}"` : selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
                     </h2>
-                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                      Showing <strong>{filteredProducts.length}</strong> items found
+                    <span style={{ fontSize: '0.76rem', color: muted }}>
+                      {filteredProducts.length.toLocaleString()} products found
                     </span>
                   </div>
-
-                  {/* Right: Filters & Sorters */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '14px' }}>
-                    {/* Price Slider Filter */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem' }}>
-                      <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Max Price:</span>
-                      <input
-                        type="range"
-                        min="50"
-                        max="600"
-                        step="25"
-                        value={priceRange[1]}
-                        onChange={(e) => setPriceRange([0, Number(e.target.value)])}
-                        style={{ width: '100px', accentColor: 'var(--primary)' }}
-                      />
-                      <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>${priceRange[1]}</span>
-                    </div>
-
-                    {/* Min Rating Filter */}
-                    <select
-                      value={minRating}
-                      onChange={(e) => setMinRating(Number(e.target.value))}
-                      style={{
-                        padding: '8px 12px',
-                        borderRadius: 'var(--radius-md)',
-                        fontSize: '0.82rem',
-                        fontWeight: 600
-                      }}
-                    >
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+                      style={{ padding: '7px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600, border: `1px solid ${border}`, background: cardBg, color: text, outline: 'none' }}>
+                      <option value="featured">Relevance</option>
+                      <option value="price-low">Price â†‘</option>
+                      <option value="price-high">Price â†“</option>
+                      <option value="rating">Top Rated</option>
+                      <option value="newest">Newest</option>
+                    </select>
+                    <select value={minRating} onChange={e => setMinRating(Number(e.target.value))}
+                      style={{ padding: '7px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600, border: `1px solid ${border}`, background: cardBg, color: text, outline: 'none' }}>
                       <option value={0}>All Ratings</option>
-                      <option value={4.5}>4.5★ & Above</option>
-                      <option value={4.8}>4.8★ & Above</option>
+                      <option value={4}>4â˜… & above</option>
+                      <option value={4.5}>4.5â˜… & above</option>
                     </select>
-
-                    {/* In Stock Only Checkbox */}
-                    <label style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      fontSize: '0.82rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      userSelect: 'none'
-                    }}>
-                      <input
-                        type="checkbox"
-                        checked={inStockOnly}
-                        onChange={(e) => setInStockOnly(e.target.checked)}
-                        style={{ accentColor: 'var(--primary)' }}
-                      />
-                      <span>In Stock Only</span>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', color: text }}>
+                      <input type="checkbox" checked={inStockOnly} onChange={e => setInStockOnly(e.target.checked)} style={{ accentColor: '#6C63FF' }} />
+                      In Stock
                     </label>
-
-                    {/* Sort By Dropdown */}
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      style={{
-                        padding: '8px 14px',
-                        borderRadius: 'var(--radius-md)',
-                        fontSize: '0.82rem',
-                        fontWeight: 700,
-                        background: 'var(--bg-surface)'
-                      }}
+                    <button
+                      onClick={() => { setSearchQuery(''); setSelectedCategory('all'); setMinRating(0); setInStockOnly(false); setSortBy('featured'); }}
+                      style={{ fontSize: '0.76rem', color: '#6C63FF', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '3px' }}
                     >
-                      <option value="featured">Sort: Featured</option>
-                      <option value="price-low">Price: Low to High</option>
-                      <option value="price-high">Price: High to Low</option>
-                      <option value="rating">Highest Rated</option>
-                      <option value="newest">New Arrivals</option>
-                    </select>
-
-                    {/* Clear Filters Button */}
-                    {(searchQuery || selectedCategory !== 'all' || minRating > 0 || inStockOnly || priceRange[1] < 600) && (
-                      <button
-                        onClick={() => {
-                          setSearchQuery('');
-                          setSelectedCategory('all');
-                          setMinRating(0);
-                          setInStockOnly(false);
-                          setPriceRange([0, 600]);
-                          setSortBy('featured');
-                        }}
-                        className="btn btn-outline btn-sm"
-                        style={{ fontSize: '0.78rem' }}
-                      >
-                        <X size={14} /> Reset Filters
-                      </button>
-                    )}
+                      <X size={13} /> Clear
+                    </button>
                   </div>
                 </div>
 
-                {/* Primary Products Grid */}
-                {filteredProducts.length === 0 ? (
-                  <div className="glass-panel" style={{
-                    padding: '60px 20px',
-                    textAlign: 'center',
-                    borderRadius: 'var(--radius-lg)'
-                  }}>
-                    <Search size={48} style={{ color: 'var(--text-muted)', marginBottom: '16px' }} />
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px' }}>No Matching Products Found</h3>
-                    <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                      Try adjusting your search terms, removing filters, or checking a different category.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setSearchQuery('');
-                        setSelectedCategory('all');
-                        setMinRating(0);
-                        setPriceRange([0, 600]);
-                      }}
-                      className="btn btn-primary"
-                    >
-                      Reset All Filters
-                    </button>
-                  </div>
-                ) : (
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                    gap: '24px'
-                  }}>
-                    {filteredProducts.map((prod) => (
-                      <ProductCard key={prod.id} product={prod} />
-                    ))}
-                  </div>
-                )}
+                <ProductGrid
+                  products={filteredProducts}
+                  isLoading={isLoadingProducts}
+                  hasMore={false}
+                  totalCount={filteredProducts.length}
+                  isDark={isDark}
+                />
               </div>
-            </section>
 
-            {/* Special Highlight Feeds when browsing Home */}
-            {!searchQuery && selectedCategory === 'all' && (
+            ) : (
+              /* â”€â”€ Homepage â”€â”€ */
               <>
-                {/* Flash Deals of the Day */}
-                {deals.length > 0 && (
-                  <section style={{ marginBottom: '48px' }}>
-                    <div className="container">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                        <Flame size={24} style={{ color: '#f59e0b' }} />
-                        <h2 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Deals of the Day</h2>
-                        <span className="badge badge-rose">Up to 33% Off</span>
-                      </div>
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                        gap: '24px'
-                      }}>
-                        {deals.slice(0, 4).map((p) => (
-                          <ProductCard key={p.id} product={p} />
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
+                <HeroBanner />
 
-                {/* Best Sellers */}
-                {bestSellers.length > 0 && (
-                  <section style={{ marginBottom: '48px' }}>
-                    <div className="container">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                        <TrendingUp size={24} style={{ color: 'var(--primary)' }} />
-                        <h2 style={{ fontSize: '1.4rem', fontWeight: 900 }}>Trending Best-Sellers</h2>
-                        <span className="badge badge-gold">Community Favorites</span>
-                      </div>
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                        gap: '24px'
-                      }}>
-                        {bestSellers.slice(0, 4).map((p) => (
-                          <ProductCard key={p.id} product={p} />
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
+                <div style={{ padding: '16px 12px 0', maxWidth: '1400px', margin: '0 auto' }}>
 
-                {/* Recently Viewed Products */}
-                {recentlyViewedProducts.length > 0 && (
-                  <section style={{ marginBottom: '48px' }}>
-                    <div className="container">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                        <Clock size={20} style={{ color: 'var(--text-muted)' }} />
-                        <h3 style={{ fontSize: '1.15rem', fontWeight: 800 }}>Recently Viewed</h3>
+                  {/* Recently Viewed */}
+                  {recentProds.length > 0 && (
+                    <section style={{ marginBottom: '28px' }}>
+                      <SectionHeader title="Recently Viewed" subtitle="Continue where you left off" isDark={isDark} />
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                        {recentProds.map(p => <ProductCard key={p.id} product={p} compact />)}
                       </div>
+                    </section>
+                  )}
+
+                  {/* Top Picks */}
+                  {featured.length > 0 && (
+                    <section style={{ marginBottom: '28px' }}>
+                      <SectionHeader
+                        title="Top Picks For You"
+                        subtitle="Handpicked premium selections"
+                        onViewAll={() => setSelectedCategory('all')}
+                        isDark={isDark}
+                      />
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                        {featured.map(p => <ProductCard key={p.id} product={p} />)}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Flash Deals Banner */}
+                  {dealProds.length > 0 && (
+                    <section style={{ marginBottom: '28px' }}>
                       <div style={{
-                        display: 'flex',
-                        gap: '16px',
-                        overflowX: 'auto',
-                        paddingBottom: '8px'
+                        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+                        borderRadius: '14px', padding: '14px 16px', marginBottom: '14px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       }}>
-                        {recentlyViewedProducts.map((p) => (
-                          <div
-                            key={p.id}
-                            onClick={() => setActiveProductId(p.id)}
-                            className="glass-panel"
-                            style={{
-                              minWidth: '180px',
-                              maxWidth: '180px',
-                              borderRadius: 'var(--radius-md)',
-                              overflow: 'hidden',
-                              cursor: 'pointer',
-                              border: '1px solid var(--border-subtle)'
-                            }}
-                          >
-                            <img src={p.images[0]} alt={p.name} style={{ width: '100%', height: '120px', objectFit: 'cover' }} />
-                            <div style={{ padding: '10px' }}>
-                              <div style={{ fontSize: '0.78rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {p.name}
-                              </div>
-                              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>
-                                ₹{p.price.toLocaleString('en-IN')}
-                              </div>
-                            </div>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                            <span style={{ fontSize: '1rem' }}>âš¡</span>
+                            <span style={{ fontWeight: 900, color: '#fff', fontSize: '0.95rem' }}>Flash Deals</span>
+                            <span style={{ background: '#ef4444', color: '#fff', fontSize: '0.62rem', fontWeight: 800, padding: '2px 8px', borderRadius: '100px' }}>LIVE</span>
                           </div>
-                        ))}
+                          <p style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.55)', margin: 0 }}>Limited time â€” up to 80% off</p>
+                        </div>
+                        <button onClick={() => setSelectedCategory('all')} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6C63FF', fontSize: '0.78rem', fontWeight: 700 }}>
+                          See all <ChevronRight size={13} />
+                        </button>
                       </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                        {dealProds.map(p => <ProductCard key={p.id} product={p} />)}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Best Sellers */}
+                  {bestSell.length > 0 && (
+                    <section style={{ marginBottom: '28px' }}>
+                      <SectionHeader
+                        title="Best Sellers"
+                        subtitle="What everyone is buying"
+                        onViewAll={() => setSelectedCategory('all')}
+                        isDark={isDark}
+                      />
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                        {bestSell.map(p => <ProductCard key={p.id} product={p} />)}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* New Arrivals */}
+                  {newArrivals.length > 0 && (
+                    <section style={{ marginBottom: '28px' }}>
+                      <SectionHeader
+                        title="New Arrivals"
+                        subtitle="Fresh products just landed"
+                        onViewAll={() => setSortBy('newest')}
+                        isDark={isDark}
+                      />
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                        {newArrivals.map(p => <ProductCard key={p.id} product={p} />)}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Divider */}
+                  <div style={{ height: '1px', background: border, margin: '4px 0 20px' }} />
+
+                  {/* All Products */}
+                  <section style={{ marginBottom: '28px' }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      marginBottom: '16px', flexWrap: 'wrap', gap: '10px',
+                    }}>
+                      <div>
+                        <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: text, margin: 0, letterSpacing: '-0.02em', fontFamily: "'Inter', sans-serif" }}>
+                          All Products
+                        </h2>
+                        <span style={{ fontSize: '0.76rem', color: muted }}>
+                          {(totalProducts || products.length).toLocaleString()} items available
+                        </span>
+                      </div>
+                      <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+                        style={{ padding: '7px 12px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600, border: `1px solid ${border}`, background: cardBg, color: text, outline: 'none' }}>
+                        <option value="featured">Featured</option>
+                        <option value="price-low">Price â†‘</option>
+                        <option value="price-high">Price â†“</option>
+                        <option value="rating">Top Rated</option>
+                        <option value="newest">Newest</option>
+                      </select>
                     </div>
+                    <ProductGrid
+                      products={filteredProducts.length > 0 ? filteredProducts : products}
+                      isLoading={isLoadingProducts}
+                      hasMore={hasMoreProducts}
+                      onLoadMore={loadMoreProducts}
+                      totalCount={totalProducts || products.length}
+                      isDark={isDark}
+                    />
                   </section>
-                )}
+
+                </div>
               </>
             )}
-          </div>
+          </>
         )}
 
-        {/* CUSTOMER ACCOUNT DASHBOARD */}
         {currentView === 'account' && <AccountView />}
       </main>
 
-      {/* Global Modals & Drawers */}
+      {/* Modals */}
       <ProductDetailModal />
       <ReviewModal />
       <CartDrawer />
       <CheckoutModal />
       <OrderConfirmationModal />
       <OrderTrackingModal />
-
-      {/* Sleek Small Floating AI Icon Concierge */}
       <AiAssistant />
-
-      {/* Mobile Sticky Bottom Navigation */}
       <MobileBottomNav />
-
-      {/* Universal Customer Footer */}
       <Footer />
+
+      {/* Auth modal triggered from checkout guard */}
+      <CustomerAuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode="login"
+      />
+
+      {/* Back to top */}
+      <BackToTop isDark={isDark} />
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        * { box-sizing: border-box; }
+        button { background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
+        input, select, textarea { font-family: 'Inter', sans-serif; }
+      `}</style>
     </div>
   );
 }
+
 export default App;

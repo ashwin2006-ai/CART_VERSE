@@ -105,6 +105,7 @@ export const AccountView = () => {
     fullName: user.name,
     phone: user.phone,
     street: '',
+    landmark: '',
     city: '',
     state: '',
     pincode: '',
@@ -124,7 +125,11 @@ export const AccountView = () => {
 
   const handleCreateAddress = (e) => {
     e.preventDefault();
-    if (!newAddr.street || !newAddr.city) return;
+    if (!newAddr.street || !newAddr.city || !newAddr.pincode) return;
+    if (!/^[1-9][0-9]{5}$/.test(newAddr.pincode)) {
+      addToast({ type: 'error', title: 'Invalid Pincode', message: 'Please enter a valid 6-digit Indian pincode.' });
+      return;
+    }
     addAddress(newAddr);
     setIsAddingAddress(false);
     setNewAddr({
@@ -132,6 +137,7 @@ export const AccountView = () => {
       fullName: user.name,
       phone: user.phone,
       street: '',
+      landmark: '',
       city: '',
       state: '',
       pincode: '',
@@ -749,10 +755,17 @@ export const AccountView = () => {
                     />
                     <input
                       type="text"
-                      placeholder="Street Address, Building"
+                      placeholder="Street Address, Building, House No."
                       value={newAddr.street}
                       onChange={(e) => setNewAddr({ ...newAddr, street: e.target.value })}
                       required
+                      style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)' }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Landmark (e.g. Near City Mall, Opp. Metro Station)"
+                      value={newAddr.landmark}
+                      onChange={(e) => setNewAddr({ ...newAddr, landmark: e.target.value })}
                       style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)' }}
                     />
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
@@ -774,13 +787,20 @@ export const AccountView = () => {
                       />
                       <input
                         type="text"
-                        placeholder="Pincode"
+                        placeholder="6-digit Pincode"
                         value={newAddr.pincode}
-                        onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })}
+                        onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
                         required
+                        maxLength={6}
+                        pattern="[1-9][0-9]{5}"
+                        title="Enter valid 6-digit Indian pincode"
                         style={{ padding: '10px 14px', borderRadius: 'var(--radius-sm)' }}
                       />
                     </div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={newAddr.isDefault} onChange={(e) => setNewAddr({ ...newAddr, isDefault: e.target.checked })} />
+                      Set as default delivery address
+                    </label>
                     <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                       <button type="submit" className="btn btn-primary">Save Address</button>
                       <button type="button" onClick={() => setIsAddingAddress(false)} className="btn btn-secondary">Cancel</button>
@@ -822,7 +842,9 @@ export const AccountView = () => {
                             {addr.isDefault && <span className="badge badge-emerald">Default</span>}
                           </div>
                           <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                            {addr.street}, {addr.city}, {addr.state} - {addr.pincode}
+                            {addr.street}
+                            {addr.landmark && <span style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)' }}>Near: {addr.landmark}</span>}
+                            {addr.city}, {addr.state} — <strong>{addr.pincode}</strong>
                           </div>
                           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '6px' }}>
                             Phone: {addr.phone}

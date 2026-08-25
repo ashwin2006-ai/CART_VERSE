@@ -5,7 +5,6 @@ import { checkMysqlConnection } from './config/prisma.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
-import flipkartRoutes from './routes/flipkartRoutes.js';
 
 dotenv.config();
 
@@ -21,10 +20,9 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'Cartverse Node.js/Express + MySQL (Prisma) Backend Engine',
-    version: '1.0.0',
-    database: 'MySQL (Prisma ORM)',
-    flipkartIntegration: 'Active (Affiliate API Proxy Ready)'
+    service: 'CartVerse Node.js/Express + MySQL (Prisma) Backend',
+    version: '2.0.0',
+    database: 'MySQL (Prisma ORM)'
   });
 });
 
@@ -32,7 +30,6 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/flipkart', flipkartRoutes);
 
 // Global 404 & Error Handler
 app.use((req, res) => {

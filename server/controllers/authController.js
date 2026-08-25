@@ -1,18 +1,18 @@
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../middleware/auth.js';
-import { INITIAL_USER } from '../../src/data/mockData.js';
+import prisma from '../config/prisma.js';
 
 // In-memory mock store fallback
 let usersDb = [
   {
     id: 'usr-101',
     name: 'Alex Mercer',
-    email: 'alex.mercer@lumina.io',
-    passwordHash: '$2a$10$w8T0t2P9n7z8U.E4v5W0.u9d4Y2z5W3q1x2y3z4a5b6c7d8e9f0g', // hashed 'Password@123'
+    email: 'alex.mercer@cartverse.io',
+    passwordHash: '$2a$10$w8T0t2P9n7z8U.E4v5W0.u9d4Y2z5W3q1x2y3z4a5b6c7d8e9f0g',
     role: 'customer',
     tier: 'VIP Platinum',
     rewardPoints: 1240,
-    addresses: INITIAL_USER.addresses
+    addresses: []
   },
   {
     id: 'adm-001',
@@ -128,5 +128,93 @@ export const adminLogin = async (req, res) => {
     return res.status(401).json({ success: false, message: 'Invalid administrative security credentials.' });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
+  }
+};
+export const getUserStats = async (req, res) => {
+  try {
+    const [totalUsers, todayUsers] = await Promise.all([
+      prisma.user.count({ where: { role: 'CUSTOMER' } }),
+      prisma.user.count({
+        where: {
+          role: 'CUSTOMER',
+          createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+        }
+      })
+    ]);
+    return res.json({ success: true, totalUsers, todaySignups: todayUsers });
+  } catch {
+    const customers = usersDb.filter(u => u.role === 'customer');
+    return res.json({ success: true, totalUsers: customers.length, todaySignups: 0 });
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    const { page = 1, limit = 50, search = '' } = req.query;
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(200, Math.max(1, parseInt(limit)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const where = { role: 'CUSTOMER' };
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { email: { contains: search } }
+      ];
+    }
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, name: true, email: true, phone: true,
+          tier: true, rewardPoints: true, createdAt: true,
+          role: true, avatar: true,
+          _count: { select: { orders: true } }
+        }
+      }),
+      prisma.user.count({ where })
+    ]);
+
+    return res.json({
+      success: true,
+      total,
+      page: pageNum,
+      totalPages: Math.ceil(total / limitNum),
+      data: users.map(u => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        phone: u.phone || '',
+        tier: u.tier,
+        rewardPoints: u.rewardPoints,
+        joinedAt: u.createdAt,
+        orderCount: u._count.orders,
+        avatar: u.avatar || ''
+      }))
+    });
+  } catch (err) {
+    console.warn('getUsers MySQL failed, returning local:', err.message);
+    const customers = usersDb.filter(u => u.role === 'customer');
+    return res.json({
+      success: true,
+      total: customers.length,
+      page: 1,
+      totalPages: 1,
+      data: customers.map(u => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        phone: u.phone || '',
+        tier: u.tier || 'Standard Member',
+        rewardPoints: u.rewardPoints || 100,
+        joinedAt: new Date().toISOString(),
+        orderCount: 0,
+        avatar: ''
+      }))
+    });
   }
 };

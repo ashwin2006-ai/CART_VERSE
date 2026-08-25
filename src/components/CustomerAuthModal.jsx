@@ -13,11 +13,12 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
-export const CustomerAuthModal = ({ isOpen, onClose }) => {
+export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonDismissible = false }) => {
   const { user, setUser, addToast, setCurrentView } = useShop();
 
-  const [mode, setMode] = useState('login'); // 'login' or 'register'
+  const [mode, setMode] = useState(defaultMode);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -27,80 +28,163 @@ export const CustomerAuthModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  // ── Local Auth Helpers (fallback when API unavailable) ────────────────
+  const LOCAL_USERS_KEY = 'cartverse_local_users';
+
+  const getLocalUsers = () => {
+    try { return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '[]'); } catch { return []; }
+  };
+
+  const saveLocalUser = (u) => {
+    const users = getLocalUsers();
+    users.push(u);
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+  };
+
+  const loginLocalUser = (email, password) => {
+    return getLocalUsers().find(u => u.email === email && u.password === password) || null;
+  };
+
+  const registerLocalUser = (name, email, password, phone) => {
+    const users = getLocalUsers();
+    if (users.find(u => u.email === email)) return { error: 'Email already registered. Please sign in.' };
+    const u = { id: 'local-' + Date.now(), name, email, password, phone, tier: 'Standard Member', rewardPoints: 100, addresses: [] };
+    saveLocalUser(u);
+    return { user: u };
+  };
+
+  // ── API auth with local fallback ───────────────────────────────────────
+  const tryApi = async (endpoint, body) => {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) return null; // 405 or other server error → use local
+      const text = await res.text();
+      if (!text.startsWith('{')) return null; // HTML page returned → use local
+      return JSON.parse(text);
+    } catch {
+      return null; // network error → use local
+    }
+  };
+
+  const loginUser = (userData) => {
+    const { password, ...safeUser } = userData;
+    const cleanUser = {
+      id: safeUser.id || 'local-' + Date.now(),
+      name: safeUser.name,
+      email: safeUser.email,
+      phone: safeUser.phone || '',
+      tier: safeUser.tier || 'Standard Member',
+      rewardPoints: safeUser.rewardPoints || 100,
+      avatar: safeUser.avatar || '',
+      addresses: safeUser.addresses || [],
+    };
+    setUser(cleanUser);
+    // Save with the key that ShopContext's loadLocal('user') reads: aura_user
+    localStorage.setItem('aura_user', JSON.stringify(cleanUser));
+  };
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    if (mode === 'register') {
-      if (!formData.name || !formData.email || !formData.password) return;
+    try {
+      if (mode === 'register') {
+        if (!formData.name || !formData.email || !formData.password) {
+          addToast({ type: 'error', title: 'Missing Fields', message: 'Please fill in all required fields.' });
+          setIsLoading(false); return;
+        }
 
-      const newUser = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone || '+91 98765 43210',
-        tier: 'Standard Member',
-        rewardPoints: 0,
-        avatar: '',
-        addresses: []
-      };
-
-      setUser(newUser);
-      addToast({
-        type: 'success',
-        title: 'Account Created 🎉',
-        message: `Welcome ${formData.name}! Complete your profile details and address.`
-      });
-      onClose();
-      setCurrentView('account');
-    } else {
-      // Login mode
-      if (!formData.email || !formData.password) return;
-
-      if (formData.email.toLowerCase() === 'admin@cartverse.io') {
-        addToast({
-          type: 'info',
-          title: 'Admin Detected 🛡️',
-          message: 'Redirecting to Secure Admin Portal...'
+        // Try API first
+        const apiResult = await tryApi('/api/auth/register', {
+          name: formData.name, email: formData.email,
+          password: formData.password, phone: formData.phone
         });
-        onClose();
-        setCurrentView('admin');
-        window.location.hash = '#admin';
-        return;
+
+        if (apiResult?.success) {
+          if (apiResult.token) localStorage.setItem('cartverse_token', apiResult.token);
+          loginUser({ ...apiResult.user, rewardPoints: 100 });
+          addToast({ type: 'success', title: 'Account Created 🎉', message: `Welcome ${apiResult.user.name}! You have 100 reward points.` });
+          onClose(); setCurrentView('store');
+        } else if (apiResult && !apiResult.success) {
+          addToast({ type: 'error', title: 'Registration Failed', message: apiResult.message || 'Email may already be in use.' });
+        } else {
+          // ── Local fallback ──
+          const result = registerLocalUser(formData.name, formData.email, formData.password, formData.phone);
+          if (result.error) {
+            addToast({ type: 'error', title: 'Already Registered', message: result.error });
+          } else {
+            loginUser(result.user);
+            addToast({ type: 'success', title: 'Account Created 🎉', message: `Welcome, ${result.user.name}! You have 100 reward points.` });
+            onClose(); setCurrentView('store');
+          }
+        }
+
+      } else {
+        // Login
+        if (!formData.email || !formData.password) {
+          addToast({ type: 'error', title: 'Missing Fields', message: 'Please enter email and password.' });
+          setIsLoading(false); return;
+        }
+
+        if (formData.email.toLowerCase() === 'admin@cartverse.io') {
+          addToast({ type: 'info', title: 'Admin Portal 🛡️', message: 'Redirecting to admin login...' });
+          onClose(); setCurrentView('admin');
+          window.location.hash = '#admin';
+          setIsLoading(false); return;
+        }
+
+        // Try API first
+        const apiResult = await tryApi('/api/auth/login', {
+          email: formData.email, password: formData.password
+        });
+
+        if (apiResult?.success) {
+          if (apiResult.token) localStorage.setItem('cartverse_token', apiResult.token);
+          loginUser(apiResult.user);
+          addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${apiResult.user.name}` });
+          onClose(); setCurrentView('store');
+        } else if (apiResult && !apiResult.success) {
+          addToast({ type: 'error', title: 'Login Failed', message: apiResult.message || 'Invalid email or password.' });
+        } else {
+          // ── Local fallback ──
+          const localUser = loginLocalUser(formData.email, formData.password);
+          if (localUser) {
+            loginUser(localUser);
+            addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${localUser.name}` });
+            onClose(); setCurrentView('store');
+          } else {
+            addToast({ type: 'error', title: 'Login Failed', message: 'No account found. Please register first.' });
+          }
+        }
       }
-
-      setUser({
-        ...user,
-        email: formData.email,
-        name: formData.email.split('@')[0].toUpperCase()
-      });
-
-      addToast({
-        type: 'success',
-        title: 'Welcome Back! 👋',
-        message: `Signed in as ${formData.email}`
-      });
-      onClose();
-      setCurrentView('account');
+    } catch (err) {
+      console.error('Auth error:', err);
+      addToast({ type: 'error', title: 'Error', message: 'Something went wrong. Please try again.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(5, 8, 15, 0.85)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        zIndex: 2500,
+        position: nonDismissible ? 'relative' : 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: nonDismissible ? 'transparent' : 'rgba(5, 8, 15, 0.85)',
+        backdropFilter: nonDismissible ? 'none' : 'blur(12px)',
+        WebkitBackdropFilter: nonDismissible ? 'none' : 'blur(12px)',
+        zIndex: nonDismissible ? 'unset' : 2500,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '16px'
+        padding: '16px',
       }}
-      onClick={onClose}
+      onClick={nonDismissible ? undefined : onClose}
     >
       <div
         className="glass-panel animate-scale-in"
@@ -276,14 +360,18 @@ export const CustomerAuthModal = ({ isOpen, onClose }) => {
           <button
             type="submit"
             className="btn btn-primary btn-lg"
-            style={{ width: '100%', marginTop: '6px', fontWeight: 800 }}
+            disabled={isLoading}
+            style={{ width: '100%', marginTop: '6px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           >
-            <span>{mode === 'login' ? 'Sign In' : 'Create My Account'}</span>
-            <ArrowRight size={17} />
+            {isLoading ? (
+              <><span style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite', display: 'inline-block' }} /> Processing...</>
+            ) : (
+              <><span>{mode === 'login' ? 'Sign In' : 'Create My Account'}</span><ArrowRight size={17} /></>
+            )}
           </button>
         </form>
 
-        {/* Quick Demo Autofill helper */}
+        {/* Info note */}
         <div style={{
           marginTop: '18px',
           padding: '10px',
@@ -292,26 +380,9 @@ export const CustomerAuthModal = ({ isOpen, onClose }) => {
           border: '1px dashed var(--border-active)',
           fontSize: '0.75rem',
           color: 'var(--text-secondary)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
+          textAlign: 'center'
         }}>
-          <span>Demo Customer: <code>alex.mercer@lumina.io</code></span>
-          <button
-            type="button"
-            onClick={() => {
-              setMode('login');
-              setFormData({
-                name: 'Alex Mercer',
-                email: 'alex.mercer@lumina.io',
-                phone: '+1 (555) 389-2041',
-                password: 'Password@123'
-              });
-            }}
-            style={{ color: 'var(--primary)', fontWeight: 800, textDecoration: 'underline' }}
-          >
-            Auto Fill
-          </button>
+          <span>🔒 Your data is secure and never shared with third parties.</span>
         </div>
 
         {/* Administrator Portal Switcher */}

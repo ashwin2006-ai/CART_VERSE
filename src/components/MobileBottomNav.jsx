@@ -1,263 +1,249 @@
 import React from 'react';
 import { useShop } from '../context/ShopContext';
-import {
-  ShoppingBag,
-  Home,
-  Heart,
-  User,
-  LayoutGrid
-} from 'lucide-react';
+import { Home, Search, LayoutGrid, Heart, User, ShoppingCart, X } from 'lucide-react';
 
 export const MobileBottomNav = () => {
   const {
-    currentView,
-    setCurrentView,
-    cart,
-    wishlist,
-    setIsCartOpen,
-    user
+    currentView, setCurrentView,
+    cart, wishlist, setIsCartOpen,
+    setSelectedCategory, setSearchQuery, searchQuery, theme,
   } = useShop();
 
-  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const [searchOpen, setSearchOpen] = React.useState(false);
+  const [localSearch, setLocalSearch] = React.useState('');
+  const isDark = theme === 'dark';
 
-  // Helper for user initials if no avatar
-  const getInitials = (name) => {
-    if (!name) return 'U';
-    const parts = name.trim().split(' ');
-    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    return name.slice(0, 2).toUpperCase();
+  const cartCount = cart.reduce((t, i) => t + i.quantity, 0);
+  const wishCount = wishlist.length;
+
+  const accent = '#6C63FF';
+  const navBg = isDark ? '#0f172a' : '#ffffff';
+  const navBorder = isDark ? 'rgba(255,255,255,0.08)' : '#e5e7eb';
+  const inactiveColor = isDark ? '#64748b' : '#6b7280';
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (localSearch.trim()) {
+      setSearchQuery(localSearch.trim());
+      setCurrentView('store');
+    }
+    setSearchOpen(false);
   };
 
+  const tabs = [
+    {
+      id: 'home',
+      label: 'Home',
+      icon: Home,
+      action: () => {
+        setCurrentView('store');
+        setSelectedCategory('all');
+        setSearchQuery('');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+      active: currentView === 'store',
+    },
+    {
+      id: 'search',
+      label: 'Search',
+      icon: Search,
+      action: () => setSearchOpen(true),
+      active: !!searchQuery,
+    },
+    {
+      id: 'categories',
+      label: 'Categories',
+      icon: LayoutGrid,
+      action: () => {
+        setCurrentView('store');
+        setSelectedCategory('all');
+        setTimeout(() => {
+          document.getElementById('category-bar-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      },
+      active: false,
+    },
+    {
+      id: 'wishlist',
+      label: 'Wishlist',
+      icon: Heart,
+      action: () => setCurrentView('account'),
+      active: false,
+      badge: wishCount,
+    },
+    {
+      id: 'account',
+      label: 'Account',
+      icon: User,
+      action: () => setCurrentView('account'),
+      active: currentView === 'account',
+    },
+  ];
+
   return (
-    <div
-      className="mobile-bottom-nav"
-      style={{
+    <>
+      {/* Search overlay */}
+      {searchOpen && (
+        <div
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            zIndex: 1600,
+            display: 'flex', alignItems: 'flex-start', paddingTop: '12px',
+          }}
+          onClick={() => setSearchOpen(false)}
+        >
+          <form
+            onSubmit={handleSearchSubmit}
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: 'calc(100% - 24px)', margin: '0 12px',
+              background: isDark ? '#1e293b' : '#fff',
+              borderRadius: '14px',
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '12px 14px',
+              boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
+              border: `1.5px solid ${isDark ? '#334155' : '#e5e7eb'}`,
+            }}
+          >
+            <Search size={18} color={accent} />
+            <input
+              autoFocus
+              type="text"
+              placeholder="Search products, brands..."
+              value={localSearch}
+              onChange={e => setLocalSearch(e.target.value)}
+              style={{
+                flex: 1, border: 'none', outline: 'none',
+                fontSize: '0.95rem',
+                color: isDark ? '#f1f5f9' : '#111827',
+                background: 'transparent',
+              }}
+            />
+            {localSearch && (
+              <button type="button" onClick={() => setLocalSearch('')}>
+                <X size={16} color={inactiveColor} />
+              </button>
+            )}
+            <button
+              type="submit"
+              style={{
+                background: accent, color: '#fff',
+                borderRadius: '8px', padding: '7px 16px',
+                fontSize: '0.82rem', fontWeight: 700,
+                boxShadow: '0 3px 10px rgba(108,99,255,0.35)',
+              }}
+            >
+              Go
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Bottom nav bar */}
+      <nav style={{
         position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '64px',
-        background: 'var(--bg-glass)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderTop: '1px solid var(--border-subtle)',
+        bottom: 0, left: 0, right: 0,
+        height: '60px',
+        background: navBg,
+        borderTop: `1px solid ${navBorder}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
         zIndex: 1400,
-        padding: '0 8px',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.4)'
-      }}
-    >
-      {/* Home / Shop */}
-      <button
-        onClick={() => {
-          setCurrentView('store');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '3px',
-          flex: 1,
-          height: '100%',
-          color: currentView === 'store' ? 'var(--primary)' : 'var(--text-muted)',
-          transition: 'color var(--transition-fast)'
-        }}
-      >
-        <div style={{
-          padding: '4px 12px',
-          borderRadius: '12px',
-          background: currentView === 'store' ? 'var(--primary-light)' : 'transparent',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <Home size={20} strokeWidth={currentView === 'store' ? 2.5 : 2} />
-        </div>
-        <span style={{ fontSize: '0.68rem', fontWeight: currentView === 'store' ? 800 : 600 }}>Shop</span>
-      </button>
+        boxShadow: isDark ? '0 -4px 20px rgba(0,0,0,0.3)' : '0 -2px 16px rgba(0,0,0,0.07)',
+      }}>
+        {tabs.map(tab => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={tab.action}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2px',
+                flex: 1,
+                height: '100%',
+                color: tab.active ? accent : inactiveColor,
+                position: 'relative',
+                padding: '4px 0 6px',
+                transition: 'color 0.15s',
+              }}
+            >
+              {/* Active indicator bar */}
+              {tab.active && (
+                <div style={{
+                  position: 'absolute', top: 0, left: '25%', right: '25%',
+                  height: '2px', borderRadius: '0 0 4px 4px',
+                  background: accent,
+                }} />
+              )}
 
-      {/* Categories / Explore */}
-      <button
-        onClick={() => {
-          setCurrentView('store');
-          const catEl = document.getElementById('category-bar-section');
-          if (catEl) {
-            catEl.scrollIntoView({ behavior: 'smooth' });
-          } else {
-            window.scrollTo({ top: 350, behavior: 'smooth' });
-          }
-        }}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '3px',
-          flex: 1,
-          height: '100%',
-          color: 'var(--text-muted)'
-        }}
-      >
-        <div style={{
-          padding: '4px 12px',
-          borderRadius: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <LayoutGrid size={20} />
-        </div>
-        <span style={{ fontSize: '0.68rem', fontWeight: 600 }}>Categories</span>
-      </button>
+              <div style={{ position: 'relative' }}>
+                <Icon
+                  size={21}
+                  strokeWidth={tab.active ? 2.5 : 1.8}
+                  fill={tab.id === 'wishlist' && tab.badge > 0 ? '#ef4444' : 'none'}
+                  stroke={tab.id === 'wishlist' && tab.badge > 0 ? '#ef4444' : 'currentColor'}
+                />
+                {tab.badge > 0 && (
+                  <span style={{
+                    position: 'absolute', top: '-5px', right: '-7px',
+                    background: tab.id === 'wishlist' ? '#ef4444' : accent,
+                    color: '#fff',
+                    width: '15px', height: '15px', borderRadius: '50%',
+                    fontSize: '0.56rem', fontWeight: 900,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {tab.badge > 9 ? '9+' : tab.badge}
+                  </span>
+                )}
+              </div>
 
-      {/* Wishlist */}
-      <button
-        onClick={() => {
-          setCurrentView('account');
-        }}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '3px',
-          flex: 1,
-          height: '100%',
-          position: 'relative',
-          color: wishlist.length > 0 ? '#fb7185' : 'var(--text-muted)'
-        }}
-      >
-        <div style={{
-          padding: '4px 12px',
-          borderRadius: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative'
-        }}>
-          <Heart size={20} fill={wishlist.length > 0 ? '#fb7185' : 'none'} strokeWidth={2} />
-          {wishlist.length > 0 && (
+              {/* Cart badge on account? No — this is just tab icons */}
+              <span style={{
+                fontSize: '0.6rem',
+                fontWeight: tab.active ? 800 : 500,
+                lineHeight: 1,
+              }}>
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
+
+        {/* Cart FAB in the center */}
+        <button
+          onClick={() => setIsCartOpen(true)}
+          style={{
+            position: 'absolute',
+            bottom: '14px',
+            right: '12px',
+            width: '42px', height: '42px',
+            borderRadius: '50%',
+            background: `linear-gradient(135deg, ${accent} 0%, #a855f7 100%)`,
+            color: '#fff',
+            display: 'none', // only show on very small screens when needed
+            alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 16px rgba(108,99,255,0.4)',
+          }}
+        >
+          <ShoppingCart size={18} />
+          {cartCount > 0 && (
             <span style={{
-              position: 'absolute',
-              top: '0px',
-              right: '4px',
-              background: 'var(--accent-rose)',
-              color: '#fff',
-              fontSize: '0.62rem',
-              fontWeight: 800,
-              width: '15px',
-              height: '15px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              {wishlist.length}
-            </span>
+              position: 'absolute', top: '0', right: '0',
+              background: '#ef4444', color: '#fff',
+              width: '16px', height: '16px', borderRadius: '50%',
+              fontSize: '0.58rem', fontWeight: 900,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>{cartCount}</span>
           )}
-        </div>
-        <span style={{ fontSize: '0.68rem', fontWeight: 600 }}>Wishlist</span>
-      </button>
-
-      {/* Cart Drawer */}
-      <button
-        onClick={() => setIsCartOpen(true)}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '3px',
-          flex: 1,
-          height: '100%',
-          color: cartItemCount > 0 ? 'var(--primary)' : 'var(--text-muted)'
-        }}
-      >
-        <div style={{
-          padding: '4px 12px',
-          borderRadius: '12px',
-          background: cartItemCount > 0 ? 'var(--primary-light)' : 'transparent',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative'
-        }}>
-          <ShoppingBag size={20} strokeWidth={2} />
-          {cartItemCount > 0 && (
-            <span style={{
-              position: 'absolute',
-              top: '0px',
-              right: '4px',
-              background: 'var(--primary)',
-              color: '#fff',
-              fontSize: '0.62rem',
-              fontWeight: 800,
-              width: '16px',
-              height: '16px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              {cartItemCount}
-            </span>
-          )}
-        </div>
-        <span style={{ fontSize: '0.68rem', fontWeight: cartItemCount > 0 ? 800 : 600 }}>Bag</span>
-      </button>
-
-      {/* Profile / Account */}
-      <button
-        onClick={() => setCurrentView('account')}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '3px',
-          flex: 1,
-          height: '100%',
-          color: currentView === 'account' ? 'var(--primary)' : 'var(--text-muted)'
-        }}
-      >
-        <div style={{
-          padding: '2px',
-          borderRadius: '50%',
-          border: currentView === 'account' ? '2px solid var(--primary)' : '2px solid transparent',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          {user && user.avatar ? (
-            <img
-              src={user.avatar}
-              alt="user"
-              style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }}
-            />
-          ) : (
-            <div style={{
-              width: '22px',
-              height: '22px',
-              borderRadius: '50%',
-              background: 'var(--primary-gradient)',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '0.65rem',
-              fontWeight: 800
-            }}>
-              {getInitials(user?.name)}
-            </div>
-          )}
-        </div>
-        <span style={{ fontSize: '0.68rem', fontWeight: currentView === 'account' ? 800 : 600 }}>Account</span>
-      </button>
-    </div>
+        </button>
+      </nav>
+    </>
   );
 };

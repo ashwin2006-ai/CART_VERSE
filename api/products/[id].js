@@ -1,4 +1,31 @@
-import { INITIAL_PRODUCTS } from '../../src/data/mockData.js';
+const INITIAL_PRODUCTS = [
+  {
+    id: 'mob-1',
+    name: 'Samsung Galaxy S24 Ultra 5G',
+    category: 'mobiles',
+    price: 89999,
+    originalPrice: 109999,
+    discount: 18,
+    rating: 4.8,
+    reviewCount: 5842,
+    stock: 50,
+    featured: true,
+    images: ['https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=800&q=80'],
+  },
+  {
+    id: 'mob-2',
+    name: 'Apple iPhone 15 Pro Max',
+    category: 'mobiles',
+    price: 134900,
+    originalPrice: 159900,
+    discount: 15,
+    rating: 4.9,
+    reviewCount: 9210,
+    stock: 30,
+    featured: true,
+    images: ['https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80'],
+  },
+];
 
 export default function handler(req, res) {
   // Enable CORS

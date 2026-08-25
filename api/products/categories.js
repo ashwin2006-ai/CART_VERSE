@@ -1,4 +1,13 @@
-import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../../src/data/mockData.js';
+const INITIAL_CATEGORIES = [
+  { id: 'all', name: 'For You', icon: 'Sparkles', count: 42 },
+  { id: 'mobiles', name: 'Mobiles', icon: 'Smartphone', count: 7 },
+  { id: 'electronics', name: 'Electronics', icon: 'Laptop', count: 8 },
+  { id: 'fashion', name: 'Fashion', icon: 'Shirt', count: 7 },
+  { id: 'footwear', name: 'Footwear', icon: 'Footprints', count: 5 },
+  { id: 'beauty', name: 'Beauty', icon: 'Sparkles', count: 4 },
+  { id: 'home', name: 'Home', icon: 'Home', count: 6 },
+  { id: 'accessories', name: 'Accessories', icon: 'Watch', count: 5 },
+];
 
 export default function handler(req, res) {
   // Enable CORS
@@ -16,13 +25,12 @@ export default function handler(req, res) {
   }
 
   try {
-    // Map initial categories with product counts
     const categoriesWithCounts = INITIAL_CATEGORIES.map((cat) => ({
       id: cat.id,
       name: cat.name,
       slug: cat.id,
       icon: cat.icon,
-      count: cat.count || INITIAL_PRODUCTS.filter((p) => p.category === cat.id).length,
+      count: cat.count,
     }));
 
     return res.status(200).json({

@@ -1,302 +1,227 @@
 import React, { useState, useEffect } from 'react';
 import { useShop } from '../context/ShopContext';
-import { Sparkles, ArrowRight, Shield, Truck, RotateCcw, Headphones, Flame, Clock } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const SLIDES = [
+  {
+    id: 1,
+    category: 'electronics',
+    title: 'Next-Gen Electronics',
+    sub: 'Laptops · Tablets · Earbuds · Smart Devices',
+    cta: 'Shop Electronics',
+    badge: 'Up to 40% off',
+    bg: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+    accent: '#6C63FF',
+    image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    id: 2,
+    category: 'mobiles',
+    title: 'Premium Smartphones',
+    sub: 'iPhone · Samsung · OnePlus · Redmi',
+    cta: 'Shop Mobiles',
+    badge: 'No Cost EMI',
+    bg: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #2d1b69 100%)',
+    accent: '#a855f7',
+    image: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    id: 3,
+    category: 'fashion',
+    title: 'Elevate Your Style',
+    sub: 'Trending outfits for every occasion',
+    cta: 'Shop Fashion',
+    badge: 'Min 40% off',
+    bg: 'linear-gradient(135deg, #1a0a2e 0%, #2d1b69 50%, #4a1942 100%)',
+    accent: '#ec4899',
+    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    id: 4,
+    category: 'home',
+    title: 'Beautiful Living Spaces',
+    sub: 'Furniture · Decor · Kitchen · Appliances',
+    cta: 'Shop Home',
+    badge: 'Up to 35% off',
+    bg: 'linear-gradient(135deg, #0a1628 0%, #1e3a5f 50%, #0d4f3c 100%)',
+    accent: '#10b981',
+    image: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=600&q=80',
+  },
+];
 
 export const HeroBanner = () => {
-  const { setSelectedCategory, setActiveProductId, setIsAiAssistantOpen } = useShop();
+  const { setSelectedCategory } = useShop();
+  const [cur, setCur] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  const slides = [
-    {
-      id: 'slide-1',
-      badge: 'SPRING / SUMMER 2026',
-      title: 'Acoustic Mastery Meets Futuristic Design',
-      subtitle: 'Experience soundscapes with hybrid active noise cancellation, custom beryllium drivers & 45-hour battery reserve.',
-      cta: 'Explore SoundPro',
-      category: 'electronics',
-      productId: 'prod-1',
-      bgGradient: 'linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(236, 72, 153, 0.15) 100%)',
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1000&q=80',
-      tag: '🔥 33% Off Flash Deal'
-    },
-    {
-      id: 'slide-2',
-      badge: 'LIMITED RUN ACCESSORIES',
-      title: 'Aerospace Grade Titanium Smartwatch',
-      subtitle: 'Always-on Sapphire AMOLED display, dual GPS navigation, ECG heart analytics and 14-day battery longevity.',
-      cta: 'Discover Lumina',
-      category: 'accessories',
-      productId: 'prod-2',
-      bgGradient: 'linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(99, 102, 241, 0.15) 100%)',
-      image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=80',
-      tag: '⚡ New Arrival'
-    },
-    {
-      id: 'slide-3',
-      badge: 'PRO ATHLETIC GEAR',
-      title: 'Carbon-Plated Marathon Propulsion',
-      subtitle: 'Engineered with nitrogen-infused foam and 3K carbon flight plates for maximum kinetic energy return.',
-      cta: 'Shop Velocity Aero',
-      category: 'footwear',
-      productId: 'prod-4',
-      bgGradient: 'linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(245, 158, 11, 0.15) 100%)',
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=80',
-      tag: '⭐ Best Seller'
-    }
-  ];
-
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Auto rotate carousel every 6 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % slides.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, [slides.length]);
-
-  // Flash Sale Countdown simulation
-  const [timeLeft, setTimeLeft] = useState({ hours: 7, minutes: 42, seconds: 18 });
+  const goTo = (idx) => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCur(idx);
+    setTimeout(() => setIsAnimating(false), 350);
+  };
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return { hours: 8, minutes: 0, seconds: 0 };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    const t = setInterval(() => goTo((cur + 1) % SLIDES.length), 5000);
+    return () => clearInterval(t);
+  }, [cur]);
 
-  const slide = slides[currentSlide];
+  const slide = SLIDES[cur];
 
   return (
-    <div style={{ marginTop: '20px', marginBottom: '32px' }}>
-      <div className="container">
-        {/* Main Hero Card */}
-        <div
-          className="glass-panel"
+    <div style={{
+      position: 'relative',
+      overflow: 'hidden',
+      borderRadius: '0',
+      margin: '0',
+    }}>
+      <div
+        style={{
+          background: slide.bg,
+          transition: 'background 0.5s ease',
+          minHeight: '220px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '28px 20px 28px 24px',
+          gap: '16px',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Background grid decoration */}
+        <div style={{
+          position: 'absolute', inset: 0, opacity: 0.04,
+          backgroundImage: `repeating-linear-gradient(0deg, #fff 0, #fff 1px, transparent 1px, transparent 40px),
+            repeating-linear-gradient(90deg, #fff 0, #fff 1px, transparent 1px, transparent 40px)`,
+          pointerEvents: 'none',
+        }} />
+
+        {/* Glow orb */}
+        <div style={{
+          position: 'absolute', right: '30%', top: '-30%',
+          width: '300px', height: '300px', borderRadius: '50%',
+          background: `radial-gradient(circle, ${slide.accent}40 0%, transparent 70%)`,
+          pointerEvents: 'none',
+        }} />
+
+        {/* Left: Text content */}
+        <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            background: `${slide.accent}25`,
+            border: `1px solid ${slide.accent}50`,
+            borderRadius: '100px', padding: '4px 12px',
+            marginBottom: '12px',
+          }}>
+            <span style={{
+              fontSize: '0.7rem', fontWeight: 800, color: slide.accent,
+              textTransform: 'uppercase', letterSpacing: '0.05em',
+            }}>
+              {slide.badge}
+            </span>
+          </div>
+
+          <h1 style={{
+            fontSize: 'clamp(1.3rem, 5vw, 2rem)',
+            fontWeight: 900, color: '#ffffff',
+            lineHeight: 1.2, marginBottom: '8px',
+            letterSpacing: '-0.02em',
+            fontFamily: "'Inter', sans-serif",
+          }}>
+            {slide.title}
+          </h1>
+
+          <p style={{
+            fontSize: '0.82rem', color: 'rgba(255,255,255,0.65)',
+            marginBottom: '18px', lineHeight: 1.5,
+          }}>
+            {slide.sub}
+          </p>
+
+          <button
+            onClick={() => setSelectedCategory(slide.category)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: slide.accent,
+              color: '#fff', borderRadius: '10px',
+              padding: '10px 20px', fontSize: '0.84rem', fontWeight: 700,
+              boxShadow: `0 6px 20px ${slide.accent}50`,
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+          >
+            {slide.cta} <ArrowRight size={15} />
+          </button>
+        </div>
+
+        {/* Right: Product image */}
+        <div style={{
+          flexShrink: 0, width: '130px', height: '130px',
+          borderRadius: '16px', overflow: 'hidden',
+          boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
+          border: '2px solid rgba(255,255,255,0.1)',
+          position: 'relative', zIndex: 1,
+        }}>
+          <img
+            key={slide.id}
+            src={slide.image}
+            alt={slide.title}
+            style={{
+              width: '100%', height: '100%', objectFit: 'cover',
+              animation: 'fadeIn 0.4s ease',
+            }}
+          />
+        </div>
+
+        {/* Prev/Next arrows */}
+        <button
+          onClick={() => goTo((cur - 1 + SLIDES.length) % SLIDES.length)}
           style={{
-            position: 'relative',
-            overflow: 'hidden',
-            borderRadius: 'var(--radius-xl)',
-            border: '1px solid var(--border-subtle)',
-            background: slide.bgGradient,
-            boxShadow: 'var(--shadow-lg)',
-            transition: 'background 0.8s ease'
+            position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)',
+            background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)',
+            borderRadius: '50%', width: '30px', height: '30px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', zIndex: 2,
           }}
         >
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            alignItems: 'center',
-            padding: '48px 40px',
-            gap: '36px',
-            position: 'relative',
-            zIndex: 2
-          }}>
-            {/* Left Content */}
-            <div className="animate-fade-in" key={slide.id}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                <span className="badge badge-primary">{slide.badge}</span>
-                <span className="badge badge-gold">{slide.tag}</span>
-              </div>
-
-              <h1 style={{
-                fontSize: 'clamp(2rem, 4vw, 3.2rem)',
-                fontWeight: 900,
-                lineHeight: 1.15,
-                marginBottom: '16px',
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.03em'
-              }}>
-                {slide.title}
-              </h1>
-
-              <p style={{
-                fontSize: '1.05rem',
-                color: 'var(--text-secondary)',
-                marginBottom: '28px',
-                maxWidth: '520px',
-                lineHeight: 1.6
-              }}>
-                {slide.subtitle}
-              </p>
-
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center' }}>
-                <button
-                  onClick={() => setActiveProductId(slide.productId)}
-                  className="btn btn-primary btn-lg"
-                  style={{ gap: '10px' }}
-                >
-                  <span>{slide.cta}</span>
-                  <ArrowRight size={18} />
-                </button>
-
-                <button
-                  onClick={() => setIsAiAssistantOpen(true)}
-                  className="btn btn-secondary btn-lg"
-                  style={{ gap: '8px' }}
-                >
-                  <Sparkles size={18} style={{ color: 'var(--primary)' }} />
-                  <span>Ask AI Stylist</span>
-                </button>
-              </div>
-
-              {/* Flash Deal Timer Pill */}
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '12px',
-                marginTop: '28px',
-                padding: '8px 16px',
-                borderRadius: 'var(--radius-full)',
-                background: 'var(--bg-card-solid)',
-                border: '1px solid var(--border-subtle)'
-              }}>
-                <Flame size={18} style={{ color: '#f59e0b' }} />
-                <span style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  Deals end in:
-                </span>
-                <div style={{
-                  display: 'flex',
-                  gap: '6px',
-                  fontFamily: 'monospace',
-                  fontWeight: 800,
-                  fontSize: '0.9rem',
-                  color: 'var(--text-primary)'
-                }}>
-                  <span style={{ background: 'var(--bg-surface)', padding: '2px 6px', borderRadius: '4px' }}>
-                    {String(timeLeft.hours).padStart(2, '0')}h
-                  </span>
-                  :
-                  <span style={{ background: 'var(--bg-surface)', padding: '2px 6px', borderRadius: '4px' }}>
-                    {String(timeLeft.minutes).padStart(2, '0')}m
-                  </span>
-                  :
-                  <span style={{ background: 'var(--bg-surface)', padding: '2px 6px', borderRadius: '4px' }}>
-                    {String(timeLeft.seconds).padStart(2, '0')}s
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Media */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'relative'
-            }}>
-              <div style={{
-                position: 'relative',
-                width: '100%',
-                maxWidth: '440px',
-                aspectRatio: '1/1',
-                borderRadius: 'var(--radius-lg)',
-                overflow: 'hidden',
-                boxShadow: 'var(--shadow-glow)',
-                border: '1px solid var(--border-highlight)'
-              }}>
-                <img
-                  src={slide.image}
-                  alt={slide.title}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    transition: 'transform 0.6s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Carousel Dots */}
-          <div style={{
-            position: 'absolute',
-            bottom: '16px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            gap: '8px',
-            zIndex: 10
-          }}>
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                style={{
-                  width: currentSlide === idx ? '28px' : '8px',
-                  height: '8px',
-                  borderRadius: '4px',
-                  background: currentSlide === idx ? 'var(--primary)' : 'rgba(255, 255, 255, 0.25)',
-                  transition: 'all 0.3s ease'
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Value Propositions / Trust Badges Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px',
-          marginTop: '20px'
-        }}>
-          {[
-            { icon: Truck, title: 'Express Delivery', desc: 'Free express delivery over ₹999' },
-            { icon: Shield, title: '100% Authentic Guarantee', desc: 'Direct from verified craft houses' },
-            { icon: RotateCcw, title: '30-Day Hassle-Free Returns', desc: 'Instant doorstep pickups' },
-            { icon: Headphones, title: '24/7 VIP Concierge', desc: 'Dedicated client support' }
-          ].map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={idx}
-                className="glass-panel"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '14px',
-                  padding: '16px 20px',
-                  borderRadius: 'var(--radius-md)',
-                  transition: 'var(--transition-fast)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                <div style={{
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '10px',
-                  background: 'var(--primary-light)',
-                  color: 'var(--primary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <Icon size={20} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                    {item.title}
-                  </div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                    {item.desc}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+          <ChevronLeft size={16} />
+        </button>
+        <button
+          onClick={() => goTo((cur + 1) % SLIDES.length)}
+          style={{
+            position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+            background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)',
+            borderRadius: '50%', width: '30px', height: '30px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', zIndex: 2,
+          }}
+        >
+          <ChevronRight size={16} />
+        </button>
       </div>
+
+      {/* Dot indicators */}
+      <div style={{
+        position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', gap: '6px', zIndex: 2,
+      }}>
+        {SLIDES.map((s, i) => (
+          <button
+            key={s.id}
+            onClick={() => goTo(i)}
+            style={{
+              width: i === cur ? '20px' : '6px', height: '6px',
+              borderRadius: '100px',
+              background: i === cur ? '#fff' : 'rgba(255,255,255,0.4)',
+              transition: 'all 0.3s',
+            }}
+          />
+        ))}
+      </div>
+
+      <style>{`@keyframes fadeIn { from { opacity: 0.4; transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }`}</style>
     </div>
   );
 };

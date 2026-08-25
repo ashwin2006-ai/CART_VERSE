@@ -41,8 +41,14 @@ export const AiAssistant = () => {
 
   // -------------------------------------------------------------
   // MOVABLE / DRAGGABLE BUTTON LOGIC (Desktop + Mobile Touch)
+  // Button is right-anchored by default so it's always fully visible
   // -------------------------------------------------------------
-  const [btnPos, setBtnPos] = useState({ x: window.innerWidth - 180, y: window.innerHeight - 80 });
+  const BTN_SIZE = 60; // button diameter + padding
+  const getDefaultPos = () => ({
+    x: window.innerWidth - BTN_SIZE - 20,
+    y: window.innerHeight - BTN_SIZE - 90
+  });
+  const [btnPos, setBtnPos] = useState(getDefaultPos);
   const isDraggingRef = useRef(false);
   const dragStartRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
   const hasMovedRef = useRef(false);
@@ -50,8 +56,8 @@ export const AiAssistant = () => {
   useEffect(() => {
     const handleResize = () => {
       setBtnPos(prev => ({
-        x: Math.min(prev.x, window.innerWidth - 170),
-        y: Math.min(prev.y, window.innerHeight - 80)
+        x: Math.min(prev.x, window.innerWidth - BTN_SIZE - 10),
+        y: Math.min(prev.y, window.innerHeight - BTN_SIZE - 10)
       }));
     };
     window.addEventListener('resize', handleResize);
@@ -79,8 +85,8 @@ export const AiAssistant = () => {
       hasMovedRef.current = true;
     }
 
-    const newX = Math.max(10, Math.min(window.innerWidth - 170, dragStartRef.current.initialX + deltaX));
-    const newY = Math.max(10, Math.min(window.innerHeight - 70, dragStartRef.current.initialY + deltaY));
+    const newX = Math.max(10, Math.min(window.innerWidth - BTN_SIZE - 10, dragStartRef.current.initialX + deltaX));
+    const newY = Math.max(60, Math.min(window.innerHeight - BTN_SIZE - 10, dragStartRef.current.initialY + deltaY));
 
     setBtnPos({ x: newX, y: newY });
   };
@@ -284,10 +290,10 @@ export const AiAssistant = () => {
                 <Sparkles size={18} />
               </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>Cartverse AI Concierge</div>
+                <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>CartVerse Assistant</div>
                 <div style={{ fontSize: '0.72rem', opacity: 0.85, display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
-                  Online & Ready
+                  Online · Ready to help
                 </div>
               </div>
             </div>

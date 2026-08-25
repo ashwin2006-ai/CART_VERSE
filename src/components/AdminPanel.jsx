@@ -140,6 +140,53 @@ export const AdminPanel = () => {
     return revs.map(r => ({ ...r, productId: prodId, productName: prod ? prod.name : prodId }));
   });
 
+  // Registered Users (local + API)
+  const [registeredUsers, setRegisteredUsers] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('cartverse_local_users') || '[]'); } catch { return []; }
+  });
+  const [apiUsers, setApiUsers] = useState([]);
+  const [apiUserCount, setApiUserCount] = useState(null);
+  const [userSearch, setUserSearch] = useState('');
+
+  React.useEffect(() => {
+    // Fetch user count
+    fetch('/api/auth/stats')
+      .then(r => r.json())
+      .then(d => { if (d.success) setApiUserCount(d.totalUsers); })
+      .catch(() => {});
+
+    // Fetch user list from MySQL
+    fetch('/api/auth/users?limit=200')
+      .then(r => r.json())
+      .then(d => { if (d.success && d.data) setApiUsers(d.data); })
+      .catch(() => {});
+  }, []);
+
+  // Merge API users + local users (deduplicate by email)
+  const allUsers = React.useMemo(() => {
+    const localUsers = registeredUsers.map(u => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      phone: u.phone || '',
+      tier: u.tier || 'Standard Member',
+      rewardPoints: u.rewardPoints || 100,
+      joinedAt: u.id ? new Date(parseInt(u.id.replace('local-', ''))).toISOString() : new Date().toISOString(),
+      orderCount: orders.filter(o => o.userId === u.id).length,
+      avatar: u.avatar || '',
+      source: 'local'
+    }));
+    const apiEmails = new Set(apiUsers.map(u => u.email));
+    const uniqueLocal = localUsers.filter(u => !apiEmails.has(u.email));
+    return [...apiUsers.map(u => ({ ...u, source: 'mysql' })), ...uniqueLocal];
+  }, [apiUsers, registeredUsers, orders]);
+
+  const totalUserCount = apiUserCount ?? allUsers.length;
+  const filteredUsers = allUsers.filter(u =>
+    (u.name || '').toLowerCase().includes(userSearch.toLowerCase()) ||
+    (u.email || '').toLowerCase().includes(userSearch.toLowerCase())
+  );
+
   // Handlers
   const handleOpenProductModal = (prod = null) => {
     if (prod) {
@@ -550,6 +597,21 @@ export const AdminPanel = () => {
                     {lowStockItems.length} low stock, {outOfStockItems.length} out of stock
                   </div>
                 </div>
+
+                {/* User Count KPI */}
+                <div className="glass-panel" style={{ padding: '22px', cursor: 'pointer', border: activeTab === 'customers' ? '2px solid var(--primary)' : undefined }} onClick={() => setActiveTab('customers')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' }}>Registered Users</span>
+                    <Users size={18} style={{ color: '#2874f0' }} />
+                  </div>
+                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                    {totalUserCount.toLocaleString('en-IN')}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', marginTop: '4px', color: '#2874f0', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
+                    {apiUserCount ? 'Live from database' : `${registeredUsers.length} locally tracked`}
+                  </div>
+                </div>
               </div>
 
               {/* Two Column Layout: Sales Graph & Recent Orders */}
@@ -922,7 +984,149 @@ export const AdminPanel = () => {
             </div>
           )}
 
-          {/* 5. ORDER MANAGEMENT */}
+          {/* 5. CUSTOMER MANAGEMENT */}
+          {activeTab === 'customers' && (
+            <div className="animate-fade-in">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                <div>
+                  <h1 style={{ fontSize: '1.75rem', fontWeight: 900 }}>Customer Management</h1>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    All registered users • Total: <strong style={{ color: '#2874f0' }}>{totalUserCount.toLocaleString('en-IN')}</strong> accounts
+                    {apiUserCount && <span style={{ marginLeft: '8px', color: '#388e3c', fontSize: '0.78rem', fontWeight: 700 }}>&#11044; Live from MySQL</span>}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)', padding: '0 12px', border: '1px solid var(--border-subtle)' }}>
+                    <Search size={15} style={{ color: 'var(--text-muted)', marginRight: '8px' }} />
+                    <input
+                      type="text"
+                      placeholder="Search users..."
+                      value={userSearch}
+                      onChange={e => setUserSearch(e.target.value)}
+                      style={{ border: 'none', background: 'transparent', padding: '8px 0', fontSize: '0.84rem', outline: 'none', width: '200px' }}
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      const fresh = JSON.parse(localStorage.getItem('cartverse_local_users') || '[]');
+                      setRegisteredUsers(fresh);
+                      fetch('/api/auth/users?limit=200').then(r => r.json()).then(d => { if (d.success) setApiUsers(d.data); }).catch(() => {});
+                    }}
+                    className="btn btn-secondary btn-sm"
+                    style={{ gap: '6px', fontSize: '0.8rem' }}
+                  >
+                    <RotateCcw size={13} /> Refresh
+                  </button>
+                  <button
+                    onClick={() => {
+                      const csv = ['#,Name,Email,Phone,Tier,Points,Orders,Joined,Source',
+                        ...filteredUsers.map((u, i) => `${i+1},"${u.name}","${u.email}","${u.phone}","${u.tier}",${u.rewardPoints},${u.orderCount || 0},"${u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('en-IN') : ''}",${u.source}`)
+                      ].join('\n');
+                      const blob = new Blob([csv], { type: 'text/csv' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a'); a.href = url; a.download = 'cartverse_customers.csv'; a.click();
+                    }}
+                    className="btn btn-secondary btn-sm"
+                    style={{ gap: '6px', fontSize: '0.8rem' }}
+                  >
+                    ↓ Export CSV
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats row */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                {[
+                  { label: 'Total Users', value: totalUserCount, color: '#2874f0', icon: '\uD83D\uDC65' },
+                  { label: 'MySQL Users', value: apiUsers.length, color: '#388e3c', icon: '\uD83D\uDDC4\uFE0F' },
+                  { label: 'Local Users', value: registeredUsers.length, color: '#7c3aed', icon: '\uD83E\uDDD1' },
+                  { label: 'Total Orders', value: allUsers.reduce((s, u) => s + (u.orderCount || 0), 0), color: '#f59e0b', icon: '\uD83D\uDCE6' },
+                ].map(stat => (
+                  <div key={stat.label} className="glass-panel" style={{ padding: '18px 20px' }}>
+                    <div style={{ fontSize: '1.4rem', marginBottom: '4px' }}>{stat.icon}</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: stat.color }}>{typeof stat.value === 'number' ? stat.value.toLocaleString('en-IN') : stat.value}</div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Users Table */}
+              <div className="glass-panel" style={{ overflowX: 'auto', borderRadius: 'var(--radius-lg)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                  <thead>
+                    <tr style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-subtle)', textAlign: 'left' }}>
+                      <th style={{ padding: '14px 16px' }}>#</th>
+                      <th style={{ padding: '14px 16px' }}>User</th>
+                      <th style={{ padding: '14px 16px' }}>Email</th>
+                      <th style={{ padding: '14px 16px' }}>Phone</th>
+                      <th style={{ padding: '14px 16px' }}>Tier</th>
+                      <th style={{ padding: '14px 16px' }}>Points</th>
+                      <th style={{ padding: '14px 16px' }}>Orders</th>
+                      <th style={{ padding: '14px 16px' }}>Joined</th>
+                      <th style={{ padding: '14px 16px' }}>Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={9} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                          {userSearch ? 'No users match your search.' : 'No registered users yet. Users who register on the site will appear here.'}
+                        </td>
+                      </tr>
+                    ) : filteredUsers.map((u, idx) => (
+                      <tr key={u.id || idx} style={{ borderBottom: '1px solid var(--border-subtle)', transition: 'background 0.1s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-surface)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <td style={{ padding: '12px 16px', color: 'var(--text-muted)', fontWeight: 600 }}>{idx + 1}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            {u.avatar ? (
+                              <img src={u.avatar} alt={u.name} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#2874f0', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.82rem', flexShrink: 0 }}>
+                                {(u.name || 'U').slice(0, 2).toUpperCase()}
+                              </div>
+                            )}
+                            <span style={{ fontWeight: 700 }}>{u.name || '—'}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '12px 16px', color: 'var(--text-secondary)' }}>{u.email}</td>
+                        <td style={{ padding: '12px 16px', color: 'var(--text-secondary)' }}>{u.phone || '—'}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{ background: u.tier !== 'Standard Member' ? 'rgba(245,158,11,0.15)' : 'var(--bg-surface)', color: u.tier !== 'Standard Member' ? '#f59e0b' : 'var(--text-muted)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}>
+                            {u.tier || 'Standard Member'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 16px', fontWeight: 700, color: '#7c3aed' }}>
+                          {(u.rewardPoints || 0).toLocaleString('en-IN')} pts
+                        </td>
+                        <td style={{ padding: '12px 16px', fontWeight: 700, color: '#2874f0' }}>
+                          {u.orderCount || 0}
+                        </td>
+                        <td style={{ padding: '12px 16px', color: 'var(--text-secondary)', fontSize: '0.78rem' }}>
+                          {u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                        </td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span style={{ background: u.source === 'mysql' ? 'rgba(56,142,60,0.12)' : 'rgba(124,58,237,0.12)', color: u.source === 'mysql' ? '#388e3c' : '#7c3aed', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700 }}>
+                            {u.source === 'mysql' ? 'MySQL' : 'Local'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {apiUserCount && apiUserCount > allUsers.length && (
+                <div style={{ marginTop: '16px', padding: '12px 16px', background: 'rgba(40,116,240,0.08)', borderRadius: '8px', fontSize: '0.82rem', color: '#2874f0', fontWeight: 600 }}>
+                  ℹ️ {apiUserCount - allUsers.length} additional users may be in MySQL. Start Docker to load all user data.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 6. ORDER MANAGEMENT */}
           {activeTab === 'orders' && (
             <div className="animate-fade-in">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
@@ -1036,53 +1240,8 @@ export const AdminPanel = () => {
           )}
 
           {/* 6. CUSTOMER MANAGEMENT */}
-          {activeTab === 'customers' && (
-            <div className="animate-fade-in">
-              <div style={{ marginBottom: '24px' }}>
-                <h1 style={{ fontSize: '1.75rem', fontWeight: 900 }}>Customer Directory & Accounts</h1>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  View authenticated buyer profiles, lifetime spend, reward points, and order records.
-                </p>
-              </div>
-
-              <div className="glass-panel" style={{ padding: '24px' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '16px',
-                  padding: '18px',
-                  background: 'var(--bg-surface)',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--border-subtle)'
-                }}>
-                  <img src={user.avatar} alt={user.name} style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{user.name}</h3>
-                      <span className="badge badge-gold">{user.tier}</span>
-                      <span className="badge badge-emerald">Active Account</span>
-                    </div>
-                    <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      {user.email} • {user.phone} • Member since {user.memberSince}
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                      Primary Address: {user.addresses[0]?.street}, {user.addresses[0]?.city}
-                    </div>
-                  </div>
-
-                  <div style={{ textAlign: 'right', paddingLeft: '20px', borderLeft: '1px solid var(--border-subtle)' }}>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--primary)' }}>
-                      ₹{totalRevenue.toLocaleString('en-IN')}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lifetime Spend ({orders.length} orders)</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--accent-gold)', fontWeight: 700, marginTop: '2px' }}>
-                      {user.rewardPoints} Loyalty Points
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Customer Directory — rendered in the main customers block above */}
+          {activeTab === 'customers' && null}
 
           {/* 7. COUPONS & OFFERS */}
           {activeTab === 'coupons' && (

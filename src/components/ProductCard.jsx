@@ -1,359 +1,252 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
-import { Star, Heart, Eye, ShoppingBag, Zap, Check, ExternalLink } from 'lucide-react';
+import { Star, Heart, ShoppingCart, Zap } from 'lucide-react';
 
-export const ProductCard = ({ product }) => {
-  const {
-    wishlist,
-    toggleWishlist,
-    setActiveProductId,
-    addToCart,
-    buyNow,
-    recordRecentlyViewed
-  } = useShop();
+export const ProductCard = ({ product, compact = false }) => {
+  const { wishlist, toggleWishlist, setActiveProductId, addToCart, recordRecentlyViewed, theme } = useShop();
+  const [imgErr, setImgErr] = useState(false);
+  const [addedAnim, setAddedAnim] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  const isDark = theme === 'dark';
+  const accent = '#6C63FF';
 
   const isWishlisted = wishlist.includes(product.id);
   const isOutOfStock = product.stock <= 0;
   const isLowStock = product.stock > 0 && product.stock <= 5;
-  const isFlipkart = !!product.isFlipkart || !!product.affiliateUrl;
+  const discount = product.discount || (
+    product.originalPrice > product.price
+      ? Math.round((product.originalPrice - product.price) / product.originalPrice * 100)
+      : 0
+  );
 
-  const handleCardClick = () => {
-    recordRecentlyViewed(product.id);
-    setActiveProductId(product.id);
-  };
+  const imgSrc = imgErr
+    ? 'https://placehold.co/300x300/f3f4f6/9ca3af?text=No+Image'
+    : (Array.isArray(product.images) ? product.images[0] : (product.images || product.imageUrl || ''));
 
-  const handleFlipkartRedirect = (e) => {
+  const handleClick = () => { recordRecentlyViewed(product.id); setActiveProductId(product.id); };
+  const handleCart = (e) => {
     e.stopPropagation();
-    const url = product.affiliateUrl || product.productUrl || 'https://www.flipkart.com';
-    window.open(url, '_blank', 'noopener,noreferrer');
+    if (isOutOfStock) return;
+    addToCart(product, 1);
+    setAddedAnim(true);
+    setTimeout(() => setAddedAnim(false), 1500);
   };
 
   return (
     <div
-      className="glass-panel"
+      onClick={handleClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        borderRadius: 'var(--radius-lg)',
+        background: isDark ? '#1e293b' : '#ffffff',
+        borderRadius: '14px',
         overflow: 'hidden',
+        cursor: 'pointer',
+        border: `1.5px solid ${hovered ? (isDark ? '#334155' : '#e0e7ff') : (isDark ? '#1e293b' : '#f1f5f9')}`,
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
-        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-        border: isFlipkart ? '1px solid rgba(40, 116, 240, 0.4)' : '1px solid var(--border-subtle)',
-        background: 'var(--bg-card)'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-6px)';
-        e.currentTarget.style.borderColor = isFlipkart ? '#2874f0' : 'var(--border-active)';
-        e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.borderColor = isFlipkart ? 'rgba(40, 116, 240, 0.4)' : 'var(--border-subtle)';
-        e.currentTarget.style.boxShadow = 'none';
+        transition: 'box-shadow 0.2s, transform 0.2s, border-color 0.2s',
+        height: '100%',
+        boxShadow: hovered
+          ? isDark ? '0 8px 30px rgba(0,0,0,0.4)' : '0 8px 30px rgba(108,99,255,0.12)'
+          : isDark ? '0 2px 8px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.05)',
+        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
       }}
     >
-      {/* Top Image Box */}
-      <div
-        onClick={handleCardClick}
-        style={{
-          position: 'relative',
-          width: '100%',
-          paddingTop: '90%',
-          cursor: 'pointer',
-          overflow: 'hidden',
-          background: 'var(--bg-surface)'
-        }}
-      >
+      {/* Image container */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        paddingTop: compact ? '78%' : '86%',
+        background: isDark ? '#0f172a' : '#f8fafc',
+        overflow: 'hidden',
+        flexShrink: 0,
+      }}>
         <img
-          src={product.images ? product.images[0] : (product.imageUrl || '')}
+          src={imgSrc}
           alt={product.name}
+          onError={() => setImgErr(true)}
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transition: 'transform 0.5s ease'
+            position: 'absolute', top: 0, left: 0,
+            width: '100%', height: '100%', objectFit: 'contain',
+            padding: '10px',
+            transition: 'transform 0.4s ease',
+            transform: hovered && !isOutOfStock ? 'scale(1.06)' : 'scale(1)',
           }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         />
 
-        {/* Badges Overlay */}
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          left: '12px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '6px',
-          zIndex: 2
-        }}>
-          {isFlipkart && (
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '3px 8px',
-              borderRadius: '4px',
-              background: '#2874f0',
-              color: '#ffffff',
-              fontSize: '0.68rem',
-              fontWeight: 800,
-              boxShadow: '0 2px 8px rgba(40, 116, 240, 0.4)'
-            }}>
-              🛍️ Marketplace Partner (Flipkart)
-            </span>
-          )}
-
-          {product.discount > 0 && (
-            <span className="badge badge-rose" style={{ boxShadow: '0 2px 8px rgba(244, 63, 94, 0.3)' }}>
-              -{product.discount}% OFF
-            </span>
-          )}
-          {product.bestSeller && !isFlipkart && (
-            <span className="badge badge-gold">
-              Best Seller
-            </span>
-          )}
-          {product.isNew && (
-            <span className="badge badge-primary">
-              New Arrival
-            </span>
-          )}
-        </div>
-
-        {/* Wishlist Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleWishlist(product.id);
-          }}
-          style={{
-            position: 'absolute',
-            top: '12px',
-            right: '12px',
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            background: 'rgba(15, 23, 42, 0.7)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid var(--border-subtle)',
-            color: isWishlisted ? '#f43f5e' : 'var(--text-primary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 3,
-            transition: 'var(--transition-fast)'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.15)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
-        >
-          <Heart size={18} fill={isWishlisted ? '#f43f5e' : 'none'} />
-        </button>
-
-        {/* Quick View Button on Image Bottom */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleCardClick();
-          }}
-          style={{
-            position: 'absolute',
-            bottom: '12px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'rgba(15, 23, 42, 0.85)',
-            backdropFilter: 'blur(8px)',
-            color: '#ffffff',
-            border: '1px solid var(--border-highlight)',
-            padding: '6px 14px',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            zIndex: 2,
-            opacity: 0.9,
-            transition: 'var(--transition-fast)'
-          }}
-        >
-          <Eye size={14} /> Quick View
-        </button>
-      </div>
-
-      {/* Product Details Content */}
-      <div style={{
-        padding: '16px',
-        display: 'flex',
-        flexDirection: 'column',
-        flex: 1
-      }}>
-        {/* Category & Ratings */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '6px'
-        }}>
-          <span style={{
-            fontSize: '0.74rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            fontWeight: 700,
-            color: isFlipkart ? '#38bdf8' : 'var(--text-muted)'
+        {/* Discount badge */}
+        {discount >= 5 && !isOutOfStock && (
+          <div style={{
+            position: 'absolute', top: '8px', left: '8px',
+            background: accent,
+            color: '#fff',
+            fontSize: '0.62rem', fontWeight: 800,
+            padding: '3px 8px',
+            borderRadius: '100px',
+            letterSpacing: '0.02em',
           }}>
-            {isFlipkart ? `Flipkart • ${product.category || 'General'}` : product.category}
-          </span>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Star size={14} fill="#f59e0b" color="#f59e0b" />
-            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-              {product.rating}
-            </span>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-              ({product.reviewCount})
-            </span>
-          </div>
-        </div>
-
-        {/* Title */}
-        <h3
-          onClick={handleCardClick}
-          style={{
-            fontSize: '0.98rem',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-            lineHeight: 1.35,
-            marginBottom: '10px',
-            cursor: 'pointer',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
-          }}
-        >
-          {product.name}
-        </h3>
-
-        {/* Price & Stock info */}
-        <div style={{
-          marginTop: 'auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
-          marginBottom: '14px'
-        }}>
-          <div>
-            <span style={{
-              fontSize: '1.25rem',
-              fontWeight: 800,
-              color: 'var(--text-primary)',
-              fontFamily: 'var(--font-heading)'
-            }}>
-              ₹{Number(product.price).toLocaleString('en-IN')}
-            </span>
-            {product.originalPrice && (
-              <span style={{
-                fontSize: '0.85rem',
-                color: 'var(--text-muted)',
-                textDecoration: 'line-through',
-                marginLeft: '8px'
-              }}>
-                ₹{Number(product.originalPrice).toLocaleString('en-IN')}
-              </span>
-            )}
-          </div>
-
-          <div>
-            {isFlipkart ? (
-              <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#38bdf8' }}>
-                Verified Partner
-              </span>
-            ) : isOutOfStock ? (
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-rose)' }}>
-                Out of Stock
-              </span>
-            ) : isLowStock ? (
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-gold)' }}>
-                Only {product.stock} left!
-              </span>
-            ) : (
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                <Check size={12} /> In Stock
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Card Action Buttons */}
-        {isFlipkart ? (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '8px' }}>
-            <button
-              onClick={handleCardClick}
-              className="btn btn-secondary btn-sm"
-              style={{
-                gap: '4px',
-                fontSize: '0.78rem',
-                padding: '8px 6px'
-              }}
-            >
-              <Eye size={14} />
-              <span>Details</span>
-            </button>
-
-            <button
-              onClick={handleFlipkartRedirect}
-              className="btn btn-primary btn-sm"
-              style={{
-                gap: '6px',
-                fontSize: '0.8rem',
-                padding: '8px 10px',
-                background: 'linear-gradient(135deg, #2874f0 0%, #0c4a6e 100%)',
-                borderColor: '#2874f0'
-              }}
-              title="Redirects to official Flipkart affiliate page"
-            >
-              <span>Buy on Flipkart</span>
-              <ExternalLink size={14} />
-            </button>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button
-              disabled={isOutOfStock}
-              onClick={() => addToCart(product, 1)}
-              className="btn btn-secondary btn-sm"
-              style={{
-                gap: '6px',
-                fontSize: '0.8rem',
-                padding: '8px 10px',
-                opacity: isOutOfStock ? 0.5 : 1
-              }}
-            >
-              <ShoppingBag size={15} />
-              <span>Add to Bag</span>
-            </button>
-
-            <button
-              disabled={isOutOfStock}
-              onClick={() => buyNow(product)}
-              className="btn btn-primary btn-sm"
-              style={{
-                gap: '6px',
-                fontSize: '0.8rem',
-                padding: '8px 10px',
-                opacity: isOutOfStock ? 0.5 : 1
-              }}
-            >
-              <Zap size={14} />
-              <span>Buy Now</span>
-            </button>
+            {discount}% OFF
           </div>
         )}
+
+        {/* New badge */}
+        {product.isNew && !discount && (
+          <div style={{
+            position: 'absolute', top: '8px', left: '8px',
+            background: '#10b981',
+            color: '#fff', fontSize: '0.62rem', fontWeight: 800,
+            padding: '3px 8px', borderRadius: '100px',
+          }}>
+            NEW
+          </div>
+        )}
+
+        {/* Wishlist */}
+        <button
+          onClick={e => { e.stopPropagation(); toggleWishlist(product.id); }}
+          style={{
+            position: 'absolute', top: '8px', right: '8px',
+            width: '30px', height: '30px', borderRadius: '50%',
+            background: isDark ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.9)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            transition: 'transform 0.2s',
+            backdropFilter: 'blur(4px)',
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.15)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <Heart
+            size={14}
+            fill={isWishlisted ? '#ef4444' : 'none'}
+            stroke={isWishlisted ? '#ef4444' : '#94a3b8'}
+            strokeWidth={2}
+          />
+        </button>
+
+        {/* Out of stock overlay */}
+        {isOutOfStock && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.8)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{
+              fontSize: '0.72rem', fontWeight: 800, color: '#ef4444',
+              background: isDark ? '#1e293b' : '#fff',
+              padding: '5px 12px', borderRadius: '100px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1.5px solid #fecaca',
+            }}>
+              Out of Stock
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div style={{
+        padding: compact ? '8px 10px 6px' : '10px 12px 6px',
+        flex: 1, display: 'flex', flexDirection: 'column', gap: '4px',
+      }}>
+        {/* Product name */}
+        <div style={{
+          fontSize: compact ? '0.77rem' : '0.84rem',
+          fontWeight: 500,
+          color: isDark ? '#e2e8f0' : '#111827',
+          lineHeight: 1.4,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        }}>
+          {product.name}
+        </div>
+
+        {/* Rating */}
+        {product.rating && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '2px',
+              background: product.rating >= 4.5 ? '#059669'
+                : product.rating >= 3.5 ? '#d97706' : '#9ca3af',
+              color: '#fff', borderRadius: '4px',
+              padding: '1px 5px', fontSize: '0.67rem', fontWeight: 700,
+            }}>
+              {product.rating} <Star size={7} fill="#fff" stroke="none" />
+            </div>
+            {product.reviewCount > 0 && (
+              <span style={{ fontSize: '0.67rem', color: isDark ? '#64748b' : '#9ca3af' }}>
+                ({product.reviewCount >= 1000 ? `${(product.reviewCount / 1000).toFixed(0)}k` : product.reviewCount})
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Price */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px', flexWrap: 'wrap', marginTop: '2px' }}>
+          <span style={{ fontSize: compact ? '0.95rem' : '1.05rem', fontWeight: 800, color: isDark ? '#f1f5f9' : '#111827' }}>
+            ₹{product.price.toLocaleString('en-IN')}
+          </span>
+          {product.originalPrice && product.originalPrice > product.price && (
+            <span style={{ fontSize: '0.72rem', color: isDark ? '#475569' : '#9ca3af', textDecoration: 'line-through' }}>
+              ₹{product.originalPrice.toLocaleString('en-IN')}
+            </span>
+          )}
+        </div>
+
+        {/* Low stock warning */}
+        {isLowStock && (
+          <span style={{ fontSize: '0.65rem', color: '#f59e0b', fontWeight: 700 }}>
+            Only {product.stock} left!
+          </span>
+        )}
+
+        {/* Free delivery */}
+        {product.price >= 499 && !isOutOfStock && (
+          <span style={{ fontSize: '0.62rem', color: '#10b981', fontWeight: 600 }}>
+            ✓ Free delivery
+          </span>
+        )}
+      </div>
+
+      {/* Add to Cart button */}
+      <div style={{ padding: '0 10px 10px' }}>
+        <button
+          onClick={handleCart}
+          disabled={isOutOfStock}
+          style={{
+            width: '100%',
+            padding: compact ? '7px 4px' : '9px 4px',
+            borderRadius: '10px',
+            fontSize: '0.76rem', fontWeight: 700,
+            background: addedAnim
+              ? '#059669'
+              : isOutOfStock
+              ? isDark ? '#1e293b' : '#f3f4f6'
+              : hovered ? accent : isDark ? '#334155' : '#f3f4f6',
+            color: addedAnim
+              ? '#fff'
+              : isOutOfStock
+              ? isDark ? '#475569' : '#9ca3af'
+              : hovered ? '#fff' : isDark ? '#94a3b8' : '#374151',
+            cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+            transition: 'all 0.2s',
+            border: 'none',
+          }}
+        >
+          {addedAnim ? (
+            <><span>✓</span> Added to Cart</>
+          ) : isOutOfStock ? (
+            'Unavailable'
+          ) : (
+            <><ShoppingCart size={13} /> Add to Cart</>
+          )}
+        </button>
       </div>
     </div>
   );

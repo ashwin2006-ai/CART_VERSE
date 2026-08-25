@@ -45,6 +45,7 @@ export const CheckoutModal = () => {
     fullName: user.name || '',
     phone: user.phone || '',
     street: '',
+    landmark: '',
     city: '',
     state: '',
     pincode: '',
@@ -92,6 +93,10 @@ export const CheckoutModal = () => {
   const handleSaveNewAddress = (e) => {
     e.preventDefault();
     if (!newAddress.street || !newAddress.city || !newAddress.pincode) return;
+    if (!/^[1-9][0-9]{5}$/.test(newAddress.pincode)) {
+      alert('Please enter a valid 6-digit Indian pincode.');
+      return;
+    }
     addAddress(newAddress);
     setIsAddingNewAddr(false);
   };
@@ -301,10 +306,17 @@ export const CheckoutModal = () => {
                     />
                     <input
                       type="text"
-                      placeholder="Flat, House no., Building, Street Address"
+                      placeholder="Flat / House no., Building, Street Address"
                       value={newAddress.street}
                       onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
                       required
+                      style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Landmark (e.g. Near City Mall, Opp. Metro Station)"
+                      value={newAddress.landmark}
+                      onChange={(e) => setNewAddress({ ...newAddress, landmark: e.target.value })}
                       style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
                     />
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
@@ -326,15 +338,18 @@ export const CheckoutModal = () => {
                       />
                       <input
                         type="text"
-                        placeholder="Pincode"
+                        placeholder="6-digit Pincode"
                         value={newAddress.pincode}
-                        onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
+                        onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
                         required
+                        maxLength={6}
+                        pattern="[1-9][0-9]{5}"
+                        title="Enter valid 6-digit Indian pincode"
                         style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
                       />
                     </div>
                     <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                      <button type="submit" className="btn btn-primary btn-sm">Save & Use Address</button>
+                      <button type="submit" className="btn btn-primary btn-sm">Save &amp; Use Address</button>
                       {user.addresses.length > 0 && (
                         <button type="button" onClick={() => setIsAddingNewAddr(false)} className="btn btn-secondary btn-sm">Cancel</button>
                       )}
@@ -357,7 +372,6 @@ export const CheckoutModal = () => {
                           gap: '12px'
                         }}
                       >
-                        {/* Clear Address Number Badge: 1, 2, 3... */}
                         <div style={{
                           width: '28px',
                           height: '28px',
@@ -378,17 +392,27 @@ export const CheckoutModal = () => {
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                             <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>
-                              Address {index + 1}: {addr.fullName}
+                              {addr.fullName}
                             </span>
                             <span className="badge badge-primary">{addr.title}</span>
+                            {addr.isDefault && <span className="badge badge-emerald">Default</span>}
                           </div>
                           <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                            {addr.street}, {addr.city}, {addr.state} - {addr.pincode}
+                            {addr.street}{addr.landmark ? `, Near ${addr.landmark}` : ''}
                           </div>
-                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                            Phone: {addr.phone}
+                          <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                            {addr.city}, {addr.state} — {addr.pincode}
+                          </div>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                            📞 {addr.phone}
                           </div>
                         </div>
+
+                        {selectedAddressId === addr.id && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--primary)', fontWeight: 700, fontSize: '0.78rem' }}>
+                            <CheckCircle size={16} /> Selected
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

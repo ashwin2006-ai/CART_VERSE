@@ -25,10 +25,13 @@ export const CartDrawer = () => {
     applyCoupon,
     removeCoupon,
     setIsCheckoutOpen,
-    coupons
+    coupons,
+    user,
+    addToast
   } = useShop();
 
   const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   if (!isCartOpen) return null;
 
@@ -434,23 +437,50 @@ export const CartDrawer = () => {
             </div>
 
             {/* Checkout Action Button */}
-            <button
-              onClick={() => {
-                setIsCartOpen(false);
-                setIsCheckoutOpen(true);
-              }}
-              className="btn btn-primary"
-              style={{
-                width: '100%',
-                padding: '14px',
-                fontSize: '1rem',
-                borderRadius: 'var(--radius-md)',
-                gap: '8px'
-              }}
-            >
-              <span>Proceed to Checkout</span>
-              <ArrowRight size={18} />
-            </button>
+            {showAuthPrompt ? (
+              <div style={{ background: 'rgba(40,116,240,0.1)', borderRadius: 'var(--radius-md)', padding: '16px', textAlign: 'center', border: '1px solid rgba(40,116,240,0.2)' }}>
+                <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
+                  🔒 Please sign in to place your order
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={() => {
+                      setShowAuthPrompt(false);
+                      setIsCartOpen(false);
+                      // trigger auth modal via hash
+                      window.dispatchEvent(new CustomEvent('cartverse:open-auth'));
+                    }}
+                    className="btn btn-primary"
+                    style={{ flex: 1, padding: '11px', fontSize: '0.88rem', gap: '6px' }}
+                  >
+                    Sign In / Register
+                  </button>
+                  <button onClick={() => setShowAuthPrompt(false)} className="btn btn-secondary" style={{ padding: '11px 16px' }}>Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  if (!user) {
+                    setShowAuthPrompt(true);
+                    return;
+                  }
+                  setIsCartOpen(false);
+                  setIsCheckoutOpen(true);
+                }}
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  fontSize: '1rem',
+                  borderRadius: 'var(--radius-md)',
+                  gap: '8px'
+                }}
+              >
+                <span>Proceed to Checkout</span>
+                <ArrowRight size={18} />
+              </button>
+            )}
           </div>
         )}
       </div>

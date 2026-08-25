@@ -1,4 +1,63 @@
-import { INITIAL_PRODUCTS } from '../src/data/mockData.js';
+// Mock product data embedded for Vercel serverless
+const INITIAL_PRODUCTS = [
+  {
+    id: 'mob-1',
+    name: 'Samsung Galaxy S24 Ultra 5G (12GB RAM, 256GB)',
+    category: 'mobiles',
+    price: 89999,
+    originalPrice: 109999,
+    discount: 18,
+    rating: 4.8,
+    reviewCount: 5842,
+    stock: 50,
+    featured: true,
+    bestSeller: true,
+    isNew: false,
+    dealOfTheDay: false,
+    images: [
+      'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=800&q=80',
+    ],
+    description: 'Galaxy S24 Ultra with titanium build, 200MP camera, and built-in S Pen.',
+    features: ['200MP Camera with AI zoom', 'Built-in S Pen', 'Snapdragon 8 Gen 3', '5000mAh battery'],
+    colors: [{ name: 'Titanium Gray', hex: '#71717a' }],
+    sizes: ['256GB', '512GB'],
+  },
+  {
+    id: 'mob-2',
+    name: 'Apple iPhone 15 Pro Max (256GB) — Natural Titanium',
+    category: 'mobiles',
+    price: 134900,
+    originalPrice: 159900,
+    discount: 15,
+    rating: 4.9,
+    reviewCount: 9210,
+    stock: 30,
+    featured: true,
+    bestSeller: true,
+    isNew: false,
+    dealOfTheDay: true,
+    images: [
+      'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80',
+    ],
+    description: 'A17 Pro chip with titanium design. 48MP camera system with 5x optical zoom.',
+    features: ['A17 Pro Chip', '48MP Triple Camera', '5x Optical Zoom'],
+  },
+  {
+    id: 'mob-3',
+    name: 'Redmi Note 13 Pro+ 5G (12GB+256GB)',
+    category: 'mobiles',
+    price: 29999,
+    originalPrice: 36999,
+    discount: 18,
+    rating: 4.5,
+    reviewCount: 12440,
+    stock: 120,
+    featured: false,
+    bestSeller: true,
+    isNew: true,
+  },
+];
 
 export default function handler(req, res) {
   // Enable CORS
@@ -13,6 +72,10 @@ export default function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
+  }
+
+  if (req.method !== 'GET') {
+    return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
   try {
