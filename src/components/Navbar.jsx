@@ -34,7 +34,16 @@ export const Navbar = () => {
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const searchRef = useRef(null);
+
+  // Helper for user initials
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
 
   // Cart total items count
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -261,8 +270,22 @@ export const Navbar = () => {
 
           {/* Right Navigation & Action Icons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* Customer View Switcher */}
-            <div style={{
+            {/* Mobile Search Toggle Button */}
+            <button
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="btn-icon btn-secondary mobile-search-toggle"
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: 'var(--radius-full)'
+              }}
+              title="Search Products"
+            >
+              <Search size={16} />
+            </button>
+
+            {/* Customer View Switcher (Desktop / Tablet) */}
+            <div className="desktop-view-switcher" style={{
               display: 'flex',
               alignItems: 'center',
               background: 'var(--bg-surface)',
@@ -273,9 +296,9 @@ export const Navbar = () => {
               <button
                 onClick={() => setCurrentView('store')}
                 style={{
-                  padding: '5px 12px',
+                  padding: '5px 14px',
                   borderRadius: 'var(--radius-full)',
-                  fontSize: '0.8rem',
+                  fontSize: '0.82rem',
                   fontWeight: 600,
                   background: currentView === 'store' ? 'var(--primary-gradient)' : 'transparent',
                   color: currentView === 'store' ? '#fff' : 'var(--text-secondary)'
@@ -287,9 +310,9 @@ export const Navbar = () => {
               <button
                 onClick={() => setCurrentView('account')}
                 style={{
-                  padding: '4px 10px',
+                  padding: '4px 12px',
                   borderRadius: 'var(--radius-full)',
-                  fontSize: '0.8rem',
+                  fontSize: '0.82rem',
                   fontWeight: 600,
                   display: 'flex',
                   alignItems: 'center',
@@ -301,31 +324,22 @@ export const Navbar = () => {
                 {user && user.avatar ? (
                   <img src={user.avatar} alt="me" style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'cover' }} />
                 ) : (
-                  <User size={13} />
+                  <span style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    background: 'var(--primary-gradient)',
+                    color: '#fff',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.62rem',
+                    fontWeight: 800
+                  }}>
+                    {getInitials(user?.name)}
+                  </span>
                 )}
                 <span>Account</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setCurrentView('admin');
-                  window.location.hash = '#admin';
-                }}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  background: currentView === 'admin' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'transparent',
-                  color: currentView === 'admin' ? '#fff' : '#f59e0b'
-                }}
-                title="Admin Control Center"
-              >
-                <ShieldCheck size={13} />
-                <span>Admin</span>
               </button>
             </div>
 
@@ -337,11 +351,15 @@ export const Navbar = () => {
                 borderRadius: 'var(--radius-full)',
                 padding: '6px 12px',
                 fontSize: '0.78rem',
-                gap: '4px'
+                gap: '6px'
               }}
               title="Customer Login / Register"
             >
-              <LogIn size={13} />
+              {user && user.avatar ? (
+                <img src={user.avatar} alt="avatar" style={{ width: '18px', height: '18px', borderRadius: '50%', objectFit: 'cover' }} />
+              ) : (
+                <User size={13} />
+              )}
               <span>{user ? user.name.split(' ')[0] : 'Sign In'}</span>
             </button>
 
@@ -355,10 +373,10 @@ export const Navbar = () => {
               {theme === 'dark' ? <Sun size={16} style={{ color: '#fbbf24' }} /> : <Moon size={16} style={{ color: '#6366f1' }} />}
             </button>
 
-            {/* Wishlist Button */}
+            {/* Wishlist Button (Desktop) */}
             <button
               onClick={() => setCurrentView('account')}
-              className="btn-icon btn-secondary"
+              className="btn-icon btn-secondary desktop-header-wishlist"
               title="Wishlist"
               style={{ width: '38px', height: '38px', position: 'relative', borderRadius: 'var(--radius-full)' }}
             >
@@ -397,7 +415,7 @@ export const Navbar = () => {
               }}
             >
               <ShoppingBag size={16} />
-              <span style={{ display: window.innerWidth <= 480 ? 'none' : 'inline' }}>Bag</span>
+              <span className="hide-on-small-mobile">Bag</span>
               {cartItemCount > 0 && (
                 <span style={{
                   background: '#ffffff',
@@ -413,6 +431,52 @@ export const Navbar = () => {
             </button>
           </div>
         </div>
+
+        {/* Mobile Search Bar Dropdown */}
+        {showMobileSearch && (
+          <div className="mobile-search-bar animate-fade-in" style={{
+            padding: '10px 16px 14px 16px',
+            borderTop: '1px solid var(--border-subtle)',
+            background: 'var(--bg-glass)'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--primary)',
+              borderRadius: 'var(--radius-full)',
+              padding: '4px 14px'
+            }}>
+              <Search size={16} style={{ color: 'var(--primary)', marginRight: '8px' }} />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search products in Cartverse..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (currentView !== 'store') setCurrentView('store');
+                }}
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  padding: '8px 0',
+                  fontSize: '0.9rem',
+                  color: 'var(--text-primary)'
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  style={{ color: 'var(--text-muted)', padding: '4px' }}
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </header>
     </>
   );

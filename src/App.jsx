@@ -16,6 +16,7 @@ import { AdminLogin } from './components/AdminLogin';
 import { AiAssistant } from './components/AiAssistant';
 import { ToastContainer } from './components/ToastContainer';
 import { Footer } from './components/Footer';
+import { MobileBottomNav } from './components/MobileBottomNav';
 
 import {
   SlidersHorizontal,
@@ -400,7 +401,7 @@ export function App() {
                                 {p.name}
                               </div>
                               <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>
-                                ${p.price.toFixed(2)}
+                                ₹{p.price.toLocaleString('en-IN')}
                               </div>
                             </div>
                           </div>
@@ -426,8 +427,11 @@ export function App() {
       <OrderConfirmationModal />
       <OrderTrackingModal />
 
-      {/* AI Assistant Chatbot */}
+      {/* Sleek Small Floating AI Icon Concierge */}
       <AiAssistant />
+
+      {/* Mobile Sticky Bottom Navigation */}
+      <MobileBottomNav />
 
       {/* Universal Customer Footer */}
       <Footer />

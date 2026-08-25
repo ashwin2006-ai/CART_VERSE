@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import {
   User,
@@ -19,7 +19,10 @@ import {
   ExternalLink,
   Edit3,
   Camera,
-  Check
+  Check,
+  Upload,
+  Image as ImageIcon,
+  X as CloseIcon
 } from 'lucide-react';
 
 const AVATAR_OPTIONS = [
@@ -50,6 +53,15 @@ export const AccountView = () => {
     addToast
   } = useShop();
 
+  const fileInputRef = useRef(null);
+
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
+
   const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'profile', 'addresses', 'wishlist', 'returns'
   const [returnModalOrderId, setReturnModalOrderId] = useState(null);
   const [returnReason, setReturnReason] = useState('');
@@ -61,8 +73,31 @@ export const AccountView = () => {
     name: user.name || '',
     email: user.email || '',
     phone: user.phone || '',
-    avatar: user.avatar || AVATAR_OPTIONS[0]
+    avatar: user.avatar || ''
   });
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      addToast({
+        type: 'error',
+        title: 'Image Too Large',
+        message: 'Please choose an image under 4MB.'
+      });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileForm(prev => ({ ...prev, avatar: reader.result }));
+      addToast({
+        type: 'success',
+        title: 'Photo Selected 📸',
+        message: 'Click Save Profile to update your account.'
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [newAddr, setNewAddr] = useState({
@@ -143,25 +178,47 @@ export const AccountView = () => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <div style={{ position: 'relative' }}>
-              <img
-                src={user.avatar || AVATAR_OPTIONS[0]}
-                alt={user.name}
-                style={{
-                  width: '84px',
-                  height: '84px',
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  border: '3px solid var(--primary)',
-                  boxShadow: 'var(--shadow-glow)'
-                }}
-              />
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  style={{
+                    width: '84px',
+                    height: '84px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '3px solid var(--primary)',
+                    boxShadow: 'var(--shadow-glow)'
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '84px',
+                    height: '84px',
+                    borderRadius: '50%',
+                    background: 'var(--primary-gradient)',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.8rem',
+                    fontWeight: 900,
+                    letterSpacing: '1px',
+                    border: '3px solid rgba(255, 255, 255, 0.3)',
+                    boxShadow: 'var(--shadow-glow)'
+                  }}
+                >
+                  {getInitials(user.name)}
+                </div>
+              )}
               <button
                 onClick={() => {
                   setProfileForm({
                     name: user.name,
                     email: user.email,
                     phone: user.phone,
-                    avatar: user.avatar
+                    avatar: user.avatar || ''
                   });
                   setIsEditingProfile(true);
                 }}
@@ -177,7 +234,8 @@ export const AccountView = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: '2px solid #fff'
+                  border: '2px solid #fff',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.4)'
                 }}
                 title="Change Profile Picture"
               >
@@ -192,7 +250,15 @@ export const AccountView = () => {
                   <Award size={13} /> {user.tier}
                 </span>
                 <button
-                  onClick={() => setIsEditingProfile(true)}
+                  onClick={() => {
+                    setProfileForm({
+                      name: user.name,
+                      email: user.email,
+                      phone: user.phone,
+                      avatar: user.avatar || ''
+                    });
+                    setIsEditingProfile(true);
+                  }}
                   className="btn btn-secondary btn-sm"
                   style={{ padding: '3px 8px', fontSize: '0.72rem', gap: '4px' }}
                 >
@@ -268,43 +334,136 @@ export const AccountView = () => {
               style={{
                 background: 'var(--bg-card-solid)',
                 width: '100%',
-                maxWidth: '480px',
+                maxWidth: '500px',
                 padding: '28px',
                 borderRadius: 'var(--radius-xl)',
-                border: '1px solid var(--border-highlight)'
+                border: '1px solid var(--border-highlight)',
+                maxHeight: '90vh',
+                overflowY: 'auto'
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '6px' }}>Personal Profile & Info</h2>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '6px' }}>Personal Profile & Photo</h2>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                Update your contact information for order deliveries and choose your profile image.
+                Upload your personal photo or customize your profile details for deliveries.
               </p>
 
-              <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {/* Avatar Picker Swatches */}
-                <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: '8px' }}>
-                    Select Profile Avatar:
-                  </label>
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    {AVATAR_OPTIONS.map((av, idx) => (
+              <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Avatar Preview & Upload Action */}
+                <div style={{
+                  background: 'var(--bg-surface)',
+                  padding: '16px',
+                  borderRadius: 'var(--radius-lg)',
+                  border: '1px solid var(--border-subtle)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    {profileForm.avatar ? (
                       <img
-                        key={idx}
-                        src={av}
-                        alt="avatar"
-                        onClick={() => setProfileForm({ ...profileForm, avatar: av })}
+                        src={profileForm.avatar}
+                        alt="Profile preview"
                         style={{
-                          width: '48px',
-                          height: '48px',
+                          width: '64px',
+                          height: '64px',
                           borderRadius: '50%',
                           objectFit: 'cover',
-                          cursor: 'pointer',
-                          border: profileForm.avatar === av ? '3px solid var(--primary)' : '2px solid transparent',
-                          transform: profileForm.avatar === av ? 'scale(1.1)' : 'scale(1)',
-                          transition: 'all 0.2s ease'
+                          border: '2px solid var(--primary)',
+                          flexShrink: 0
                         }}
                       />
-                    ))}
+                    ) : (
+                      <div
+                        style={{
+                          width: '64px',
+                          height: '64px',
+                          borderRadius: '50%',
+                          background: 'var(--primary-gradient)',
+                          color: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.4rem',
+                          fontWeight: 900,
+                          flexShrink: 0
+                        }}
+                      >
+                        {getInitials(profileForm.name)}
+                      </div>
+                    )}
+
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 700 }}>Profile Photo</div>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleImageUpload}
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="btn btn-primary btn-sm"
+                          style={{ gap: '6px' }}
+                        >
+                          <Upload size={14} /> Upload Photo
+                        </button>
+                        {profileForm.avatar && (
+                          <button
+                            type="button"
+                            onClick={() => setProfileForm(prev => ({ ...prev, avatar: '' }))}
+                            className="btn btn-secondary btn-sm"
+                            style={{ gap: '4px', color: 'var(--accent-rose)' }}
+                          >
+                            <Trash2 size={13} /> Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Or Custom URL */}
+                  <div>
+                    <label style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                      Or enter Image Web URL:
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://example.com/my-photo.jpg"
+                      value={profileForm.avatar.startsWith('data:') ? '' : profileForm.avatar}
+                      onChange={(e) => setProfileForm({ ...profileForm, avatar: e.target.value })}
+                      style={{ width: '100%', padding: '8px 12px', fontSize: '0.8rem', borderRadius: 'var(--radius-sm)' }}
+                    />
+                  </div>
+
+                  {/* Optional Preset Swatches */}
+                  <div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Or choose a preset style:
+                    </span>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {AVATAR_OPTIONS.map((av, idx) => (
+                        <img
+                          key={idx}
+                          src={av}
+                          alt="preset avatar"
+                          onClick={() => setProfileForm({ ...profileForm, avatar: av })}
+                          style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            cursor: 'pointer',
+                            border: profileForm.avatar === av ? '2px solid var(--primary)' : '1px solid transparent',
+                            transform: profileForm.avatar === av ? 'scale(1.1)' : 'scale(1)',
+                            transition: 'all 0.15s ease'
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -340,7 +499,7 @@ export const AccountView = () => {
                   />
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
                   <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
                     Save Profile
                   </button>

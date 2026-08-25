@@ -171,7 +171,7 @@ export const AiAssistant = () => {
 
   return (
     <>
-      {/* 🟢 MOVABLE / DRAGGABLE Floating AI Badge Trigger */}
+      {/* 🟢 SLEEK COMPACT Floating Circular AI Icon Trigger Button */}
       {!isAiAssistantOpen && (
         <div
           onPointerDown={handlePointerDown}
@@ -187,37 +187,56 @@ export const AiAssistant = () => {
             cursor: 'grab'
           }}
         >
-          <div
-            className="btn-primary"
+          <button
+            className="ai-fab-button"
             style={{
-              borderRadius: 'var(--radius-full)',
-              padding: '10px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              boxShadow: '0 8px 30px rgba(99, 102, 241, 0.55)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              transform: 'scale(1)',
-              transition: 'transform 0.1s ease'
-            }}
-            title="Drag to move anywhere • Click to open Cartverse AI"
-          >
-            <div style={{
-              width: '24px',
-              height: '24px',
+              width: '52px',
+              height: '52px',
               borderRadius: '50%',
-              background: '#ffffff',
-              color: '#4f46e5',
+              background: 'var(--primary-gradient)',
+              color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <Sparkles size={14} />
-            </div>
-            <span style={{ fontWeight: 800, fontSize: '0.84rem' }}>Cartverse AI</span>
-            <Move size={12} style={{ opacity: 0.7 }} />
-          </div>
+              boxShadow: '0 8px 24px rgba(99, 102, 241, 0.55), 0 0 15px rgba(236, 72, 153, 0.4)',
+              border: '2px solid rgba(255, 255, 255, 0.35)',
+              position: 'relative',
+              transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease',
+              outline: 'none'
+            }}
+            title="Cartverse AI Shopping Concierge (Drag to move or click to open)"
+          >
+            {/* Pulsing Outer Glow Ring */}
+            <span
+              style={{
+                position: 'absolute',
+                top: '-4px',
+                left: '-4px',
+                right: '-4px',
+                bottom: '-4px',
+                borderRadius: '50%',
+                border: '2px solid rgba(99, 102, 241, 0.5)',
+                animation: 'aiPulse 2s infinite ease-in-out',
+                pointerEvents: 'none'
+              }}
+            />
+            
+            <Sparkles size={22} className="ai-sparkle-icon" />
+
+            {/* Micro Live Status Dot */}
+            <span
+              style={{
+                position: 'absolute',
+                bottom: '2px',
+                right: '2px',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                background: '#10b981',
+                border: '2px solid #ffffff'
+              }}
+            />
+          </button>
         </div>
       )}
 

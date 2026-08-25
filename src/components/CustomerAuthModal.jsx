@@ -38,8 +38,8 @@ export const CustomerAuthModal = ({ isOpen, onClose }) => {
         email: formData.email,
         phone: formData.phone || '+91 98765 43210',
         tier: 'Standard Member',
-        rewardPoints: 0, // 0 reward points for new person
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        rewardPoints: 0,
+        avatar: '',
         addresses: []
       };
 
