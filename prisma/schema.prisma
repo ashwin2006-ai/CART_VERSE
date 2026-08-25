@@ -1,0 +1,243 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  SUPERADMIN
+}
+
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  PACKED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  RETURNED_AND_REFUNDED
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+  SHIPPING
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String    @db.Text
+  role         Role      @default(CUSTOMER)
+  phone        String?
+  avatar       String?   @db.Text
+  tier         String    @default("VIP Platinum")
+  rewardPoints Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  addresses    Address[]
+  orders       Order[]
+  reviews      Review[]
+  wishlist     WishlistItem[]
+  cartItems    CartItem[]
+
+  @@map("users")
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String   @default("Home")
+  fullName  String
+  phone     String
+  street    String
+  city      String
+  state     String
+  pincode   String
+  country   String   @default("United States")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("addresses")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  slug        String    @unique
+  name        String
+  icon        String    @default("Sparkles")
+  description String?   @db.Text
+  createdAt   DateTime  @default(now())
+
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           String    @id @default(uuid())
+  name         String
+  slug         String?   @unique
+  categoryId   String
+  category     Category  @relation(fields: [categoryId], references: [id])
+  price        Float
+  originalPrice Float?
+  discount     Int       @default(0)
+  rating       Float     @default(5.0)
+  reviewCount  Int       @default(0)
+  stock        Int       @default(0)
+  featured     Boolean   @default(false)
+  bestSeller   Boolean   @default(false)
+  isNew        Boolean   @default(true)
+  dealOfTheDay Boolean   @default(false)
+  images       Json?
+  description  String    @db.Text
+  features     Json?
+  specs        Json?
+  colors       Json?
+  sizes        Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  orderItems   OrderItem[]
+  reviews      Review[]
+  wishlistItems WishlistItem[]
+  cartItems    CartItem[]
+
+  @@map("products")
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1)
+  color     String?
+  size      String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId, color, size])
+  @@map("cart_items")
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@map("wishlist_items")
+}
+
+model Order {
+  id                 String      @id @default(uuid())
+  orderNumber        String      @unique
+  userId             String
+  user               User        @relation(fields: [userId], references: [id])
+  status             OrderStatus @default(CONFIRMED)
+  statusStep         Int         @default(2)
+  estimatedDelivery  DateTime?
+  trackingNumber     String?
+  carrier            String      @default("Aura Express Air Cargo")
+  subtotal           Float
+  discount           Float       @default(0)
+  shippingFee        Float       @default(0)
+  tax                Float       @default(0)
+  total              Float
+  paymentMethod      String
+  paymentStatus      String      @default("Paid")
+  shippingAddress    Json
+  timeline           Json
+  returnRequested    Boolean     @default(false)
+  returnReason       String?     @db.Text
+  returnStatus       String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  items              OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  name      String
+  price     Float
+  quantity  Int
+  color     String?
+  size      String?
+  image     String?   @db.Text
+
+  @@map("order_items")
+}
+
+model Coupon {
+  id          String     @id @default(uuid())
+  code        String     @unique
+  type        CouponType @default(PERCENT)
+  discount    Float
+  minSpend    Float      @default(0)
+  description String     @db.Text
+  active      Boolean    @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime   @default(now())
+
+  @@map("coupons")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName   String
+  avatar     String?  @db.Text
+  rating     Int      @default(5)
+  comment    String   @db.Text
+  verified   Boolean  @default(true)
+  adminReply String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@map("reviews")
+}
+
+model FlipkartProduct {
+  id           String    @id
+  title        String
+  category     String?
+  price        Float
+  mrp          Float?
+  discount     Int       @default(0)
+  rating       Float     @default(4.5)
+  reviewCount  Int       @default(0)
+  inStock      Boolean   @default(true)
+  imageUrl     String?   @db.Text
+  productUrl   String?   @db.Text
+  affiliateUrl String?   @db.Text
+  specs        Json?
+  brand        String?
+  offers       Json?
+  lastSyncedAt DateTime  @default(now())
+
+  @@map("flipkart_products")
+}
+
