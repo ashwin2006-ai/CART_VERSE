@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
+import { AdminDashboard } from './AdminDashboard';
 import {
   LayoutDashboard,
   Package,
@@ -691,6 +692,9 @@ export const AdminPanel = () => {
               </div>
             </div>
           )}
+
+          {/* DASHBOARD */}
+          {activeTab === 'dashboard' && <AdminDashboard />}
 
           {/* 2. PRODUCT MANAGEMENT */}
           {activeTab === 'products' && (
