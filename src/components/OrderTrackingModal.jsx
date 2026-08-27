@@ -220,8 +220,8 @@ export const OrderTrackingModal = () => {
             <div style={{ fontWeight: 800, color: 'var(--text-muted)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <MapPin size={13} /> Destination Address:
             </div>
-            <div style={{ fontWeight: 700 }}>{order.shippingAddress.fullName}</div>
-            <div style={{ color: 'var(--text-secondary)' }}>{order.shippingAddress.street}, {order.shippingAddress.city}</div>
+            <div style={{ fontWeight: 700 }}>{order?.shippingAddress?.fullName || 'N/A'}</div>
+            <div style={{ color: 'var(--text-secondary)' }}>{order?.shippingAddress?.street || 'N/A'}, {order?.shippingAddress?.city || 'N/A'}</div>
           </div>
 
           <div>

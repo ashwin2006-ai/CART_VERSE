@@ -185,7 +185,7 @@ export const AccountView = () => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <div style={{ position: 'relative' }}>
-              {user.avatar ? (
+              {user?.avatar ? (
                 <img
                   src={user?.avatar}
                   alt={user?.name || 'User'}
@@ -295,7 +295,7 @@ export const AccountView = () => {
                 Reward Points
               </div>
               <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--accent-gold)' }}>
-                {user.rewardPoints} pts
+                {user?.rewardPoints || 0} pts
               </div>
             </div>
 

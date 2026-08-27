@@ -92,7 +92,7 @@ export const OrderConfirmationModal = () => {
           color: 'var(--text-secondary)',
           marginBottom: '24px'
         }}>
-          Order <strong>#{recentOrder.id}</strong> has been received and dispatched to our priority fulfillment center.
+          Order <strong>#{recentOrder?.id || 'N/A'}</strong> has been received and dispatched to our priority fulfillment center.
         </p>
 
         {/* Info Card */}
@@ -110,19 +110,19 @@ export const OrderConfirmationModal = () => {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: 'var(--text-muted)' }}>Estimated Delivery:</span>
-            <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{recentOrder.estimatedDelivery}</span>
+            <span style={{ fontWeight: 700, color: 'var(--primary)' }}>{recentOrder?.estimatedDelivery || 'N/A'}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: 'var(--text-muted)' }}>Tracking Number:</span>
-            <span style={{ fontWeight: 700, fontFamily: 'monospace' }}>{recentOrder.trackingNumber}</span>
+            <span style={{ fontWeight: 700, fontFamily: 'monospace' }}>{recentOrder?.trackingNumber || 'N/A'}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: 'var(--text-muted)' }}>Shipping Destination:</span>
-            <span style={{ fontWeight: 600 }}>{recentOrder.shippingAddress.street}, {recentOrder.shippingAddress.city}</span>
+            <span style={{ fontWeight: 600 }}>{recentOrder?.shippingAddress?.street || 'N/A'}, {recentOrder?.shippingAddress?.city || 'N/A'}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: 'var(--text-muted)' }}>Total Amount Paid:</span>
-            <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>₹{recentOrder.total.toLocaleString('en-IN')}</span>
+            <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>₹{(recentOrder?.total || 0).toLocaleString('en-IN')}</span>
           </div>
         </div>
 
@@ -130,9 +130,9 @@ export const OrderConfirmationModal = () => {
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={() => {
-              const id = recentOrder.id;
+              const id = recentOrder?.id;
               setRecentOrder(null);
-              setTrackingOrderId(id);
+              if (id) setTrackingOrderId(id);
             }}
             className="btn btn-primary"
             style={{ flex: 1.2, gap: '8px' }}

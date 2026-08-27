@@ -193,7 +193,7 @@ export const CartDrawer = () => {
           ) : (
             cart.map((item, index) => (
               <div
-                key={`${item.id}-${item.color}-${item.size}-${index}`}
+                key={`${item?.id || index}-${item?.color || ''}-${item?.size || ''}-${index}`}
                 style={{
                   display: 'flex',
                   gap: '14px',
@@ -206,7 +206,7 @@ export const CartDrawer = () => {
               >
                 {/* Item Image */}
                 <img
-                  src={item.image}
+                  src={item?.image || 'https://placehold.co/76x76'}
                   alt={item?.name || 'Product'}
                   style={{
                     width: '76px',
@@ -238,9 +238,9 @@ export const CartDrawer = () => {
                     color: 'var(--text-muted)',
                     marginBottom: '10px'
                   }}>
-                    <span>Color: <strong>{item.color}</strong></span>
+                    <span>Color: <strong>{item?.color || 'N/A'}</strong></span>
                     <span>•</span>
-                    <span>Size: <strong>{item.size}</strong></span>
+                    <span>Size: <strong>{item?.size || 'N/A'}</strong></span>
                   </div>
 
                   {/* Quantity & Unit Price in INR */}
