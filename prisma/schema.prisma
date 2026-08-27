@@ -218,10 +218,15 @@ model Review {
   userName   String
   avatar     String?  @db.Text
   rating     Int      @default(5)
+  title      String?
   comment    String   @db.Text
   verified   Boolean  @default(true)
+  purchased  Boolean  @default(false)
+  helpful    Int      @default(0)
+  unhelpful  Int      @default(0)
   adminReply String?  @db.Text
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@map("reviews")
 }

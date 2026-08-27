@@ -8,6 +8,7 @@ import orderRoutes from './routes/orderRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 dotenv.config();
 
@@ -24,18 +25,19 @@ app.get('/api/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'CartVerse Node.js/Express + MySQL (Prisma) Backend',
-    version: '2.0.0',
+    version: '2.1.0',
     database: 'MySQL (Prisma ORM)'
   });
 });
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
+app.use('/api', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api', reviewRoutes);
 
 // Global 404 & Error Handler
 app.use((req, res) => {
@@ -49,6 +51,7 @@ app.use((err, req, res, next) => {
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Cartverse Node.js + MySQL (Prisma) Server active on http://localhost:${PORT}`);
+  console.log(`📊 Version: 2.1.0 - Phase 2 (Reviews System)`);
   checkMysqlConnection();
 });
 
