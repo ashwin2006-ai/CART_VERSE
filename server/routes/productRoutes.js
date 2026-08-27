@@ -3,6 +3,7 @@ import {
   getProducts,
   getProductById,
   getCategories,
+  searchProducts,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -14,6 +15,7 @@ const router = express.Router();
 
 // Public Storefront Routes
 router.get('/categories', getCategories);
+router.get('/search', searchProducts);
 router.get('/', getProducts);
 router.get('/:id', getProductById);
 

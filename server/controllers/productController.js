@@ -140,6 +140,79 @@ export const getProductById = async (req, res) => {
   }
 };
 
+/**
+ * Search products by query
+ * GET /api/products/search?q=laptop&page=1&limit=24
+ */
+export const searchProducts = async (req, res) => {
+  try {
+    const { q, page = 1, limit = 24 } = req.query;
+
+    if (!q || q.trim().length < 2) {
+      return res.status(400).json({ success: false, message: 'Search query must be at least 2 characters' });
+    }
+
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(500, Math.max(1, parseInt(limit)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [results, total] = await Promise.all([
+      prisma.product.findMany({
+        where: {
+          OR: [
+            { name: { contains: q } },
+            { description: { contains: q } },
+            { category: { name: { contains: q } } }
+          ]
+        },
+        include: { category: { select: { name: true, slug: true } } },
+        skip,
+        take: limitNum,
+        orderBy: { featured: 'desc' }
+      }),
+      prisma.product.count({
+        where: {
+          OR: [
+            { name: { contains: q } },
+            { description: { contains: q } },
+            { category: { name: { contains: q } } }
+          ]
+        }
+      })
+    ]);
+
+    return res.json({
+      success: true,
+      query: q,
+      count: results.length,
+      total,
+      page: pageNum,
+      totalPages: Math.ceil(total / limitNum),
+      data: results.map(mapProduct)
+    });
+  } catch (error) {
+    console.warn('Search failed, using mock data:', error.message);
+    const q = (req.query.q || '').toLowerCase();
+    let results = productsDb.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.description?.toLowerCase().includes(q)
+    );
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 24;
+    const skip = (page - 1) * limit;
+    const paginatedResults = results.slice(skip, skip + limit);
+    return res.json({
+      success: true,
+      query: q,
+      count: paginatedResults.length,
+      total: results.length,
+      page,
+      totalPages: Math.ceil(results.length / limit),
+      data: paginatedResults
+    });
+  }
+};
+
 export const getCategories = async (req, res) => {
   try {
     const cats = await prisma.category.findMany({

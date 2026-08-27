@@ -66,6 +66,7 @@ async function main() {
 
   // 3. Seed Products
   console.log('📦 Seeding products catalog...');
+  let productCount = 0;
   for (const prod of INITIAL_PRODUCTS) {
     const category = await prisma.category.findUnique({ where: { slug: prod.category } });
     if (!category) continue;
@@ -81,6 +82,7 @@ async function main() {
       create: {
         id: prod.id,
         name: prod.name,
+        slug: prod.slug || prod.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now(),
         categoryId: category.id,
         price: prod.price,
         originalPrice: prod.originalPrice,
@@ -90,36 +92,54 @@ async function main() {
         stock: prod.stock,
         featured: prod.featured || false,
         bestSeller: prod.bestSeller || false,
-        isNew: prod.isNew || false,
+        isNew: prod.isNew !== undefined ? prod.isNew : true,
         dealOfTheDay: prod.dealOfTheDay || false,
-        images: prod.images,
+        images: JSON.stringify(Array.isArray(prod.images) ? prod.images : [prod.images]),
         description: prod.description,
-        features: prod.features || [],
-        specs: prod.specs || {},
-        colors: prod.colors || [],
-        sizes: prod.sizes || []
+        features: prod.features ? JSON.stringify(prod.features) : null,
+        specs: prod.specs ? JSON.stringify(prod.specs) : null,
+        colors: prod.colors ? JSON.stringify(prod.colors) : null,
+        sizes: prod.sizes ? JSON.stringify(prod.sizes) : null
       }
     });
+    productCount++;
   }
+  console.log(`✓ Seeded ${productCount} products`);
 
   // 4. Seed Coupons
   console.log('🎟️ Seeding discount coupons...');
-  for (const coup of INITIAL_COUPONS) {
+  const coupons = [
+    { code: 'SAVE10', discountType: 'percentage', discountValue: 10, maxDiscount: 500, description: '10% off on all orders' },
+    { code: 'SAVE20', discountType: 'percentage', discountValue: 20, maxDiscount: 1000, description: '20% off on orders above ₹2000' },
+    { code: 'FLAT100', discountType: 'fixed', discountValue: 100, description: '₹100 off on all orders' },
+    { code: 'WELCOME', discountType: 'percentage', discountValue: 15, maxDiscount: 750, minCartValue: 1000, description: '15% welcome discount' },
+    { code: 'SUMMER50', discountType: 'fixed', discountValue: 50, description: 'Summer special: ₹50 off' }
+  ];
+
+  for (const coup of coupons) {
     await prisma.coupon.upsert({
       where: { code: coup.code },
-      update: { discount: coup.discount, minSpend: coup.minSpend },
+      update: {},
       create: {
         code: coup.code,
-        type: coup.type === 'percent' ? 'PERCENT' : coup.type === 'fixed' ? 'FIXED' : 'SHIPPING',
-        discount: coup.discount,
-        minSpend: coup.minSpend,
+        discountType: coup.discountType,
+        discountValue: coup.discountValue,
+        maxDiscount: coup.maxDiscount || null,
+        minCartValue: coup.minCartValue || null,
         description: coup.description,
-        active: coup.active
+        isActive: true,
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
       }
     });
   }
+  console.log(`✓ Seeded ${coupons.length} coupons`);
 
   console.log('✅ CARTVERSE MySQL Database Seeding Complete!');
+  console.log('📊 Summary:');
+  console.log(`   ✓ ${INITIAL_CATEGORIES.length - 1} categories`);
+  console.log(`   ✓ 2 users (1 admin, 1 customer)`);
+  console.log(`   ✓ ${productCount} products`);
+  console.log(`   ✓ ${coupons.length} coupons`);
 }
 
 main()

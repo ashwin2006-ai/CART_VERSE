@@ -100,19 +100,19 @@ model Product {
   bestSeller   Boolean   @default(false)
   isNew        Boolean   @default(true)
   dealOfTheDay Boolean   @default(false)
-  images       Json?
+  images       String?   @db.Text
   description  String    @db.Text
-  features     Json?
-  specs        Json?
-  colors       Json?
-  sizes        Json?
+  features     String?   @db.Text
+  specs        String?   @db.Text
+  colors       String?   @db.Text
+  sizes        String?   @db.Text
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  orderItems   OrderItem[]
-  reviews      Review[]
+  orderItems    OrderItem[]
+  reviews       Review[]
   wishlistItems WishlistItem[]
-  cartItems    CartItem[]
+  cartItems     CartItem[]
 
   @@map("products")
 }
@@ -146,12 +146,14 @@ model WishlistItem {
 
 model Order {
   id                 String      @id @default(uuid())
-  orderNumber        String      @unique
+  orderNumber        String?     @unique
   userId             String
   user               User        @relation(fields: [userId], references: [id])
-  status             OrderStatus @default(CONFIRMED)
+  couponId           String?
+  coupon             Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  status             String      @default("Confirmed")
   statusStep         Int         @default(2)
-  estimatedDelivery  DateTime?
+  estimatedDelivery  String?
   trackingNumber     String?
   carrier            String      @default("Aura Express Air Cargo")
   subtotal           Float
@@ -161,8 +163,8 @@ model Order {
   total              Float
   paymentMethod      String
   paymentStatus      String      @default("Paid")
-  shippingAddress    Json
-  timeline           Json
+  shippingAddress    String      @db.Text
+  timeline           String      @db.Text
   returnRequested    Boolean     @default(false)
   returnReason       String?     @db.Text
   returnStatus       String?
@@ -175,31 +177,34 @@ model Order {
 }
 
 model OrderItem {
-  id        String   @id @default(uuid())
-  orderId   String
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  name      String
-  price     Float
-  quantity  Int
-  color     String?
-  size      String?
-  image     String?   @db.Text
+  id              String   @id @default(uuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  quantity        Int
+  color           String?
+  size            String?
+  priceAtPurchase Float
+  createdAt       DateTime @default(now())
 
   @@map("order_items")
 }
 
 model Coupon {
-  id          String     @id @default(uuid())
-  code        String     @unique
-  type        CouponType @default(PERCENT)
-  discount    Float
-  minSpend    Float      @default(0)
-  description String     @db.Text
-  active      Boolean    @default(true)
-  expiresAt   DateTime?
-  createdAt   DateTime   @default(now())
+  id            String   @id @default(uuid())
+  code          String   @unique
+  discountType  String   @default("percentage")
+  discountValue Float
+  maxDiscount   Float?
+  minCartValue  Float?
+  usageLimit    Int?
+  description   String?  @db.Text
+  isActive      Boolean  @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+
+  orders        Order[]
 
   @@map("coupons")
 }
@@ -234,11 +239,12 @@ model FlipkartProduct {
   imageUrl     String?   @db.Text
   productUrl   String?   @db.Text
   affiliateUrl String?   @db.Text
-  specs        Json?
+  specs        String?   @db.Text
   brand        String?
-  offers       Json?
+  offers       String?   @db.Text
   lastSyncedAt DateTime  @default(now())
 
   @@map("flipkart_products")
 }
+
 

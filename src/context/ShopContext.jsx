@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import apiClient from '../utils/apiClient';
 import {
   INITIAL_CATEGORIES,
   INITIAL_PRODUCTS,
@@ -221,6 +222,71 @@ export const ShopProvider = ({ children }) => {
 
   const loadMoreProducts = () => fetchProducts(currentPage + 1, false);
 
+  // Fetch single product by ID
+  const fetchProductById = async (productId) => {
+    try {
+      const response = await apiClient.fetchProductById(productId);
+      if (response.success && response.data) {
+        return response.data;
+      }
+      return null;
+    } catch (error) {
+      console.warn(`Failed to fetch product ${productId}:`, error);
+      return null;
+    }
+  };
+
+  // Load user's cart from API when authenticated
+  const syncCartFromAPI = async () => {
+    if (!user?.token) return;
+
+    try {
+      const response = await apiClient.getCart();
+      if (response.success && response.data?.items) {
+        setCart(response.data.items);
+      }
+    } catch (error) {
+      console.warn('Failed to sync cart from API:', error);
+    }
+  };
+
+  // Load user's wishlist from API when authenticated
+  const syncWishlistFromAPI = async () => {
+    if (!user?.token) return;
+
+    try {
+      const response = await apiClient.getWishlist();
+      if (response.success && response.data?.items) {
+        setWishlist(response.data.items.map(item => item.productId));
+      }
+    } catch (error) {
+      console.warn('Failed to sync wishlist from API:', error);
+    }
+  };
+
+  // Load user's orders from API when authenticated
+  const syncOrdersFromAPI = async () => {
+    if (!user?.token) return;
+
+    try {
+      const response = await apiClient.getUserOrders();
+      if (response.success && response.data?.orders) {
+        setOrders(response.data.orders);
+      }
+    } catch (error) {
+      console.warn('Failed to sync orders from API:', error);
+    }
+  };
+
+  // Sync all user data when user logs in
+  useEffect(() => {
+    if (user?.token) {
+      syncCartFromAPI();
+      syncWishlistFromAPI();
+      syncOrdersFromAPI();
+    }
+  }, [user?.token]);
+
   useEffect(() => {
     fetchProducts(1, true);
     fetchCategories();
@@ -280,83 +346,121 @@ export const ShopProvider = ({ children }) => {
   };
 
   // User Authentication Actions
-  const userLogin = (email, password, userData = null) => {
+  const userLogin = async (email, password, userData = null) => {
     // Validation
     if (!email.trim() || !password.trim()) {
       return { success: false, error: 'Email and password are required' };
     }
 
-    // Get existing users from localStorage
-    let existingUsers = [];
     try {
-      const stored = localStorage.getItem('cartverse_local_users');
-      existingUsers = stored ? JSON.parse(stored) : [];
-    } catch (err) {
-      existingUsers = [];
-    }
+      // Try API first
+      const response = await apiClient.loginCustomer(email, password);
+      
+      if (response.success && response.data?.user) {
+        // Update local state with API user
+        safeSetUser({
+          ...response.data.user,
+          isLoggedIn: true,
+          token: response.data.token
+        });
 
-    // Check if user exists
-    let foundUser = existingUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+        addToast({
+          type: 'success',
+          title: 'Welcome back!',
+          message: `Logged in as ${response.data.user.name}`
+        });
 
-    if (foundUser) {
-      // Existing user - verify password
-      if (foundUser.password !== password) {
-        return { success: false, error: 'Invalid email or password' };
-      }
-      // Login successful
-      const token = 'cart_user_jwt_' + Math.random().toString(36).substring(2);
-      const loginUser = {
-        ...foundUser,
-        isLoggedIn: true,
-        lastLogin: new Date().toLocaleString(),
-        token
-      };
-      setUser(loginUser);
-      localStorage.setItem('cartverse_token', token);
-      localStorage.setItem('aura_user', JSON.stringify(loginUser));
-      addToast({
-        type: 'success',
-        title: 'Welcome back!',
-        message: `Logged in as ${foundUser.name}`
-      });
-      return { success: true, user: loginUser };
-    } else {
-      // New user - create account (registration)
-      if (!userData || !userData.name) {
-        return { success: false, error: 'Name is required for new account' };
-      }
-      const newUser = {
-        id: 'user-' + Math.random().toString(36).substring(2, 9),
-        name: userData.name,
-        email: email,
-        phone: userData.phone || '',
-        password: password, // In production, use bcrypt or similar
-        addresses: userData.addresses || [],
-        isLoggedIn: true,
-        createdAt: new Date().toLocaleString(),
-        lastLogin: new Date().toLocaleString(),
-        token: 'cart_user_jwt_' + Math.random().toString(36).substring(2),
-        preferences: {
-          theme: 'dark',
-          notifications: true
+        return { success: true, user: response.data.user };
+      } else if (response.success === false) {
+        // If login fails, try registration if userData provided
+        if (userData && userData.name) {
+          const registerResponse = await apiClient.registerCustomer(
+            email,
+            password,
+            userData.name,
+            userData.phone || ''
+          );
+
+          if (registerResponse.success && registerResponse.data?.user) {
+            safeSetUser({
+              ...registerResponse.data.user,
+              isLoggedIn: true,
+              token: registerResponse.data.token,
+              addresses: userData.addresses || []
+            });
+
+            addToast({
+              type: 'success',
+              title: 'Account Created!',
+              message: `Welcome ${registerResponse.data.user.name}! Your account is ready.`
+            });
+
+            return { success: true, user: registerResponse.data.user };
+          }
         }
-      };
+        
+        return { success: false, error: response.message || 'Login failed' };
+      }
+    } catch (error) {
+      console.warn('Auth API error, check backend:', error);
+      // Fallback to local auth if API fails
+      let existingUsers = [];
+      try {
+        const stored = localStorage.getItem('cartverse_local_users');
+        existingUsers = stored ? JSON.parse(stored) : [];
+      } catch (err) {
+        existingUsers = [];
+      }
 
-      // Save new user to localStorage
-      existingUsers.push(newUser);
-      localStorage.setItem('cartverse_local_users', JSON.stringify(existingUsers));
+      let foundUser = existingUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
 
-      // Set as current user
-      setUser(newUser);
-      localStorage.setItem('cartverse_token', newUser.token);
-      localStorage.setItem('aura_user', JSON.stringify(newUser));
+      if (foundUser && foundUser.password === password) {
+        const token = 'cart_user_jwt_' + Math.random().toString(36).substring(2);
+        const loginUser = {
+          ...foundUser,
+          isLoggedIn: true,
+          lastLogin: new Date().toLocaleString(),
+          token
+        };
+        safeSetUser(loginUser);
+        localStorage.setItem('cartverse_token', token);
 
-      addToast({
-        type: 'success',
-        title: 'Account Created!',
-        message: `Welcome ${newUser.name}! Your account is ready.`
-      });
-      return { success: true, user: newUser };
+        addToast({
+          type: 'success',
+          title: 'Welcome back!',
+          message: `Logged in as ${foundUser.name}`
+        });
+
+        return { success: true, user: loginUser };
+      } else if (!foundUser && userData?.name) {
+        const newUser = {
+          id: 'user-' + Math.random().toString(36).substring(2, 9),
+          name: userData.name,
+          email,
+          phone: userData.phone || '',
+          password,
+          addresses: userData.addresses || [],
+          isLoggedIn: true,
+          createdAt: new Date().toLocaleString(),
+          lastLogin: new Date().toLocaleString(),
+          token: 'cart_user_jwt_' + Math.random().toString(36).substring(2),
+          preferences: { theme: 'dark', notifications: true }
+        };
+
+        existingUsers.push(newUser);
+        localStorage.setItem('cartverse_local_users', JSON.stringify(existingUsers));
+        safeSetUser(newUser);
+
+        addToast({
+          type: 'success',
+          title: 'Account Created!',
+          message: `Welcome ${newUser.name}! Your account is ready.`
+        });
+
+        return { success: true, user: newUser };
+      }
+
+      return { success: false, error: 'Invalid email or password' };
     }
   };
 
@@ -574,23 +678,40 @@ export const ShopProvider = ({ children }) => {
   };
 
   // Wishlist Actions
-  const toggleWishlist = (productId) => {
+  const toggleWishlist = async (productId) => {
     const exists = wishlist.includes(productId);
     const prod = products.find(p => p.id === productId);
+
+    // Update local state immediately
+    setWishlist(prev => 
+      exists ? prev.filter(id => id !== productId) : [...prev, productId]
+    );
+
     if (exists) {
-      setWishlist(prev => prev.filter(id => id !== productId));
       addToast({
         type: 'info',
         title: 'Removed from Wishlist',
         message: prod ? `${prod.name.substring(0, 24)}... removed` : 'Item removed'
       });
     } else {
-      setWishlist(prev => [...prev, productId]);
       addToast({
         type: 'success',
         title: 'Added to Wishlist ❤️',
         message: prod ? `${prod.name.substring(0, 24)}... saved` : 'Item saved'
       });
+    }
+
+    // Sync to API if user is logged in
+    if (user?.token) {
+      try {
+        if (exists) {
+          await apiClient.removeFromWishlist(productId);
+        } else {
+          await apiClient.addToWishlist(productId);
+        }
+      } catch (error) {
+        console.warn('Failed to sync wishlist to API:', error);
+      }
     }
   };
 
@@ -628,10 +749,11 @@ export const ShopProvider = ({ children }) => {
   };
 
   // Cart Actions
-  const addToCart = (product, quantity = 1, color = null, size = null) => {
+  const addToCart = async (product, quantity = 1, color = null, size = null) => {
     const selectedColor = color || (product.colors && product.colors[0]?.name) || 'Default';
     const selectedSize = size || (product.sizes && product.sizes[0]) || 'Standard';
 
+    // Update local state immediately for responsiveness
     setCart(prev => {
       const existingIndex = prev.findIndex(
         item => item.id === product.id && item.color === selectedColor && item.size === selectedSize
@@ -669,13 +791,24 @@ export const ShopProvider = ({ children }) => {
       title: 'Added to Bag 🛍️',
       message: `${product.name.substring(0, 26)}... (${quantity}x)`
     });
+
+    // Sync to API if user is logged in
+    if (user?.token) {
+      try {
+        await apiClient.addToCart(product.id, quantity, selectedColor, selectedSize);
+      } catch (error) {
+        console.warn('Failed to sync cart to API:', error);
+      }
+    }
   };
 
-  const updateCartQuantity = (index, newQuantity) => {
+  const updateCartQuantity = async (index, newQuantity) => {
     if (newQuantity <= 0) {
       removeFromCart(index);
       return;
     }
+
+    const item = cart[index];
     setCart(prev => {
       const updated = [...prev];
       if (updated[index]) {
@@ -686,30 +819,86 @@ export const ShopProvider = ({ children }) => {
       }
       return updated;
     });
+
+    // Sync to API if user is logged in
+    if (user?.token && item?.id) {
+      try {
+        await apiClient.updateCartItem(item.id, newQuantity);
+      } catch (error) {
+        console.warn('Failed to update cart in API:', error);
+      }
+    }
   };
 
-  const removeFromCart = (index) => {
+  const removeFromCart = async (index) => {
+    const item = cart[index];
     setCart(prev => {
-      const item = prev[index];
-      if (item) {
+      if (prev[index]) {
         addToast({
           type: 'info',
           title: 'Removed from Cart',
-          message: `${item.name.substring(0, 22)}... removed`
+          message: `${prev[index].name.substring(0, 22)}... removed`
         });
       }
       return prev.filter((_, i) => i !== index);
     });
+
+    // Sync to API if user is logged in
+    if (user?.token && item?.id) {
+      try {
+        await apiClient.removeFromCart(item.id);
+      } catch (error) {
+        console.warn('Failed to remove item from API:', error);
+      }
+    }
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     setCart([]);
     setAppliedCoupon(null);
+
+    // Sync to API if user is logged in
+    if (user?.token) {
+      try {
+        await apiClient.clearCart();
+      } catch (error) {
+        console.warn('Failed to clear cart in API:', error);
+      }
+    }
   };
 
   // Coupon Actions
-  const applyCoupon = (code) => {
+  const applyCoupon = async (code) => {
     const cleanCode = code.trim().toUpperCase();
+    
+    // Try API first
+    if (user?.token) {
+      try {
+        const { subtotal } = getCartTotals();
+        const response = await apiClient.validateCoupon(cleanCode, subtotal);
+
+        if (response.success && response.data?.coupon) {
+          setAppliedCoupon(response.data.coupon);
+          addToast({
+            type: 'success',
+            title: 'Coupon Applied! 🎉',
+            message: `${response.data.coupon.description} activated.`
+          });
+          return true;
+        } else {
+          addToast({
+            type: 'error',
+            title: 'Invalid Coupon',
+            message: response.message || `Promo code "${cleanCode}" does not exist or has expired.`
+          });
+          return false;
+        }
+      } catch (error) {
+        console.warn('Coupon API failed, falling back to local:', error);
+      }
+    }
+
+    // Fallback to local coupons
     const found = coupons.find(c => c.code === cleanCode && c.active);
     
     if (!found) {
@@ -749,8 +938,9 @@ export const ShopProvider = ({ children }) => {
     });
   };
 
-  // Place Order Simulation
-  const placeOrder = ({ items, shippingAddress, paymentMethod, totals }) => {
+  // Place Order
+  const placeOrder = async ({ items, shippingAddress, paymentMethod, totals }) => {
+    // Create local order object for immediate UI feedback
     const orderId = 'ORD-' + Math.floor(10000 + Math.random() * 90000);
     const newOrder = {
       id: orderId,
@@ -789,6 +979,32 @@ export const ShopProvider = ({ children }) => {
       canReturn: false,
       returnRequested: false
     };
+
+    // Send to API if user is logged in
+    if (user?.token) {
+      try {
+        const response = await apiClient.createOrder({
+          items: items.map(it => ({
+            productId: it.id,
+            quantity: it.quantity,
+            color: it.color,
+            size: it.size
+          })),
+          shippingAddress,
+          paymentMethod,
+          couponCode: appliedCoupon?.code,
+          totals
+        });
+
+        if (response.success && response.data?.order) {
+          // Use API order response if available
+          Object.assign(newOrder, response.data.order);
+        }
+      } catch (error) {
+        console.warn('Failed to create order via API:', error);
+        // Continue with local order
+      }
+    }
 
     // Deduct stock from products
     setProducts(prev => {
@@ -1286,9 +1502,13 @@ export const ShopProvider = ({ children }) => {
     hasMoreProducts,
     loadMoreProducts,
     fetchProducts,
+    fetchProductById,
     fetchCategories,
     buyNow,
     requestUserLocation,
+    syncCartFromAPI,
+    syncWishlistFromAPI,
+    syncOrdersFromAPI
   };
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
