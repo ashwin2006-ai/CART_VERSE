@@ -38,17 +38,62 @@ export const AdminLogin = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '24px',
+      padding: '16px',
       background: 'radial-gradient(ellipse at top, #1e1b4b 0%, #0b0f19 70%)',
       position: 'relative'
     }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .admin-return-btn {
+            top: 16px !important;
+            left: 16px !important;
+            font-size: 0.75rem !important;
+            padding: 8px 12px !important;
+          }
+          .admin-login-card {
+            padding: 32px 20px !important;
+            max-width: 100% !important;
+          }
+          .admin-header-icon {
+            width: 56px !important;
+            height: 56px !important;
+          }
+          .admin-header-icon svg {
+            width: 28px !important;
+            height: 28px !important;
+          }
+          .admin-title {
+            font-size: 1.4rem !important;
+          }
+          .admin-subtitle {
+            font-size: 0.8rem !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .admin-login-card {
+            padding: 24px 16px !important;
+          }
+          .admin-title {
+            font-size: 1.2rem !important;
+          }
+          .admin-header-icon {
+            width: 48px !important;
+            height: 48px !important;
+          }
+          .admin-header-icon svg {
+            width: 24px !important;
+            height: 24px !important;
+          }
+        }
+      `}</style>
+      
       {/* Return to Customer Storefront Button */}
       <button
         onClick={() => {
           setCurrentView('store');
           window.location.hash = '';
         }}
-        className="btn btn-secondary"
+        className="btn btn-secondary admin-return-btn"
         style={{
           position: 'absolute',
           top: '24px',
@@ -63,7 +108,7 @@ export const AdminLogin = () => {
 
       {/* Main Login Card */}
       <div
-        className="glass-panel animate-scale-in"
+        className="glass-panel animate-scale-in admin-login-card"
         style={{
           width: '100%',
           maxWidth: '460px',
@@ -76,7 +121,7 @@ export const AdminLogin = () => {
       >
         {/* Security Shield Header */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{
+          <div className="admin-header-icon" style={{
             width: '68px',
             height: '68px',
             borderRadius: '20px',
@@ -95,7 +140,7 @@ export const AdminLogin = () => {
             Authorized Personnel Only
           </span>
 
-          <h1 style={{
+          <h1 className="admin-title" style={{
             fontSize: '1.75rem',
             fontWeight: 900,
             color: 'var(--text-primary)',
@@ -104,7 +149,7 @@ export const AdminLogin = () => {
             CART<span className="gradient-text">VERSE</span> <span style={{ color: 'var(--accent-gold)' }}>Admin Portal</span>
           </h1>
 
-          <p style={{
+          <p className="admin-subtitle" style={{
             fontSize: '0.85rem',
             color: 'var(--text-secondary)',
             marginTop: '4px'
@@ -113,30 +158,32 @@ export const AdminLogin = () => {
           </p>
         </div>
 
-        {/* Demo Credentials Quick-Fill Pill */}
-        <div
-          onClick={handleFillDemo}
-          style={{
-            padding: '10px 14px',
-            borderRadius: 'var(--radius-md)',
-            background: 'rgba(245, 158, 11, 0.12)',
-            border: '1px dashed rgba(245, 158, 11, 0.4)',
-            marginBottom: '24px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-          title="Click to fill demo credentials"
-        >
-          <div style={{ fontSize: '0.78rem', color: '#fbbf24', lineHeight: 1.4 }}>
-            <div>🔑 <strong>Demo Access:</strong> ashwin@cartverse.io</div>
-            <div>Password: <strong>Ashwin@123!</strong></div>
+        {/* Demo Credentials Quick-Fill Pill - REMOVED FOR SECURITY */}
+        {false && (
+          <div
+            onClick={handleFillDemo}
+            style={{
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-md)',
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px dashed rgba(245, 158, 11, 0.4)',
+              marginBottom: '24px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+            title="Click to fill demo credentials"
+          >
+            <div style={{ fontSize: '0.78rem', color: '#fbbf24', lineHeight: 1.4 }}>
+              <div>🔑 <strong>Demo Access:</strong> ashwin@cartverse.io</div>
+              <div>Password: <strong>Ashwin@123!</strong></div>
+            </div>
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--accent-gold)', background: 'rgba(245, 158, 11, 0.2)', padding: '3px 8px', borderRadius: '4px' }}>
+              Auto Fill
+            </span>
           </div>
-          <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--accent-gold)', background: 'rgba(245, 158, 11, 0.2)', padding: '3px 8px', borderRadius: '4px' }}>
-            Auto Fill
-          </span>
-        </div>
+        )}
 
         {/* Error Alert */}
         {errorMsg && (

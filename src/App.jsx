@@ -102,6 +102,14 @@ const ProductGrid = ({ products: prods, isLoading, hasMore, onLoadMore, totalCou
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
           gap: '16px',
+          '@media (max-width: 768px)': {
+            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+            gap: '12px',
+          },
+          '@media (max-width: 480px)': {
+            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+            gap: '10px',
+          }
         }}>
           {prods.map(p => <ProductCard key={p.id} product={p} />)}
         </div>

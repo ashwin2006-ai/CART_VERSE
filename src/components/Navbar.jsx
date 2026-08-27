@@ -65,8 +65,9 @@ export const Navbar = () => {
     localStorage.removeItem('cartverse_token');
     localStorage.removeItem('aura_user');
     setShowUserMenu(false);
-    // Navigate to store instead of reload to avoid full page refresh
-    setCurrentView('store');
+    // Navigate to admin login after logout
+    setCurrentView('admin');
+    window.location.hash = '#admin';
     addToast({
       type: 'success',
       title: 'Signed Out',
@@ -93,13 +94,24 @@ export const Navbar = () => {
     <>
       <CustomerAuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
+      <style>{`
+        @media (max-width: 768px) {
+          .navbar-search { display: none !important; }
+          .navbar-desktop-actions { gap: 8px !important; }
+        }
+        @media (max-width: 480px) {
+          .navbar-container { padding: 0 12px !important; gap: 8px !important; }
+          .navbar-logo-text { font-size: 1rem !important; }
+        }
+      `}</style>
+
       <header style={{
         position: 'sticky', top: 0, zIndex: 1000,
         background: bg,
         borderBottom: `1px solid ${border}`,
         boxShadow: isDark ? '0 1px 12px rgba(0,0,0,0.4)' : '0 1px 8px rgba(0,0,0,0.06)',
       }}>
-        <div style={{
+        <div className="navbar-container" style={{
           display: 'flex', alignItems: 'center', gap: '16px',
           padding: '0 16px', height: '60px',
           maxWidth: '1400px', margin: '0 auto',
@@ -116,7 +128,7 @@ export const Navbar = () => {
             }}>
               <ShoppingBag size={16} color="#fff" />
             </div>
-            <span style={{
+            <span className="navbar-logo-text" style={{
               fontSize: '1.2rem', fontWeight: 900,
               color: textPrimary, letterSpacing: '-0.03em',
               fontFamily: "'Inter', sans-serif",
@@ -125,8 +137,8 @@ export const Navbar = () => {
             </span>
           </button>
 
-          {/* Search Bar — desktop */}
-          <div ref={searchRef} style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
+          {/* Search Bar — desktop only */}
+          <div className="navbar-search" ref={searchRef} style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', minWidth: '200px' }}>
             <div style={{
               flex: 1, display: 'flex', alignItems: 'center', background: searchBg,
               borderRadius: '10px', padding: '0 12px', border: isSearchFocused ? `2px solid ${accent}` : `1px solid ${border}`,
@@ -180,7 +192,7 @@ export const Navbar = () => {
           </div>
 
           {/* Right Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="navbar-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {/* Wishlist */}
             <button
               onClick={() => setCurrentView('account')}
@@ -339,7 +351,6 @@ export const Navbar = () => {
               display: 'none', width: '36px', height: '36px', borderRadius: '8px',
               background: searchBg, border: 'none', cursor: 'pointer',
               alignItems: 'center', justifyContent: 'center', color: textMuted,
-              '@media (max-width: 768px)': { display: 'flex' }
             }}
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
