@@ -285,11 +285,11 @@ export function App() {
 
   const isFiltered = !!(searchQuery || (selectedCategory && selectedCategory !== 'all'));
 
-  const featured   = useMemo(() => products.filter(p => p.featured).slice(0, 8), [products]);
-  const dealProds  = useMemo(() => products.filter(p => p.dealOfTheDay || p.discount >= 25).slice(0, 8), [products]);
-  const bestSell   = useMemo(() => products.filter(p => p.bestSeller).slice(0, 8), [products]);
-  const newArrivals= useMemo(() => products.filter(p => p.isNew).slice(0, 8), [products]);
-  const recentProds= useMemo(() => products.filter(p => recentlyViewed.includes(p.id)).slice(0, 4), [products, recentlyViewed]);
+  const featured   = useMemo(() => (products || []).filter(p => p && p.featured).slice(0, 8), [products]);
+  const dealProds  = useMemo(() => (products || []).filter(p => p && (p.dealOfTheDay || p.discount >= 25)).slice(0, 8), [products]);
+  const bestSell   = useMemo(() => (products || []).filter(p => p && p.bestSeller).slice(0, 8), [products]);
+  const newArrivals= useMemo(() => (products || []).filter(p => p && p.isNew).slice(0, 8), [products]);
+  const recentProds= useMemo(() => (products || []).filter(p => p && recentlyViewed.includes(p.id)).slice(0, 4), [products, recentlyViewed]);
 
   // Admin portal on /admin route
   if (currentView === 'admin') {

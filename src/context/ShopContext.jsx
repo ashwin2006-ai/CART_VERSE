@@ -1,4 +1,5 @@
-import React, { createContext, useState, useCallback, useContext } from 'react';
+import React, { createContext, useState, useCallback, useContext, useEffect } from 'react';
+import { INITIAL_PRODUCTS } from '../data/mockData';
 
 export const ShopContext = createContext();
 
@@ -44,6 +45,35 @@ export const ShopProvider = ({ children }) => {
   
   // Toast notifications
   const [toasts, setToasts] = useState([]);
+
+  // Load products on mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setIsLoadingProducts(true);
+        // Try to fetch from API
+        const response = await fetch('/api/products?limit=50');
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data.products || INITIAL_PRODUCTS);
+          setTotalProducts(data.total || INITIAL_PRODUCTS.length);
+        } else {
+          // Fallback to mock data
+          setProducts(INITIAL_PRODUCTS);
+          setTotalProducts(INITIAL_PRODUCTS.length);
+        }
+      } catch (error) {
+        console.error('Failed to load products, using mock data:', error);
+        // Fallback to mock data on error
+        setProducts(INITIAL_PRODUCTS);
+        setTotalProducts(INITIAL_PRODUCTS.length);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+    
+    loadProducts();
+  }, []);
 
   // Cart functions
   const addToCart = useCallback((item) => {
