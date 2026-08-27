@@ -300,6 +300,68 @@ export const Navbar = () => {
                     <User size={15} /> My Account
                   </button>
 
+                  {!user?.isLoggedIn && (
+                    <button
+                      onClick={() => {
+                        setUser({
+                          id: 'demo-user',
+                          name: 'Demo User',
+                          email: 'demo@cartverse.io',
+                          phone: '9876543210',
+                          addresses: [
+                            {
+                              id: 'addr-1',
+                              title: 'Home',
+                              fullName: 'Demo User',
+                              phone: '9876543210',
+                              street: '123 Demo Street',
+                              landmark: 'Near Demo Park',
+                              city: 'Demo City',
+                              state: 'Demo State',
+                              pincode: '123456'
+                            }
+                          ],
+                          isLoggedIn: true
+                        });
+                        localStorage.setItem('aura_user', JSON.stringify({
+                          id: 'demo-user',
+                          name: 'Demo User',
+                          email: 'demo@cartverse.io',
+                          phone: '9876543210',
+                          addresses: [
+                            {
+                              id: 'addr-1',
+                              title: 'Home',
+                              fullName: 'Demo User',
+                              phone: '9876543210',
+                              street: '123 Demo Street',
+                              landmark: 'Near Demo Park',
+                              city: 'Demo City',
+                              state: 'Demo State',
+                              pincode: '123456'
+                            }
+                          ],
+                          isLoggedIn: true
+                        }));
+                        setShowUserMenu(false);
+                        addToast({
+                          type: 'success',
+                          title: 'Demo Account Loaded',
+                          message: 'Welcome! You are logged in as Demo User'
+                        });
+                      }}
+                      style={{
+                        width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                        color: '#10b981', fontWeight: 700, borderTop: `1px solid ${border}`,
+                        display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <User size={15} /> 📌 Demo Login
+                    </button>
+                  )}
+
                   <button
                     onClick={() => { setIsAuthModalOpen(true); setShowUserMenu(false); }}
                     style={{
