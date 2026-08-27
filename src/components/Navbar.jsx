@@ -53,7 +53,7 @@ export const Navbar = () => {
   }, [setCurrentView]);
 
   const handleLogout = () => {
-    // Reset user to guest state instead of null to prevent crashes
+    // Reset user to logged out state
     setUser({
       id: 'user-guest',
       name: 'Guest User',
@@ -65,10 +65,9 @@ export const Navbar = () => {
     localStorage.removeItem('cartverse_token');
     localStorage.removeItem('aura_user');
     setShowUserMenu(false);
-    // Redirect to home store after logout (not admin)
-    setCurrentView('store');
+    // ✅ Redirect to login page (not store home)
+    setCurrentView('store'); // Will trigger login page due to isLoggedIn = false
     window.location.hash = '';
-    window.location.pathname = '/';
     addToast({
       type: 'success',
       title: 'Signed Out',

@@ -13,6 +13,7 @@ import { OrderTrackingModal } from './components/OrderTrackingModal';
 import { AccountView } from './components/AccountView';
 import { AdminPanel } from './components/AdminPanel';
 import { AdminLogin } from './components/AdminLogin';
+import { UserLoginPage } from './components/UserLoginPage';
 import { AiAssistant } from './components/AiAssistant';
 import { ToastContainer } from './components/ToastContainer';
 import { Footer } from './components/Footer';
@@ -296,6 +297,17 @@ export function App() {
       <>
         <ToastContainer />
         {adminAuth.isAuthenticated ? <AdminPanel /> : <AdminLogin />}
+      </>
+    );
+  }
+
+  // Check if user is logged in - show login page if not
+  const isUserLoggedIn = user?.isLoggedIn;
+  if (!isUserLoggedIn && (currentView === 'store' || currentView === 'account')) {
+    return (
+      <>
+        <ToastContainer />
+        <UserLoginPage />
       </>
     );
   }

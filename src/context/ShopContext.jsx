@@ -279,6 +279,87 @@ export const ShopProvider = ({ children }) => {
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
+  // User Authentication Actions
+  const userLogin = (email, password, userData = null) => {
+    // Validation
+    if (!email.trim() || !password.trim()) {
+      return { success: false, error: 'Email and password are required' };
+    }
+
+    // Get existing users from localStorage
+    let existingUsers = [];
+    try {
+      const stored = localStorage.getItem('cartverse_local_users');
+      existingUsers = stored ? JSON.parse(stored) : [];
+    } catch (err) {
+      existingUsers = [];
+    }
+
+    // Check if user exists
+    let foundUser = existingUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+    if (foundUser) {
+      // Existing user - verify password
+      if (foundUser.password !== password) {
+        return { success: false, error: 'Invalid email or password' };
+      }
+      // Login successful
+      const token = 'cart_user_jwt_' + Math.random().toString(36).substring(2);
+      const loginUser = {
+        ...foundUser,
+        isLoggedIn: true,
+        lastLogin: new Date().toLocaleString(),
+        token
+      };
+      setUser(loginUser);
+      localStorage.setItem('cartverse_token', token);
+      localStorage.setItem('aura_user', JSON.stringify(loginUser));
+      addToast({
+        type: 'success',
+        title: 'Welcome back!',
+        message: `Logged in as ${foundUser.name}`
+      });
+      return { success: true, user: loginUser };
+    } else {
+      // New user - create account (registration)
+      if (!userData || !userData.name) {
+        return { success: false, error: 'Name is required for new account' };
+      }
+      const newUser = {
+        id: 'user-' + Math.random().toString(36).substring(2, 9),
+        name: userData.name,
+        email: email,
+        phone: userData.phone || '',
+        password: password, // In production, use bcrypt or similar
+        addresses: userData.addresses || [],
+        isLoggedIn: true,
+        createdAt: new Date().toLocaleString(),
+        lastLogin: new Date().toLocaleString(),
+        token: 'cart_user_jwt_' + Math.random().toString(36).substring(2),
+        preferences: {
+          theme: 'dark',
+          notifications: true
+        }
+      };
+
+      // Save new user to localStorage
+      existingUsers.push(newUser);
+      localStorage.setItem('cartverse_local_users', JSON.stringify(existingUsers));
+
+      // Set as current user
+      setUser(newUser);
+      localStorage.setItem('cartverse_token', newUser.token);
+      localStorage.setItem('aura_user', JSON.stringify(newUser));
+
+      addToast({
+        type: 'success',
+        title: 'Account Created!',
+        message: `Welcome ${newUser.name}! Your account is ready.`
+      });
+      return { success: true, user: newUser };
+    }
+  };
+
   // Admin Authentication Actions
   const adminLogin = (email, password) => {
     if (email.trim().toLowerCase() === adminAuth.adminUser.email.toLowerCase() && password === adminAuth.passwordHash) {
@@ -1116,6 +1197,7 @@ export const ShopProvider = ({ children }) => {
     toggleTheme,
     currentView,
     setCurrentView,
+    userLogin,
     adminAuth,
     adminLogin,
     adminLogout,
