@@ -18,6 +18,7 @@ export const ShopProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [adminAuth, setAdminAuth] = useState(null);
   const [products, setProducts] = useState([]);
+  const [flipkartProducts, setFlipkartProducts] = useState([]);
   
   // UI state
   const [currentView, setCurrentView] = useState('home');
@@ -331,6 +332,24 @@ export const ShopProvider = ({ children }) => {
     }));
   }, []);
 
+  // ✅ Missing functions for ProductDetailModal
+  const toggleWishlist = useCallback((productId) => {
+    const product = products.find(p => p.id === productId) || flipkartProducts.find(p => p.id === productId);
+    if (product) {
+      addToWishlist(product);
+    }
+  }, [products, flipkartProducts, addToWishlist]);
+
+  const buyNow = useCallback((product, color, size, quantity) => {
+    setDirectCheckoutItem({ 
+      ...product, 
+      selectedColor: color, 
+      selectedSize: size,
+      quantity: quantity || 1
+    });
+    setIsCheckoutOpen(true);
+  }, [setDirectCheckoutItem, setIsCheckoutOpen]);
+
   const value = {
     // Core state
     cart,
@@ -341,6 +360,8 @@ export const ShopProvider = ({ children }) => {
     setAdminAuth,
     products,
     setProducts,
+    flipkartProducts,
+    setFlipkartProducts,
     
     // UI state
     currentView,
@@ -425,6 +446,8 @@ export const ShopProvider = ({ children }) => {
     addToWishlist,
     removeFromWishlist,
     isInWishlist,
+    toggleWishlist,
+    buyNow,
     
     // Utility functions
     loadMoreProducts,
