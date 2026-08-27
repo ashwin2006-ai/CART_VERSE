@@ -301,20 +301,6 @@ export const Navbar = () => {
                   </button>
 
                   <button
-                    onClick={() => { setCurrentView('admin'); setShowUserMenu(false); window.location.hash = '#admin'; }}
-                    style={{
-                      width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
-                      color: '#6C63FF', fontWeight: 600,
-                      display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    title="Ctrl+Shift+A"
-                  >
-                    🛡️ Admin Panel
-                  </button>
-
-                  <button
                     onClick={() => { setIsAuthModalOpen(true); setShowUserMenu(false); }}
                     style={{
                       width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
