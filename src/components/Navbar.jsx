@@ -24,10 +24,10 @@ export const Navbar = () => {
   const wishlistCount = wishlist.length;
 
   const suggestions = searchQuery.trim()
-    ? products.filter(p =>
+    ? (products || []).filter(p => p && p.name && (
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.category || '').toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 6)
+      )).slice(0, 6)
     : [];
 
   useEffect(() => {

@@ -261,23 +261,23 @@ export function App() {
   }, []);
 
   const filteredProducts = useMemo(() => {
-    let list = [...products];
-    if (searchQuery.trim()) {
+    let list = [...(products || [])];
+    if (searchQuery && searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      list = list.filter(p =>
+      list = list.filter(p => p && p.name && (
         p.name.toLowerCase().includes(q) ||
         (p.category || '').toLowerCase().includes(q) ||
         (p.description || '').toLowerCase().includes(q)
-      );
+      ));
     }
-    if (selectedCategory !== 'all') list = list.filter(p => p.category === selectedCategory);
-    if (minRating > 0) list = list.filter(p => p.rating >= minRating);
-    if (inStockOnly) list = list.filter(p => p.stock > 0);
+    if (selectedCategory && selectedCategory !== 'all') list = list.filter(p => p && p.category === selectedCategory);
+    if (minRating > 0) list = list.filter(p => p && p.rating >= minRating);
+    if (inStockOnly) list = list.filter(p => p && p.stock > 0);
     switch (sortBy) {
-      case 'price-low':  list.sort((a, b) => a.price - b.price); break;
-      case 'price-high': list.sort((a, b) => b.price - a.price); break;
-      case 'rating':     list.sort((a, b) => b.rating - a.rating); break;
-      case 'newest':     list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0)); break;
+      case 'price-low':  list.sort((a, b) => (a?.price || 0) - (b?.price || 0)); break;
+      case 'price-high': list.sort((a, b) => (b?.price || 0) - (a?.price || 0)); break;
+      case 'rating':     list.sort((a, b) => (b?.rating || 0) - (a?.rating || 0)); break;
+      case 'newest':     list.sort((a, b) => (b?.isNew ? 1 : 0) - (a?.isNew ? 1 : 0)); break;
       default: break;
     }
     return list;

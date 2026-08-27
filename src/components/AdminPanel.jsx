@@ -122,8 +122,8 @@ export const AdminPanel = () => {
   // Password Change Form
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [profileForm, setProfileForm] = useState({
-    name: adminAuth.adminUser.name,
-    email: adminAuth.adminUser.email
+    name: adminAuth?.adminUser?.name || 'Admin',
+    email: adminAuth?.adminUser?.email || ''
   });
 
   // Flipkart API Hub States
