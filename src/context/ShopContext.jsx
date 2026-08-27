@@ -11,12 +11,41 @@ export const useShop = () => {
 };
 
 export const ShopProvider = ({ children }) => {
+  // Core state
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [user, setUser] = useState(null);
+  const [adminAuth, setAdminAuth] = useState(null);
   const [products, setProducts] = useState([]);
+  
+  // UI state
+  const [currentView, setCurrentView] = useState('home');
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [activeProductId, setActiveProductId] = useState(null);
+  const [theme, setTheme] = useState('light');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  
+  // Search & filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(1000000);
+  const [minRating, setMinRating] = useState(0);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('newest');
+  
+  // Pagination
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [hasMoreProducts, setHasMoreProducts] = useState(true);
+  
+  // Recently viewed
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  
+  // Toast notifications
+  const [toasts, setToasts] = useState([]);
 
+  // Cart functions
   const addToCart = useCallback((item) => {
     setCart((prev) => {
       const existing = prev.find((p) => p.id === item.id);
@@ -47,6 +76,7 @@ export const ShopProvider = ({ children }) => {
     setCart([]);
   }, []);
 
+  // Wishlist functions
   const addToWishlist = useCallback((product) => {
     setWishlist((prev) => {
       const exists = prev.find((p) => p.id === product.id);
@@ -65,6 +95,7 @@ export const ShopProvider = ({ children }) => {
     return wishlist.some((p) => p.id === productId);
   }, [wishlist]);
 
+  // Utility functions
   const getCartTotal = useCallback(() => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   }, [cart]);
@@ -73,24 +104,101 @@ export const ShopProvider = ({ children }) => {
     return cart.reduce((count, item) => count + item.quantity, 0);
   }, [cart]);
 
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  }, []);
+
+  const loadMoreProducts = useCallback(() => {
+    setIsLoadingProducts(true);
+    // This will be called when user scrolls to load more
+    setTimeout(() => setIsLoadingProducts(false), 500);
+  }, []);
+
+  const addToast = useCallback((message, type = 'info') => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  }, []);
+
+  const addToRecentlyViewed = useCallback((product) => {
+    setRecentlyViewed((prev) => {
+      const filtered = prev.filter((p) => p.id !== product.id);
+      return [product, ...filtered].slice(0, 10);
+    });
+  }, []);
+
   const value = {
+    // Core state
     cart,
+    wishlist,
+    user,
+    setUser,
+    adminAuth,
+    setAdminAuth,
+    products,
+    setProducts,
+    
+    // UI state
+    currentView,
+    setCurrentView,
+    isCartOpen,
+    setIsCartOpen,
+    activeProductId,
+    setActiveProductId,
+    theme,
+    toggleTheme,
+    isLoading,
+    setIsLoading,
+    isLoadingProducts,
+    setIsLoadingProducts,
+    
+    // Search & filter
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setMaxPrice,
+    minRating,
+    setMinRating,
+    inStockOnly,
+    setInStockOnly,
+    sortBy,
+    setSortBy,
+    
+    // Pagination
+    totalProducts,
+    setTotalProducts,
+    hasMoreProducts,
+    setHasMoreProducts,
+    
+    // Recently viewed
+    recentlyViewed,
+    addToRecentlyViewed,
+    
+    // Toasts
+    toasts,
+    addToast,
+    
+    // Cart functions
     addToCart,
     removeFromCart,
     updateCartQuantity,
     clearCart,
     getCartTotal,
     getCartCount,
-    wishlist,
+    
+    // Wishlist functions
     addToWishlist,
     removeFromWishlist,
     isInWishlist,
-    user,
-    setUser,
-    products,
-    setProducts,
-    isLoading,
-    setIsLoading,
+    
+    // Utility functions
+    loadMoreProducts,
   };
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
