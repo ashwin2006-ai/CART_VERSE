@@ -301,17 +301,6 @@ export function App() {
     );
   }
 
-  // Check if user is logged in - show login page if not
-  const isUserLoggedIn = user?.isLoggedIn;
-  if (!isUserLoggedIn && (currentView === 'store' || currentView === 'account')) {
-    return (
-      <>
-        <ToastContainer />
-        <UserLoginPage />
-      </>
-    );
-  }
-
   return (
     <div style={{ minHeight: '100vh', background: bg, paddingBottom: '68px', fontFamily: "'Inter', sans-serif" }}>
       <ToastContainer />
