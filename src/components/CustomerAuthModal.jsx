@@ -81,6 +81,7 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
       rewardPoints: safeUser?.rewardPoints || 100,
       avatar: safeUser?.avatar || '',
       addresses: safeUser?.addresses || [],
+      isLoggedIn: true, // ✅ Always true after login
     };
     setUser(cleanUser);
     // Save with the key that ShopContext's loadLocal('user') reads: aura_user
@@ -99,29 +100,31 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
           setIsLoading(false); return;
         }
 
-        // Try API first
-        const apiResult = await tryApi('/api/auth/register', {
-          name: formData.name, email: formData.email,
-          password: formData.password, phone: formData.phone
-        });
-
-        if (apiResult?.success) {
-          if (apiResult.token) localStorage.setItem('cartverse_token', apiResult.token);
-          loginUser({ ...apiResult?.user, rewardPoints: 100 });
-          addToast({ type: 'success', title: 'Account Created 🎉', message: `Welcome ${apiResult?.user?.name || 'User'}! You have 100 reward points.` });
-          onClose(); setCurrentView('store');
-        } else if (apiResult && !apiResult.success) {
-          addToast({ type: 'error', title: 'Registration Failed', message: apiResult.message || 'Email may already be in use.' });
+        // ✅ Always use local registration (no API call for registration)
+        const result = registerLocalUser(formData.name, formData.email, formData.password, formData.phone);
+        
+        if (result.error) {
+          addToast({ type: 'error', title: 'Already Registered', message: result.error });
+          setIsLoading(false);
         } else {
-          // ── Local fallback ──
-          const result = registerLocalUser(formData.name, formData.email, formData.password, formData.phone);
-          if (result.error) {
-            addToast({ type: 'error', title: 'Already Registered', message: result.error });
-          } else {
-            loginUser(result?.user);
-            addToast({ type: 'success', title: 'Account Created 🎉', message: `Welcome, ${result?.user?.name || 'User'}! You have 100 reward points.` });
-            onClose(); setCurrentView('store');
-          }
+          // Account created successfully
+          loginUser(result?.user);
+          
+          // Clear form data
+          setFormData({ name: '', email: '', phone: '', password: '' });
+          
+          addToast({ 
+            type: 'success', 
+            title: 'Account Created 🎉', 
+            message: `Welcome, ${result?.user?.name || 'User'}! You have 100 reward points.` 
+          });
+          
+          // Close modal and redirect to store
+          setTimeout(() => {
+            onClose();
+            setCurrentView('store');
+            setIsLoading(false);
+          }, 800);
         }
 
       } else {
@@ -138,27 +141,38 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
           setIsLoading(false); return;
         }
 
-        // Try API first
-        const apiResult = await tryApi('/api/auth/login', {
-          email: formData.email, password: formData.password
-        });
-
-        if (apiResult?.success) {
-          if (apiResult.token) localStorage.setItem('cartverse_token', apiResult.token);
-          loginUser(apiResult?.user);
-          addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${apiResult?.user?.name || 'User'}` });
-          onClose(); setCurrentView('store');
-        } else if (apiResult && !apiResult.success) {
-          addToast({ type: 'error', title: 'Login Failed', message: apiResult.message || 'Invalid email or password.' });
+        // ✅ Try local auth first (most reliable for offline)
+        const localUser = loginLocalUser(formData.email, formData.password);
+        if (localUser) {
+          loginUser(localUser);
+          setFormData({ name: '', email: '', phone: '', password: '' });
+          addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${localUser?.name || 'User'}` });
+          
+          setTimeout(() => {
+            onClose();
+            setCurrentView('store');
+            setIsLoading(false);
+          }, 600);
         } else {
-          // ── Local fallback ──
-          const localUser = loginLocalUser(formData.email, formData.password);
-          if (localUser) {
-            loginUser(localUser);
-            addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${localUser?.name || 'User'}` });
-            onClose(); setCurrentView('store');
+          // Try API if local fails
+          const apiResult = await tryApi('/api/auth/login', {
+            email: formData.email, password: formData.password
+          });
+
+          if (apiResult?.success) {
+            if (apiResult.token) localStorage.setItem('cartverse_token', apiResult.token);
+            loginUser(apiResult?.user);
+            setFormData({ name: '', email: '', phone: '', password: '' });
+            addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${apiResult?.user?.name || 'User'}` });
+            
+            setTimeout(() => {
+              onClose();
+              setCurrentView('store');
+              setIsLoading(false);
+            }, 600);
           } else {
-            addToast({ type: 'error', title: 'Login Failed', message: 'No account found. Please register first.' });
+            addToast({ type: 'error', title: 'Login Failed', message: 'Invalid email or password. No account found.' });
+            setIsLoading(false);
           }
         }
       }
