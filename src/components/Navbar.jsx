@@ -53,27 +53,24 @@ export const Navbar = () => {
   }, [setCurrentView]);
 
   const handleLogout = () => {
-    // Reset user to logged out state
-    setUser({
-      id: 'user-guest',
-      name: 'Guest User',
-      email: '',
-      phone: '',
-      addresses: [],
-      isLoggedIn: false
-    });
+    // ✅ Clear all user data
+    setUser(null);
     localStorage.removeItem('cartverse_token');
     localStorage.removeItem('aura_user');
+    localStorage.removeItem('cartverse_local_users');
     setShowUserMenu(false);
-    // ✅ Redirect to login page (not store home)
-    setCurrentView('store'); // Will trigger login page due to isLoggedIn = false
-    window.location.hash = '';
+    
+    // Show success toast
     addToast({
       type: 'success',
       title: 'Signed Out',
       message: 'You have been signed out successfully'
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Redirect and refresh
+    setCurrentView('store');
+    window.location.hash = '';
+    window.location.reload();
   };
 
   const getInitials = (n) => {
@@ -279,87 +276,104 @@ export const Navbar = () => {
                   {/* Profile Header */}
                   <div style={{ padding: '12px 16px', borderBottom: `1px solid ${border}` }}>
                     <div style={{ fontWeight: 800, fontSize: '0.9rem', color: textPrimary }}>
-                      {user?.name || 'Guest User'}
+                      {user?.isLoggedIn ? (user?.name || 'User') : 'Guest User'}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: textMuted, marginTop: '2px' }}>
-                      {user?.email || 'Not logged in'}
+                      {user?.isLoggedIn ? (user?.email || 'Not set') : 'Not logged in'}
                     </div>
                   </div>
 
                   {/* Menu Items */}
-                  <button
-                    onClick={() => { setCurrentView('account'); setShowUserMenu(false); }}
-                    style={{
-                      width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
-                      color: textPrimary, fontWeight: 600, borderTop: `1px solid ${border}`,
-                      display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <User size={15} /> My Account
-                  </button>
-
-                  {!user?.isLoggedIn && (
+                  {user?.isLoggedIn && (
                     <button
-                      onClick={() => {
-                        setUser({
-                          id: 'demo-user',
-                          name: 'Demo User',
-                          email: 'demo@cartverse.io',
-                          phone: '9876543210',
-                          addresses: [
-                            {
-                              id: 'addr-1',
-                              title: 'Home',
-                              fullName: 'Demo User',
-                              phone: '9876543210',
-                              street: '123 Demo Street',
-                              landmark: 'Near Demo Park',
-                              city: 'Demo City',
-                              state: 'Demo State',
-                              pincode: '123456'
-                            }
-                          ],
-                          isLoggedIn: true
-                        });
-                        localStorage.setItem('aura_user', JSON.stringify({
-                          id: 'demo-user',
-                          name: 'Demo User',
-                          email: 'demo@cartverse.io',
-                          phone: '9876543210',
-                          addresses: [
-                            {
-                              id: 'addr-1',
-                              title: 'Home',
-                              fullName: 'Demo User',
-                              phone: '9876543210',
-                              street: '123 Demo Street',
-                              landmark: 'Near Demo Park',
-                              city: 'Demo City',
-                              state: 'Demo State',
-                              pincode: '123456'
-                            }
-                          ],
-                          isLoggedIn: true
-                        }));
-                        setShowUserMenu(false);
-                        addToast({
-                          type: 'success',
-                          title: 'Demo Account Loaded',
-                          message: 'Welcome! You are logged in as Demo User'
-                        });
-                      }}
+                      onClick={() => { setCurrentView('account'); setShowUserMenu(false); }}
                       style={{
                         width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
-                        color: '#10b981', fontWeight: 700, borderTop: `1px solid ${border}`,
+                        color: textPrimary, fontWeight: 600, borderTop: `1px solid ${border}`,
                         display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
+                      onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                      <User size={15} /> 📌 Demo Login
+                      <User size={15} /> My Account
                     </button>
+                  )}
+
+                  {!user?.isLoggedIn && (
+                    <>
+                      <button
+                        onClick={() => {
+                          setUser({
+                            id: 'demo-user',
+                            name: 'Demo User',
+                            email: 'demo@cartverse.io',
+                            phone: '9876543210',
+                            addresses: [
+                              {
+                                id: 'addr-1',
+                                title: 'Home',
+                                fullName: 'Demo User',
+                                phone: '9876543210',
+                                street: '123 Demo Street',
+                                landmark: 'Near Demo Park',
+                                city: 'Demo City',
+                                state: 'Demo State',
+                                pincode: '123456'
+                              }
+                            ],
+                            isLoggedIn: true
+                          });
+                          localStorage.setItem('aura_user', JSON.stringify({
+                            id: 'demo-user',
+                            name: 'Demo User',
+                            email: 'demo@cartverse.io',
+                            phone: '9876543210',
+                            addresses: [
+                              {
+                                id: 'addr-1',
+                                title: 'Home',
+                                fullName: 'Demo User',
+                                phone: '9876543210',
+                                street: '123 Demo Street',
+                                landmark: 'Near Demo Park',
+                                city: 'Demo City',
+                                state: 'Demo State',
+                                pincode: '123456'
+                              }
+                            ],
+                            isLoggedIn: true
+                          }));
+                          setShowUserMenu(false);
+                          addToast({
+                            type: 'success',
+                            title: 'Demo Account Loaded',
+                            message: 'Welcome! You are logged in as Demo User'
+                          });
+                        }}
+                        style={{
+                          width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                          color: '#10b981', fontWeight: 700, borderTop: `1px solid ${border}`,
+                          display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <User size={15} /> 📌 Demo Login
+                      </button>
+
+                      <button
+                        onClick={() => { setIsAuthModalOpen(true); setShowUserMenu(false); }}
+                        style={{
+                          width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                          color: textPrimary, fontWeight: 600, borderTop: `1px solid ${border}`,
+                          display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <User size={15} /> Sign In / Register
+                      </button>
+                    </>
                   )}
 
                   <button
@@ -375,18 +389,20 @@ export const Navbar = () => {
                     <MessageSquare size={15} /> Help & Support
                   </button>
 
-                  <button
-                    onClick={handleLogout}
-                    style={{
-                      width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
-                      color: '#ef4444', fontWeight: 700, borderTop: `1px solid ${border}`,
-                      display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <LogOut size={15} /> Sign Out
-                  </button>
+                  {user?.isLoggedIn && (
+                    <button
+                      onClick={handleLogout}
+                      style={{
+                        width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                        color: '#ef4444', fontWeight: 700, borderTop: `1px solid ${border}`,
+                        display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <LogOut size={15} /> Sign Out
+                    </button>
+                  )}
                 </div>
               )}
             </div>

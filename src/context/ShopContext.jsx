@@ -53,6 +53,21 @@ export const ShopProvider = ({ children }) => {
   // Toast notifications
   const [toasts, setToasts] = useState([]);
 
+  // ✅ Load user from localStorage on app mount
+  useEffect(() => {
+    try {
+      const savedUser = localStorage.getItem('aura_user');
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        if (userData && userData.isLoggedIn) {
+          setUser(userData);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user from localStorage:', error);
+    }
+  }, []);
+
   // Load products on mount
   useEffect(() => {
     const loadProducts = async () => {
