@@ -43,6 +43,13 @@ export const ShopProvider = ({ children }) => {
   // Recently viewed
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   
+  // Orders and checkout
+  const [orders, setOrders] = useState([]);
+  const [recentOrder, setRecentOrder] = useState(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [directCheckoutItem, setDirectCheckoutItem] = useState(null);
+  const [trackingOrderId, setTrackingOrderId] = useState(null);
+  
   // Toast notifications
   const [toasts, setToasts] = useState([]);
 
@@ -159,6 +166,156 @@ export const ShopProvider = ({ children }) => {
     });
   }, []);
 
+  // Address management
+  const addAddress = useCallback((address) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const newAddr = { ...address, id: Date.now().toString() };
+      const updated = { ...prev, addresses: [...(prev.addresses || []), newAddr] };
+      localStorage.setItem('aura_user', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  // Order management
+  const placeOrder = useCallback((orderData) => {
+    const order = {
+      id: 'ORD-' + Date.now(),
+      userId: user?.id,
+      items: orderData.items,
+      shippingAddress: orderData.shippingAddress,
+      paymentMethod: orderData.paymentMethod,
+      subtotal: orderData.totals.subtotal,
+      discount: orderData.totals.discount,
+      shippingFee: orderData.totals.shippingFee,
+      tax: orderData.totals.tax,
+      total: orderData.totals.total,
+      status: 'Processing',
+      statusStep: 1,
+      estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
+      trackingNumber: 'TRK' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+      date: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      items: orderData.items.map(item => ({
+        id: item.id,
+        name: item?.name || 'Product',
+        price: item.price,
+        quantity: item.quantity,
+        color: item.color,
+        size: item.size,
+        image: item.image
+      }))
+    };
+
+    setOrders((prev) => [order, ...prev]);
+    setRecentOrder(order);
+    setCart([]);
+    
+    // Save order to localStorage
+    const storedOrders = JSON.parse(localStorage.getItem('cartverse_orders') || '[]');
+    localStorage.setItem('cartverse_orders', JSON.stringify([order, ...storedOrders]));
+
+    addToast({ type: 'success', title: 'Order Placed! 🎉', message: `Order ${order.id} confirmed. Estimated delivery: ${order.estimatedDelivery}` });
+    
+    return order;
+  }, [user?.id, addToast, setCart]);
+
+  // Load orders from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('cartverse_orders');
+      if (stored) {
+        const parsedOrders = JSON.parse(stored);
+        setOrders(parsedOrders);
+      }
+    } catch (error) {
+      console.error('Failed to load orders:', error);
+    }
+  }, []);
+
+  // Coupon management
+  const [coupons] = useState([
+    { code: 'SAVE20', discount: 0.20, type: 'percent', active: true, minOrder: 500 },
+    { code: 'FLAT100', discount: 100, type: 'flat', active: true, minOrder: 999 },
+    { code: 'FREESHIP', discount: 1.0, type: 'shipping', active: true, minOrder: 0 },
+  ]);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+
+  const applyCoupon = useCallback((code) => {
+    const coupon = coupons.find(c => c.code === code && c.active);
+    if (!coupon) {
+      addToast({ type: 'error', title: 'Invalid Coupon', message: 'This coupon code is not valid or expired.' });
+      return false;
+    }
+    setAppliedCoupon(coupon);
+    addToast({ type: 'success', title: 'Coupon Applied! ✓', message: `Coupon ${code} applied successfully.` });
+    return true;
+  }, [coupons, addToast]);
+
+  const removeCoupon = useCallback(() => {
+    setAppliedCoupon(null);
+  }, []);
+
+  // Calculate cart totals with coupon
+  const getCartTotals = useCallback((items = null) => {
+    const itemsToUse = items || cart;
+    const subtotal = itemsToUse.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const freeShippingThreshold = 999;
+    let discount = 0;
+    let shippingFee = subtotal >= freeShippingThreshold ? 0 : 99;
+
+    if (appliedCoupon) {
+      if (appliedCoupon.type === 'percent') {
+        discount = Math.round(subtotal * appliedCoupon.discount);
+      } else if (appliedCoupon.type === 'flat') {
+        discount = appliedCoupon.discount;
+      } else if (appliedCoupon.type === 'shipping') {
+        shippingFee = 0;
+      }
+    }
+
+    const afterDiscount = subtotal - discount;
+    const tax = Math.round(afterDiscount * 0.18);
+    const total = afterDiscount + shippingFee + tax;
+
+    return {
+      subtotal,
+      discount,
+      shippingFee,
+      freeShippingThreshold,
+      progressToFreeShipping: Math.round((subtotal / freeShippingThreshold) * 100),
+      tax,
+      total,
+    };
+  }, [cart, appliedCoupon]);
+
+  // Reviews management
+  const [reviews, setReviews] = useState({});
+  const [reviewProductId, setReviewProductId] = useState(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('cartverse_reviews');
+      if (stored) {
+        setReviews(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error('Failed to load reviews:', error);
+    }
+  }, []);
+
+  const addReview = useCallback((productId, review) => {
+    setReviews((prev) => ({
+      ...prev,
+      [productId]: [...(prev[productId] || []), {
+        id: Date.now(),
+        ...review,
+        date: new Date().toISOString(),
+        helpful: 0
+      }]
+    }));
+  }, []);
+
   const value = {
     // Core state
     cart,
@@ -209,6 +366,33 @@ export const ShopProvider = ({ children }) => {
     // Recently viewed
     recentlyViewed,
     addToRecentlyViewed,
+    
+    // Orders and checkout
+    orders,
+    setOrders,
+    recentOrder,
+    setRecentOrder,
+    isCheckoutOpen,
+    setIsCheckoutOpen,
+    directCheckoutItem,
+    setDirectCheckoutItem,
+    trackingOrderId,
+    setTrackingOrderId,
+    placeOrder,
+    addAddress,
+    getCartTotals,
+
+    // Coupons
+    coupons,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
+
+    // Reviews
+    reviews,
+    reviewProductId,
+    setReviewProductId,
+    addReview,
     
     // Toasts
     toasts,
