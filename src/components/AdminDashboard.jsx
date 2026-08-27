@@ -20,42 +20,42 @@ export const AdminDashboard = () => {
   const accent = '#6C63FF';
 
   // KPI Calculations
-  const totalRevenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
-  const totalOrders = orders.length;
-  const totalProducts = products.length;
-  const totalUsers = users?.length || 0;
-  const activeCartItems = cart?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const totalRevenue = (orders || []).reduce((acc, o) => acc + (o?.total || 0), 0);
+  const totalOrders = (orders || []).length;
+  const totalProducts = (products || []).length;
+  const totalUsers = (users || [])?.length || 0;
+  const activeCartItems = (cart || [])?.reduce((sum, item) => sum + (item?.quantity || 0), 0) || 0;
   
-  const lowStockItems = products.filter(p => p.stock > 0 && p.stock <= 5).length;
-  const outOfStockItems = products.filter(p => p.stock <= 0).length;
+  const lowStockItems = (products || []).filter(p => (p?.stock || 0) > 0 && (p?.stock || 0) <= 5).length;
+  const outOfStockItems = (products || []).filter(p => (p?.stock || 0) <= 0).length;
   
-  const avgOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : '0';
-  const conversionRate = totalUsers > 0 ? ((totalOrders / totalUsers) * 100).toFixed(1) : '0';
+  const avgOrderValue = totalOrders > 0 ? ((totalRevenue / totalOrders) || 0).toFixed(2) : '0';
+  const conversionRate = totalUsers > 0 ? (((totalOrders / totalUsers) * 100) || 0).toFixed(1) : '0';
 
   // Recent Orders
   const recentOrders = useMemo(() => {
-    return [...orders]
-      .sort((a, b) => new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now()))
+    return [...(orders || [])]
+      .sort((a, b) => new Date(b?.createdAt || Date.now()) - new Date(a?.createdAt || Date.now()))
       .slice(0, 5);
   }, [orders]);
 
   // Top Products
   const topProducts = useMemo(() => {
-    return [...products]
-      .sort((a, b) => (b.sold || 0) - (a.sold || 0))
+    return [...(products || [])]
+      .sort((a, b) => (b?.sold || 0) - (a?.sold || 0))
       .slice(0, 5);
   }, [products]);
 
   // Top Categories
   const categoryStats = useMemo(() => {
     const stats = {};
-    products.forEach(p => {
-      const cat = p.category || 'uncategorized';
-      stats[cat] = (stats[cat] || 0) + (p.sold || 1);
+    (products || []).forEach(p => {
+      const cat = p?.category || 'uncategorized';
+      stats[cat] = (stats[cat] || 0) + (p?.sold || 1);
     });
     return Object.entries(stats)
-      .map(([cat, count]) => ({ category: cat, count, percentage: ((count / products.length) * 100).toFixed(1) }))
-      .sort((a, b) => b.count - a.count)
+      .map(([cat, count]) => ({ category: cat, count, percentage: (((count || 0) / (products?.length || 1)) * 100).toFixed(1) }))
+      .sort((a, b) => (b?.count || 0) - (a?.count || 0))
       .slice(0, 5);
   }, [products]);
 

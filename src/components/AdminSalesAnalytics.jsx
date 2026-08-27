@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { TrendingUp, BarChart3, PieChart, Calendar, Download, Filter } from 'lucide-react';
 
-export const AdminSalesAnalytics = ({ products, orders, isDark }) => {
-  const [timeRange, setTimeRange] = useState('month'); // week, month, year
+import React, { useState } from 'react';
+import { TrendingUp, Package, ShoppingCart, DollarSign, BarChart3 } from 'lucide-react';
+  const [timeRange, setTimeRange] = useState('month');
+  const [categoryFilter, setCategoryFilter] = useState('all'); // week, month, year
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   const bg = isDark ? '#0f172a' : '#ffffff';
@@ -12,29 +14,30 @@ export const AdminSalesAnalytics = ({ products, orders, isDark }) => {
   const accent = '#6C63FF';
 
   // Calculate analytics
-  const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
-  const totalOrders = orders.length;
-  const avgOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : 0;
-  const topProduct = products.reduce((max, p) => !max || (p.rating * p.stock) > (max.rating * max.stock) ? p : max, null);
+  const totalRevenue = (orders || []).reduce((sum, o) => sum + (o?.total || 0), 0);
+  const totalOrders = (orders || []).length;
+  const avgOrderValue = totalOrders > 0 ? ((totalRevenue / totalOrders) || 0).toFixed(2) : 0;
+  const topProduct = (products || []).reduce((max, p) => !max || ((p?.rating || 0) * (p?.stock || 0)) > ((max?.rating || 0) * (max?.stock || 0)) ? p : max, null);
   
-  // Category breakdown
+  // Category breakdown with safe access
   const categoryRevenue = {};
-  products.forEach(p => {
-    if (!categoryRevenue[p.category]) categoryRevenue[p.category] = { count: 0, revenue: 0 };
-    categoryRevenue[p.category].count += 1;
-    categoryRevenue[p.category].revenue += p.price * p.stock;
+  (products || []).forEach(p => {
+    const cat = p?.category || 'uncategorized';
+    if (!categoryRevenue[cat]) categoryRevenue[cat] = { count: 0, revenue: 0 };
+    categoryRevenue[cat].count += 1;
+    categoryRevenue[cat].revenue += (p?.price || 0) * (p?.stock || 0);
   });
 
   const sortedCategories = Object.entries(categoryRevenue)
     .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.revenue - a.revenue);
+    .sort((a, b) => (b?.revenue || 0) - (a?.revenue || 0));
 
-  // Top selling products simulation
-  const topProducts = products.slice(0, 5).map(p => ({
+  // Top selling products simulation with safe access
+  const topProducts = (products || []).slice(0, 5).map(p => ({
     ...p,
     salesCount: Math.floor(Math.random() * 100) + 10,
     revenue: Math.random() * 50000 + 10000
-  })).sort((a, b) => b.revenue - a.revenue);
+  })).sort((a, b) => (b?.revenue || 0) - (a?.revenue || 0));
 
   return (
     <div>

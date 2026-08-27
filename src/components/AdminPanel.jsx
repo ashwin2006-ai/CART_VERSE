@@ -133,16 +133,16 @@ export const AdminPanel = () => {
   const [fkTrackingId, setFkTrackingId] = useState('cartvers01');
   const [fkToken, setFkToken] = useState('fk_aff_tok_998a4e12e345b801a6bc');
 
-  // KPI Computations
-  const totalRevenue = orders.reduce((acc, o) => acc + o.total, 0);
-  const totalOrders = orders.length;
-  const totalProducts = products.length;
-  const lowStockItems = products.filter(p => p.stock > 0 && p.stock <= 5);
-  const outOfStockItems = products.filter(p => p.stock <= 0);
-  const pendingReturns = orders.filter(o => o.returnRequested && !o.returnStatus?.includes('Approved') && !o.returnStatus?.includes('Rejected'));
-  const allReviewsList = Object.entries(reviews).flatMap(([prodId, revs]) => {
-    const prod = products.find(p => p.id === prodId);
-    return revs.map(r => ({ ...r, productId: prodId, productName: prod ? prod.name : prodId }));
+  // KPI Computations (with defensive null checks)
+  const totalRevenue = (orders || []).reduce((acc, o) => acc + (o?.total || 0), 0);
+  const totalOrders = (orders || []).length;
+  const totalProducts = (products || []).length;
+  const lowStockItems = (products || []).filter(p => (p?.stock || 0) > 0 && (p?.stock || 0) <= 5);
+  const outOfStockItems = (products || []).filter(p => (p?.stock || 0) <= 0);
+  const pendingReturns = (orders || []).filter(o => o?.returnRequested && !o?.returnStatus?.includes('Approved') && !o?.returnStatus?.includes('Rejected'));
+  const allReviewsList = Object.entries(reviews || {}).flatMap(([prodId, revs]) => {
+    const prod = (products || []).find(p => p?.id === prodId);
+    return (revs || []).map(r => ({ ...r, productId: prodId, productName: prod?.name || prodId }));
   });
 
   // Registered Users (local + API)
@@ -320,7 +320,8 @@ export const AdminPanel = () => {
       display: 'flex',
       minHeight: '100vh',
       background: 'var(--bg-main)',
-      color: 'var(--text-primary)'
+      color: 'var(--text-primary)',
+      flexDirection: window.innerWidth < 1024 ? 'column' : 'row'
     }}>
       {/* Standalone Admin Sidebar */}
       <aside style={{
