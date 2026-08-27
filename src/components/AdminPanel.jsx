@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import { AdminDashboard } from './AdminDashboard';
 import { AdminSystemStatus } from './AdminSystemStatus';
+import { Admin2FASettings } from './Admin2FASettings';
 import {
   LayoutDashboard,
   Package,
@@ -1778,11 +1779,11 @@ export const AdminPanel = () => {
               <div style={{ marginBottom: '24px' }}>
                 <h1 style={{ fontSize: '1.75rem', fontWeight: 900 }}>Admin Security & Credentials</h1>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  Manage session credentials, change master password, and update profile security.
+                  Manage session credentials, change master password, and configure two-factor authentication.
                 </p>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px', marginBottom: '32px' }}>
                 {/* Profile update form */}
                 <div className="glass-panel" style={{ padding: '26px' }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '16px' }}>Administrator Profile</h3>
@@ -1853,6 +1854,9 @@ export const AdminPanel = () => {
                   </form>
                 </div>
               </div>
+
+              {/* 2FA Settings Component */}
+              <Admin2FASettings />
             </div>
           )}
         </div>

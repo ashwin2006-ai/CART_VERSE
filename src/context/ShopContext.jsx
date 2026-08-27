@@ -122,7 +122,16 @@ export const ShopProvider = ({ children }) => {
       lastLogin: '2026-08-25 12:45 PM',
       twoFactorEnabled: true
     },
-    passwordHash: 'Ashwin@123!'
+    passwordHash: 'Ashwin@123!',
+    twoFactorAuth: {
+      enabled: false,
+      method: null, // 'authenticator' or 'hardware_token'
+      secret: null,
+      qrCode: null,
+      backupCodes: [],
+      linkedAt: null,
+      lastUsed: null
+    }
   }));
 
   // Applied Promo Coupon
@@ -355,6 +364,124 @@ export const ShopProvider = ({ children }) => {
       title: 'Profile Updated',
       message: 'Admin profile parameters have been updated.'
     });
+  };
+
+  // 2FA Management Functions
+  const enable2FA = (method = 'authenticator') => {
+    // Generate a secret for authenticator app (QR code format)
+    const secret = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const qrCode = `otpauth://totp/CartVerse%20Admin:${adminAuth.adminUser.email}?secret=${secret}&issuer=CartVerse`;
+    
+    setAdminAuth(prev => ({
+      ...prev,
+      twoFactorAuth: {
+        enabled: true,
+        method: method, // 'authenticator' or 'hardware_token'
+        secret: secret,
+        qrCode: qrCode,
+        backupCodes: Array.from({ length: 10 }, () => 
+          Math.random().toString(36).substring(2, 10).toUpperCase()
+        ),
+        linkedAt: new Date().toISOString(),
+        lastUsed: null
+      }
+    }));
+    
+    addToast({
+      type: 'success',
+      title: '2FA Activated',
+      message: `${method === 'authenticator' ? 'Authenticator app' : 'Hardware token'} enabled. Save backup codes securely.`
+    });
+    
+    return {
+      qrCode: qrCode,
+      secret: secret,
+      backupCodes: adminAuth.twoFactorAuth?.backupCodes || []
+    };
+  };
+
+  const disable2FA = (password) => {
+    if (password !== adminAuth.passwordHash) {
+      addToast({
+        type: 'error',
+        title: 'Authentication Failed',
+        message: 'Incorrect password. Cannot disable 2FA.'
+      });
+      return false;
+    }
+
+    setAdminAuth(prev => ({
+      ...prev,
+      twoFactorAuth: {
+        enabled: false,
+        method: null,
+        secret: null,
+        qrCode: null,
+        backupCodes: [],
+        linkedAt: null,
+        lastUsed: null
+      }
+    }));
+
+    addToast({
+      type: 'warning',
+      title: '2FA Disabled',
+      message: 'Two-Factor Authentication has been disabled. Your account is less secure.'
+    });
+    
+    return true;
+  };
+
+  const verify2FA = (code) => {
+    // Simulate OTP verification (in production, use time-based OTP library)
+    if (!adminAuth.twoFactorAuth || !adminAuth.twoFactorAuth.enabled) {
+      return false;
+    }
+    
+    // For demo, accept any 6-digit code
+    if (code.length === 6 && /^\d{6}$/.test(code)) {
+      setAdminAuth(prev => ({
+        ...prev,
+        twoFactorAuth: {
+          ...prev.twoFactorAuth,
+          lastUsed: new Date().toISOString()
+        }
+      }));
+      return true;
+    }
+    
+    return false;
+  };
+
+  const regenerateBackupCodes = (password) => {
+    if (password !== adminAuth.passwordHash) {
+      addToast({
+        type: 'error',
+        title: 'Authentication Failed',
+        message: 'Incorrect password. Cannot regenerate codes.'
+      });
+      return null;
+    }
+
+    const newBackupCodes = Array.from({ length: 10 }, () => 
+      Math.random().toString(36).substring(2, 10).toUpperCase()
+    );
+
+    setAdminAuth(prev => ({
+      ...prev,
+      twoFactorAuth: {
+        ...prev.twoFactorAuth,
+        backupCodes: newBackupCodes
+      }
+    }));
+
+    addToast({
+      type: 'success',
+      title: 'Backup Codes Regenerated',
+      message: 'New 10 backup codes generated. Save them in a secure location.'
+    });
+
+    return newBackupCodes;
   };
 
   // Record Recently Viewed Product
@@ -994,6 +1121,10 @@ export const ShopProvider = ({ children }) => {
     adminLogout,
     changeAdminPassword,
     updateAdminProfile,
+    enable2FA,
+    disable2FA,
+    verify2FA,
+    regenerateBackupCodes,
     products,
     categories,
     reviews,
