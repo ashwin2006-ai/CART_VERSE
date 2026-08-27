@@ -242,10 +242,10 @@ export const ModernNavbar = () => {
                   <>
                     <div style={{ padding: 'var(--space-md)', borderBottom: '1px solid var(--border-subtle)' }}>
                       <p style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-semibold)', margin: 0 }}>
-                        {user.name}
+                        {user?.name || 'User'}
                       </p>
                       <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', margin: 0 }}>
-                        {user.email}
+                        {user?.email || 'email@example.com'}
                       </p>
                     </div>
                     <button

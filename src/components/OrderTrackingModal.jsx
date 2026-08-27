@@ -230,7 +230,7 @@ export const OrderTrackingModal = () => {
             </div>
             {order.items.map((it, i) => (
               <div key={i} style={{ color: 'var(--text-secondary)' }}>
-                • {it.quantity}x {it.name.substring(0, 24)}...
+                • {it.quantity}x {it?.name?.substring(0, 24) || 'Product'}...
               </div>
             ))}
           </div>

@@ -103,8 +103,8 @@ export const AccountView = () => {
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [newAddr, setNewAddr] = useState({
     title: 'Home',
-    fullName: user.name,
-    phone: user.phone,
+    fullName: user?.name || 'User',
+    phone: user?.phone || '',
     street: '',
     landmark: '',
     city: '',
@@ -135,8 +135,8 @@ export const AccountView = () => {
     setIsAddingAddress(false);
     setNewAddr({
       title: 'Home',
-      fullName: user.name,
-      phone: user.phone,
+      fullName: user?.name || 'User',
+      phone: user?.phone || '',
       street: '',
       landmark: '',
       city: '',
@@ -187,8 +187,8 @@ export const AccountView = () => {
             <div style={{ position: 'relative' }}>
               {user.avatar ? (
                 <img
-                  src={user.avatar}
-                  alt={user.name}
+                  src={user?.avatar}
+                  alt={user?.name || 'User'}
                   style={{
                     width: '84px',
                     height: '84px',
@@ -216,16 +216,16 @@ export const AccountView = () => {
                     boxShadow: 'var(--shadow-glow)'
                   }}
                 >
-                  {getInitials(user.name)}
+                  {getInitials(user?.name || 'U')}
                 </div>
               )}
               <button
                 onClick={() => {
                   setProfileForm({
-                    name: user.name,
-                    email: user.email,
-                    phone: user.phone,
-                    avatar: user.avatar || ''
+                    name: user?.name || '',
+                    email: user?.email || '',
+                    phone: user?.phone || '',
+                    avatar: user?.avatar || ''
                   });
                   setIsEditingProfile(true);
                 }}
@@ -252,17 +252,17 @@ export const AccountView = () => {
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px', flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 900 }}>{user.name}</h1>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 900 }}>{user?.name || 'User'}</h1>
                 <span className="badge badge-gold">
-                  <Award size={13} /> {user.tier}
+                  <Award size={13} /> {user?.tier || 'Silver'}
                 </span>
                 <button
                   onClick={() => {
                     setProfileForm({
-                      name: user.name,
-                      email: user.email,
-                      phone: user.phone,
-                      avatar: user.avatar || ''
+                      name: user?.name || '',
+                      email: user?.email || '',
+                      phone: user?.phone || '',
+                      avatar: user?.avatar || ''
                     });
                     setIsEditingProfile(true);
                   }}
@@ -273,7 +273,7 @@ export const AccountView = () => {
                 </button>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                {user.email} • {user.phone}
+                {user?.email || 'email@example.com'} • {user?.phone || 'Phone'}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)', fontWeight: 700, marginTop: '4px' }}>
                 ✓ Authenticated Customer Profile
@@ -650,9 +650,9 @@ export const AccountView = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
                           {ord.items.map((item, idx) => (
                             <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                              <img src={item.image} alt={item.name} style={{ width: '48px', height: '48px', borderRadius: '6px', objectFit: 'cover' }} />
+                              <img src={item.image} alt={item?.name || 'Product'} style={{ width: '48px', height: '48px', borderRadius: '6px', objectFit: 'cover' }} />
                               <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{item.name}</div>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{item?.name || 'Product'}</div>
                                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                                   Qty: {item.quantity} {item.color ? `• ${item.color}` : ''} {item.size ? `• ${item.size}` : ''}
                                 </div>
@@ -838,9 +838,9 @@ export const AccountView = () => {
                             }}>
                               {index + 1}
                             </span>
-                            <span style={{ fontWeight: 800, fontSize: '0.92rem' }}>{addr.fullName}</span>
-                            <span className="badge badge-primary">{addr.title}</span>
-                            {addr.isDefault && <span className="badge badge-emerald">Default</span>}
+                            <span style={{ fontWeight: 800, fontSize: '0.92rem' }}>{addr?.fullName || 'Address'}</span>
+                            <span className="badge badge-primary">{addr?.title || ''}</span>
+                            {addr?.isDefault && <span className="badge badge-emerald">Default</span>}
                           </div>
                           <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                             {addr.street}
@@ -888,10 +888,10 @@ export const AccountView = () => {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
                     {wishlistedProducts.map((p) => (
                       <div key={p.id} className="glass-panel" style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                        <img src={p.images[0]} alt={p.name} style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
+                        <img src={p?.images?.[0] || p?.imageUrl} alt={p?.name || 'Product'} style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
                         <div style={{ padding: '12px' }}>
                           <div style={{ fontSize: '0.82rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {p.name}
+                            {p?.name || 'Product'}
                           </div>
                           <div style={{ fontSize: '0.95rem', fontWeight: 900, color: 'var(--primary)', margin: '6px 0' }}>
                             ₹{p.price.toLocaleString('en-IN')}

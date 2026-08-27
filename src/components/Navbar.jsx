@@ -183,7 +183,7 @@ export const Navbar = () => {
                       onMouseEnter={(e) => e.currentTarget.style.background = isDark ? '#1e293b' : '#f3f4f6'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      {p.name} — ₹{p.price}
+                      {p?.name || 'Product'} — ₹{p?.price || 0}
                     </button>
                   ))}
                 </div>

@@ -89,9 +89,9 @@ export const ReviewModal = () => {
             borderRadius: 'var(--radius-md)',
             marginBottom: '20px'
           }}>
-            <img src={product.images[0]} alt={product.name} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
+            <img src={product?.images?.[0] || product?.imageUrl} alt={product?.name || 'Product'} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
             <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {product.name}
+              {product?.name || 'Product'}
             </div>
           </div>
         )}

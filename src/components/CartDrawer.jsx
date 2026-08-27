@@ -207,7 +207,7 @@ export const CartDrawer = () => {
                 {/* Item Image */}
                 <img
                   src={item.image}
-                  alt={item.name}
+                  alt={item?.name || 'Product'}
                   style={{
                     width: '76px',
                     height: '76px',
@@ -228,7 +228,7 @@ export const CartDrawer = () => {
                     overflow: 'hidden',
                     textOverflow: 'ellipsis'
                   }}>
-                    {item.name}
+                    {item?.name || 'Product'}
                   </div>
 
                   <div style={{

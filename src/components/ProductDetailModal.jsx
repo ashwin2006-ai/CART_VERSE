@@ -46,8 +46,8 @@ export const ProductDetailModal = () => {
   useEffect(() => {
     if (product) {
       setSelectedImageIndex(0);
-      setSelectedColor(product.colors && product.colors[0] ? product.colors[0].name : '');
-      setSelectedSize(product.sizes && product.sizes[0] ? product.sizes[0] : '');
+      setSelectedColor(product?.colors?.[0]?.name || '');
+      setSelectedSize(product?.sizes?.[0] || '');
       setQuantity(1);
       setPincodeStatus(null);
     }
@@ -166,7 +166,7 @@ export const ProductDetailModal = () => {
             }}>
               <img
                 src={images[selectedImageIndex] || images[0]}
-                alt={product.name}
+                alt={product?.name || 'Product'}
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -299,7 +299,7 @@ export const ProductDetailModal = () => {
               marginBottom: '12px',
               color: 'var(--text-primary)'
             }}>
-              {product.name}
+              {product?.name || 'Product'}
             </h1>
 
             {/* Price section in INR */}

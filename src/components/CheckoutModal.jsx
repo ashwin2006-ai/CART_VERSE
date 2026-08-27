@@ -393,10 +393,10 @@ export const CheckoutModal = () => {
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                             <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>
-                              {addr.fullName}
+                              {addr?.fullName || 'Address'}
                             </span>
-                            <span className="badge badge-primary">{addr.title}</span>
-                            {addr.isDefault && <span className="badge badge-emerald">Default</span>}
+                            <span className="badge badge-primary">{addr?.title || ''}</span>
+                            {addr?.isDefault && <span className="badge badge-emerald">Default</span>}
                           </div>
                           <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
                             {addr.street}{addr.landmark ? `, Near ${addr.landmark}` : ''}
@@ -754,10 +754,10 @@ export const CheckoutModal = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '200px', overflowY: 'auto', marginBottom: '16px' }}>
                 {itemsToCheckout.map((item, idx) => (
                   <div key={idx} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <img src={item.image || (item.images && item.images[0])} alt={item.name} style={{ width: '42px', height: '42px', borderRadius: '6px', objectFit: 'cover' }} />
+                    <img src={item.image || (item.images && item.images[0])} alt={item?.name || 'Product'} style={{ width: '42px', height: '42px', borderRadius: '6px', objectFit: 'cover' }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {item.name}
+                        {item?.name || 'Product'}
                       </div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                         Qty: {item.quantity} {item.color ? `• ${item.color}` : ''} {item.size ? `• ${item.size}` : ''}

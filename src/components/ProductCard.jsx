@@ -66,7 +66,7 @@ export const ProductCard = ({ product, compact = false }) => {
       }}>
         <img
           src={imgSrc}
-          alt={product.name}
+          alt={product?.name || 'Product Image'}
           onError={() => setImgErr(true)}
           style={{
             position: 'absolute', top: 0, left: 0,
@@ -163,7 +163,7 @@ export const ProductCard = ({ product, compact = false }) => {
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
         }}>
-          {product.name}
+          {product?.name || 'Unnamed Product'}
         </div>
 
         {/* Rating */}

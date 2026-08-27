@@ -458,16 +458,16 @@ export const AdminPanel = () => {
           {!sidebarCollapsed && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
               <img
-                src={adminAuth.adminUser.avatar}
+                src={adminAuth?.adminUser?.avatar}
                 alt="admin"
                 style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }}
               />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {adminAuth.adminUser.name}
+                  {adminAuth?.adminUser?.name || 'Admin'}
                 </div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--accent-gold)' }}>
-                  {adminAuth.adminUser.role}
+                  {adminAuth?.adminUser?.role || 'Admin'}
                 </div>
               </div>
             </div>
@@ -1443,9 +1443,9 @@ export const AdminPanel = () => {
                         <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--primary)', width: '20px' }}>
                           #{idx + 1}
                         </span>
-                        <img src={p.images[0]} alt={p.name} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
+                        <img src={p?.images?.[0] || p?.imageUrl} alt={p?.name || 'Product'} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
                         <div>
-                          <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{p.name}</div>
+                          <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{p?.name || 'Product'}</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{p.reviewCount} reviews • {p.rating}★</div>
                         </div>
                       </div>

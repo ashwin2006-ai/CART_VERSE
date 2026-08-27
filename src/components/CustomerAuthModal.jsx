@@ -73,14 +73,14 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
   const loginUser = (userData) => {
     const { password, ...safeUser } = userData;
     const cleanUser = {
-      id: safeUser.id || 'local-' + Date.now(),
-      name: safeUser.name,
-      email: safeUser.email,
-      phone: safeUser.phone || '',
-      tier: safeUser.tier || 'Standard Member',
-      rewardPoints: safeUser.rewardPoints || 100,
-      avatar: safeUser.avatar || '',
-      addresses: safeUser.addresses || [],
+      id: safeUser?.id || 'local-' + Date.now(),
+      name: safeUser?.name || 'User',
+      email: safeUser?.email || '',
+      phone: safeUser?.phone || '',
+      tier: safeUser?.tier || 'Standard Member',
+      rewardPoints: safeUser?.rewardPoints || 100,
+      avatar: safeUser?.avatar || '',
+      addresses: safeUser?.addresses || [],
     };
     setUser(cleanUser);
     // Save with the key that ShopContext's loadLocal('user') reads: aura_user
@@ -107,8 +107,8 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
 
         if (apiResult?.success) {
           if (apiResult.token) localStorage.setItem('cartverse_token', apiResult.token);
-          loginUser({ ...apiResult.user, rewardPoints: 100 });
-          addToast({ type: 'success', title: 'Account Created 🎉', message: `Welcome ${apiResult.user.name}! You have 100 reward points.` });
+          loginUser({ ...apiResult?.user, rewardPoints: 100 });
+          addToast({ type: 'success', title: 'Account Created 🎉', message: `Welcome ${apiResult?.user?.name || 'User'}! You have 100 reward points.` });
           onClose(); setCurrentView('store');
         } else if (apiResult && !apiResult.success) {
           addToast({ type: 'error', title: 'Registration Failed', message: apiResult.message || 'Email may already be in use.' });
@@ -118,8 +118,8 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
           if (result.error) {
             addToast({ type: 'error', title: 'Already Registered', message: result.error });
           } else {
-            loginUser(result.user);
-            addToast({ type: 'success', title: 'Account Created 🎉', message: `Welcome, ${result.user.name}! You have 100 reward points.` });
+            loginUser(result?.user);
+            addToast({ type: 'success', title: 'Account Created 🎉', message: `Welcome, ${result?.user?.name || 'User'}! You have 100 reward points.` });
             onClose(); setCurrentView('store');
           }
         }
@@ -145,8 +145,8 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
 
         if (apiResult?.success) {
           if (apiResult.token) localStorage.setItem('cartverse_token', apiResult.token);
-          loginUser(apiResult.user);
-          addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${apiResult.user.name}` });
+          loginUser(apiResult?.user);
+          addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${apiResult?.user?.name || 'User'}` });
           onClose(); setCurrentView('store');
         } else if (apiResult && !apiResult.success) {
           addToast({ type: 'error', title: 'Login Failed', message: apiResult.message || 'Invalid email or password.' });
@@ -155,7 +155,7 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
           const localUser = loginLocalUser(formData.email, formData.password);
           if (localUser) {
             loginUser(localUser);
-            addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${localUser.name}` });
+            addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${localUser?.name || 'User'}` });
             onClose(); setCurrentView('store');
           } else {
             addToast({ type: 'error', title: 'Login Failed', message: 'No account found. Please register first.' });
