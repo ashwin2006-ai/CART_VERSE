@@ -6,47 +6,97 @@
 
 ## ⚡ Quick Start (2 minutes)
 
-### 🛍️ Browse as Customer
+### 🛍️ User Portal - Browse & Shop
 ```
 👉 https://e-commerce-virid-delta.vercel.app
 ```
-- Larger product cards
+- Browse products as guest (no login needed)
+- Search, filter, add to cart
+- Checkout with or without account
 - Light/dark themes
+- Order tracking
 - Location-based address detection
-- Enhanced shopping experience
+- **When you logout → Returns to homepage**
 
-### 🛡️ Access Admin Panel
+### 🛡️ Admin Portal - Manage Store (Separate)
 ```
-👉 https://e-commerce-virid-delta.vercel.app/#/admin
+👉 https://e-commerce-virid-delta.vercel.app/admin
 ```
+OR from user menu → Click "🛡️ Admin Panel"
+OR keyboard shortcut: `Ctrl+Shift+A`
 
-**Login Credentials:**
+**Admin Login Credentials:**
 ```
 Email: ashwin@cartverse.io
 Password: Ashwin@123!
-2FA: 884-291 (optional - click "Proceed without 2FA")
+2FA: Authenticator app (Google Authenticator, Microsoft Authenticator, Authy)
+**When you logout → Returns to admin login page**
 ```
+
+**Key Difference:**
+- ✅ **User Portal:** Public store, optional login, logout → home
+- 🔐 **Admin Portal:** Private management, required login, logout → admin login
 
 ---
 
 ## 📋 What's Inside?
 
-### ✅ 8 Completed Features
+### ✅ 9 Completed Features
 
 | # | Feature | Status | Where |
 |---|---------|--------|-------|
-| 1️⃣ | Admin Dashboard (Product/Inventory/Analytics) | ✅ Live | Admin Panel |
-| 2️⃣ | Admin Profile Editor + Photo Upload | ✅ Live | Admin Panel → Profile |
-| 3️⃣ | Secure Login (No auto-fill) | ✅ Live | Admin Panel login |
-| 4️⃣ | Smart Theme System (Light/Dark) | ✅ Live | Navbar |
-| 5️⃣ | Location-Based Address Detection | ✅ Live | Account → Addresses |
-| 6️⃣ | Address Management (Add/Edit/Delete) | ✅ Live | Account → Addresses |
-| 7️⃣ | Larger Product Cards (AJIO style) | ✅ Live | Store homepage |
-| 8️⃣ | Production Build & Deployment | ✅ Live | Vercel |
+| 1️⃣ | **Separate Admin & User Portals** | ✅ Live | `/` & `/admin` |
+| 2️⃣ | Admin Dashboard (Product/Inventory/Analytics) | ✅ Live | Admin Portal |
+| 3️⃣ | Admin Profile Editor + Photo Upload | ✅ Live | Admin Portal → Profile |
+| 4️⃣ | Secure Login (No auto-fill) | ✅ Live | Admin Portal login |
+| 5️⃣ | Smart Theme System (Light/Dark) | ✅ Live | Navbar |
+| 6️⃣ | Location-Based Address Detection | ✅ Live | Account → Addresses |
+| 7️⃣ | Address Management (Add/Edit/Delete) | ✅ Live | Account → Addresses |
+| 8️⃣ | Larger Product Cards (AJIO style) | ✅ Live | Store homepage |
+| 9️⃣ | Production Build & Deployment | ✅ Live | Vercel |
 
 ---
 
-## 📊 Admin Dashboard Overview
+## 🎯 Separate Admin & User Portals (NEW)
+
+### What's Changed?
+CartVerse now has **two completely separate portals**:
+
+**User Portal** (`/`)
+- 🛍️ E-commerce store for customers
+- 🆓 No admin features visible
+- ✅ Optional login for checkout
+- 🏠 **Logout → Returns to homepage**
+
+**Admin Portal** (`/admin`)
+- 🛡️ Management dashboard for admins only
+- 🔐 Requires admin credentials
+- 2️⃣ Two-factor authentication
+- 🔓 **Logout → Returns to admin login**
+
+### Benefits
+1. **Better UX:** Customers don't see admin controls
+2. **Cleaner Interface:** Each role gets focused UI
+3. **Security:** Admin portal completely separated
+4. **Professional:** Proper logout flows
+5. **Scalable:** Easy to extend each portal independently
+
+### URL Navigation
+```
+https://e-commerce-virid-delta.vercel.app/      → User Store
+https://e-commerce-virid-delta.vercel.app/admin  → Admin Portal
+https://e-commerce-virid-delta.vercel.app/       → Also Admin login (keyboard: Ctrl+Shift+A)
+```
+
+### Logout Behavior
+| Action | User Logout | Admin Logout |
+|--------|-------------|--------------|
+| **Click** | "Sign Out" button | "Logout" button |
+| **Redirects To** | Homepage `/` | Admin Login `/admin` |
+| **Result** | Browse as guest | Must login again |
+| **Session** | Cleared | Cleared |
+
+---
 
 **Access:** https://e-commerce-virid-delta.vercel.app/#/admin
 
@@ -183,14 +233,23 @@ Password: Ashwin@123!
 
 ## ❓ Common Questions
 
+**Q: How do I access the user store?**
+A: Go to https://e-commerce-virid-delta.vercel.app (no login needed)
+
 **Q: How do I access admin features?**
-A: Go to https://e-commerce-virid-delta.vercel.app/#/admin and login
+A: Go to https://e-commerce-virid-delta.vercel.app/admin and login with admin credentials
+
+**Q: Where does the user logout go?**
+A: Logout from user store → returns to **homepage** (not admin)
+
+**Q: Where does the admin logout go?**
+A: Logout from admin portal → returns to **admin login page** (/admin)
 
 **Q: Will location detection work?**
 A: Yes! Works on HTTPS and localhost. Browser will ask permission.
 
 **Q: Can I change my admin profile picture?**
-A: Yes! Go to Admin Panel → Profile & Security → Edit Profile
+A: Yes! Go to Admin Portal → Profile & Security → Edit Profile
 
 **Q: Where are my addresses saved?**
 A: In your user profile, persistent across visits
@@ -219,22 +278,26 @@ A: Yes! 155px → 200px (28.9% larger) for all product sections
 ## 📞 Next Steps
 
 ### Immediate:
-1. Visit the store: https://e-commerce-virid-delta.vercel.app
-2. Login to admin: https://e-commerce-virid-delta.vercel.app/#/admin
-3. Explore features
-4. Test functionality
+1. **Visit User Store:** https://e-commerce-virid-delta.vercel.app (browse products)
+2. **Access Admin Portal:** https://e-commerce-virid-delta.vercel.app/admin (login as admin)
+3. **Explore Features:** Try both portals
+4. **Test Logout Flows:** 
+   - User logout → goes to homepage
+   - Admin logout → goes to admin login
 
 ### For Developers:
 1. Clone repo: `git clone https://github.com/ashwin2006-ai/CART_VERSE.git`
-2. Check `BACKEND_SETUP.md` for backend
-3. Review component files
-4. Understand state management in `ShopContext.jsx`
+2. Check `PORTAL_SEPARATION.md` for architecture
+3. Read `ARCHITECTURE_DIAGRAM.md` for visual flows
+4. Review component files
+5. Understand state management in `ShopContext.jsx`
 
 ### For Users:
-1. Read `README_FEATURES.md`
-2. Try all features
-3. Check documentation
-4. Enjoy the platform!
+1. Read `QUICK_START_PORTAL_GUIDE.md`
+2. Read `README_FEATURES.md`
+3. Try all features
+4. Check documentation
+5. Enjoy the platform!
 
 ---
 
@@ -242,11 +305,12 @@ A: Yes! 155px → 200px (28.9% larger) for all product sections
 
 | Aspect | Value |
 |--------|-------|
-| **Total Tasks** | 8/8 ✅ |
-| **New Components** | 6 |
-| **Lines of Code** | ~2,000+ |
-| **Documentation** | 6 files |
-| **Build Size** | 121.10 kB |
+| **Total Tasks** | 9/9 ✅ |
+| **New Portals** | 2 (User + Admin) |
+| **Components** | 20+ |
+| **Lines of Code** | ~3,000+ |
+| **Documentation** | 9 files |
+| **Build Size** | 124.59 kB |
 | **Load Time** | < 2 seconds |
 | **Uptime** | 99.9% (Vercel) |
 
@@ -293,9 +357,12 @@ Everything is ready to use. Start exploring:
 
 | Link | Purpose |
 |------|---------|
-| https://e-commerce-virid-delta.vercel.app | Main Store |
-| https://e-commerce-virid-delta.vercel.app/#/admin | Admin Panel |
+| https://e-commerce-virid-delta.vercel.app | User Store (Shop) |
+| https://e-commerce-virid-delta.vercel.app/admin | Admin Portal (Manage) |
 | https://github.com/ashwin2006-ai/CART_VERSE | GitHub Repo |
+| `PORTAL_SEPARATION.md` | Portal Architecture |
+| `QUICK_START_PORTAL_GUIDE.md` | User Guide |
+| `ARCHITECTURE_DIAGRAM.md` | Visual Flows |
 
 ---
 
