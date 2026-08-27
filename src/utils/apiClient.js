@@ -521,6 +521,137 @@ class APIClient {
       return { success: false, data: { coupons: [] } };
     }
   }
+
+  // ============================================================================
+  // REVIEW API METHODS
+  // ============================================================================
+
+  /**
+   * Get product reviews with pagination and sorting
+   */
+  async getProductReviews(productId, page = 1, limit = 10, sort = 'recent') {
+    try {
+      const response = await this.get(
+        `/api/products/${productId}/reviews?page=${page}&limit=${limit}&sort=${sort}`,
+        { includeAuth: false }
+      );
+      return response;
+    } catch (error) {
+      console.warn(`Reviews fetch for product ${productId} failed:`, error.message);
+      return { success: false, data: { reviews: [], stats: {} } };
+    }
+  }
+
+  /**
+   * Add review to product
+   */
+  async addProductReview(productId, reviewData) {
+    try {
+      const response = await this.post(
+        `/api/products/${productId}/reviews`,
+        reviewData
+      );
+      return response;
+    } catch (error) {
+      console.warn('Add review failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Update own review
+   */
+  async updateProductReview(productId, reviewId, reviewData) {
+    try {
+      const response = await this.put(
+        `/api/products/${productId}/reviews/${reviewId}`,
+        reviewData
+      );
+      return response;
+    } catch (error) {
+      console.warn('Update review failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Delete own review
+   */
+  async deleteProductReview(productId, reviewId) {
+    try {
+      const response = await this.delete(
+        `/api/products/${productId}/reviews/${reviewId}`
+      );
+      return response;
+    } catch (error) {
+      console.warn('Delete review failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Mark review as helpful/unhelpful
+   */
+  async markReviewHelpful(productId, reviewId, helpful = true) {
+    try {
+      const response = await this.post(
+        `/api/products/${productId}/reviews/${reviewId}/helpful`,
+        { helpful },
+        { includeAuth: false }
+      );
+      return response;
+    } catch (error) {
+      console.warn('Mark review helpful failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Admin: Get pending reviews for approval
+   */
+  async getPendingReviews(page = 1, limit = 20) {
+    try {
+      const response = await this.get(
+        `/api/admin/reviews/pending?page=${page}&limit=${limit}`
+      );
+      return response;
+    } catch (error) {
+      console.warn('Pending reviews fetch failed:', error.message);
+      return { success: false, data: { reviews: [] } };
+    }
+  }
+
+  /**
+   * Admin: Approve or reject review
+   */
+  async verifyReview(reviewId, verified = true) {
+    try {
+      const response = await this.put(
+        `/api/admin/reviews/${reviewId}/verify`,
+        { verified }
+      );
+      return response;
+    } catch (error) {
+      console.warn('Verify review failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Admin: Reply to review
+   */
+  async replyToReview(productId, reviewId, reply) {
+    try {
+      const response = await this.post(
+        `/api/products/${productId}/reviews/${reviewId}/reply`,
+        { reply }
+      );
+      return response;
+    } catch (error) {
+      console.warn('Reply to review failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
 }
 
 // Export singleton instance
