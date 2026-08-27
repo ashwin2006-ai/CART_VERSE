@@ -993,7 +993,7 @@ export const AccountView = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', fontSize: '0.82rem' }}>
                 <div>
                   <div style={{ fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Billed To:</div>
-                  <div style={{ fontWeight: 700 }}>{invoiceOrder.shippingAddress?.fullName || user.name}</div>
+                  <div style={{ fontWeight: 700 }}>{invoiceOrder.shippingAddress?.fullName || user?.name || 'Guest User'}</div>
                   <div>{invoiceOrder.shippingAddress?.street}</div>
                   <div>{invoiceOrder.shippingAddress?.city}, {invoiceOrder.shippingAddress?.state} - {invoiceOrder.shippingAddress?.pincode}</div>
                   <div>Contact: {invoiceOrder.shippingAddress?.phone}</div>
@@ -1016,7 +1016,7 @@ export const AccountView = () => {
                 <tbody>
                   {invoiceOrder.items.map((it, idx) => (
                     <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '8px 0' }}>{it.name}</td>
+                      <td style={{ padding: '8px 0' }}>{it?.name || 'Product'}</td>
                       <td style={{ padding: '8px 0', textAlign: 'center' }}>{it.quantity}</td>
                       <td style={{ padding: '8px 0', textAlign: 'right' }}>₹{(it.price * it.quantity).toLocaleString('en-IN')}</td>
                     </tr>

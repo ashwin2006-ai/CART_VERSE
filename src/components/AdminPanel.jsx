@@ -743,13 +743,13 @@ export const AdminPanel = () => {
                       <tr key={prod.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                         <td style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <img
-                            src={prod.images[0]}
-                            alt={prod.name}
+                            src={prod?.images?.[0] || 'https://placehold.co/44x44'}
+                            alt={prod?.name || 'Product'}
                             style={{ width: '44px', height: '44px', borderRadius: '8px', objectFit: 'cover' }}
                           />
                           <div>
                             <div style={{ fontWeight: 800, maxWidth: '280px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {prod.name}
+                              {prod?.name || 'Product'}
                             </div>
                             <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>ID: {prod.id}</div>
                           </div>
@@ -863,7 +863,7 @@ export const AdminPanel = () => {
                           )}
                         </div>
 
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '6px' }}>{cat.name}</h3>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '6px' }}>{cat?.name || 'Category'}</h3>
                         <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
                           Contains <strong>{productCount}</strong> live active products in storefront.
                         </p>
@@ -933,9 +933,9 @@ export const AdminPanel = () => {
                       .map((prod) => (
                         <tr key={prod.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                           <td style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <img src={prod.images[0]} alt={prod.name} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
+                            <img src={prod?.images?.[0] || 'https://placehold.co/40x40'} alt={prod?.name || 'Product'} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
                             <div style={{ fontWeight: 800, maxWidth: '280px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {prod.name}
+                              {prod?.name || 'Product'}
                             </div>
                           </td>
 
