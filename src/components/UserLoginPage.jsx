@@ -62,7 +62,7 @@ export const UserLoginPage = () => {
           addToast({
             type: 'success',
             title: 'Welcome!',
-            message: `Logged in as ${result.user.name}`
+            message: `Logged in as ${result?.user?.name || 'User'}`
           });
         } else {
           setErrorMsg(result.error || 'Login failed. Check your credentials.');
@@ -134,7 +134,7 @@ export const UserLoginPage = () => {
           addToast({
             type: 'success',
             title: 'Account Created!',
-            message: `Welcome ${result.user.name}! You are now logged in.`
+            message: `Welcome ${result?.user?.name || 'User'}! You are now logged in.`
           });
         } else {
           setErrorMsg(result.error || 'Registration failed. Try again.');

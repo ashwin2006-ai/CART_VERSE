@@ -8,7 +8,7 @@ export const ReviewModal = () => {
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [name, setName] = useState(user.name || '');
+  const [name, setName] = useState(user?.name || 'Verified Customer');
 
   if (!reviewProductId) return null;
 
