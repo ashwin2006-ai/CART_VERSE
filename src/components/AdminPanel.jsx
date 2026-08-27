@@ -38,7 +38,8 @@ import {
   CheckCircle2,
   Calendar,
   CreditCard,
-  Server
+  Server,
+  Zap
 } from 'lucide-react';
 
 export const AdminPanel = () => {
