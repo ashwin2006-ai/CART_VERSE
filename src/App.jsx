@@ -100,8 +100,8 @@ const ProductGrid = ({ products: prods, isLoading, hasMore, onLoadMore, totalCou
       <>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-          gap: '12px',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: '16px',
         }}>
           {prods.map(p => <ProductCard key={p.id} product={p} />)}
         </div>
@@ -353,7 +353,7 @@ export function App() {
                   {recentProds.length > 0 && (
                     <section style={{ marginBottom: '28px' }}>
                       <SectionHeader title="Recently Viewed" subtitle="Continue where you left off" isDark={isDark} />
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
                         {recentProds.map(p => <ProductCard key={p.id} product={p} compact />)}
                       </div>
                     </section>
@@ -368,7 +368,7 @@ export function App() {
                         onViewAll={() => setSelectedCategory('all')}
                         isDark={isDark}
                       />
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
                         {featured.map(p => <ProductCard key={p.id} product={p} />)}
                       </div>
                     </section>
@@ -394,7 +394,7 @@ export function App() {
                           See all <ChevronRight size={13} />
                         </button>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
                         {dealProds.map(p => <ProductCard key={p.id} product={p} />)}
                       </div>
                     </section>
@@ -409,7 +409,7 @@ export function App() {
                         onViewAll={() => setSelectedCategory('all')}
                         isDark={isDark}
                       />
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
                         {bestSell.map(p => <ProductCard key={p.id} product={p} />)}
                       </div>
                     </section>
@@ -424,7 +424,7 @@ export function App() {
                         onViewAll={() => setSortBy('newest')}
                         isDark={isDark}
                       />
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
                         {newArrivals.map(p => <ProductCard key={p.id} product={p} />)}
                       </div>
                     </section>

@@ -5,10 +5,10 @@ import { ShieldCheck, Lock, Mail, Eye, EyeOff, KeyRound, ArrowLeft, Sparkles, Ch
 export const AdminLogin = () => {
   const { adminLogin, setCurrentView, adminAuth } = useShop();
 
-  const [email, setEmail] = useState('ashwin@cartverse.io');
-  const [password, setPassword] = useState('Ashwin@123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [twoFactorCode, setTwoFactorCode] = useState('884-291');
+  const [twoFactorCode, setTwoFactorCode] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 

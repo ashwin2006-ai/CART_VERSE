@@ -284,6 +284,12 @@ export const ShopProvider = ({ children }) => {
         }
       };
       setAdminAuth(updated);
+      
+      // Set light theme for admin on login
+      setTheme('light');
+      localStorage.setItem('cartverse_theme', 'light');
+      document.documentElement.setAttribute('data-theme', 'light');
+      
       addToast({
         type: 'success',
         title: 'Admin Access Granted 🛡️',
@@ -913,6 +919,70 @@ export const ShopProvider = ({ children }) => {
   };
 
   // Value Bundle
+  // Geolocation & Auto-Address Feature
+  const requestUserLocation = async () => {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        console.warn('Geolocation not supported');
+        resolve(null);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          // Reverse geocode to get address (using free nominatim API)
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+            );
+            const data = await response.json();
+            
+            const address = {
+              id: `addr-${Date.now()}`,
+              street: data.address?.road || data.address?.house_number || 'Current Location',
+              city: data.address?.city || data.address?.town || 'Unknown',
+              state: data.address?.state || 'Unknown',
+              postal_code: data.address?.postcode || '000000',
+              country: data.address?.country || 'India',
+              is_default: false,
+              latitude,
+              longitude,
+              auto_detected: true
+            };
+
+            // Add to user's addresses
+            safeSetUser(prev => ({
+              ...prev,
+              addresses: [address, ...(prev.addresses || [])]
+            }));
+
+            addToast({
+              type: 'success',
+              title: 'Location Detected',
+              message: `Address added: ${address.city}, ${address.state}`
+            });
+
+            resolve(address);
+          } catch (error) {
+            console.error('Reverse geocoding failed:', error);
+            resolve(null);
+          }
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          addToast({
+            type: 'error',
+            title: 'Location Access Denied',
+            message: 'Please enable location access to auto-fill address'
+          });
+          resolve(null);
+        }
+      );
+    });
+  };
+
   const value = {
     theme,
     setTheme,
@@ -1005,6 +1075,7 @@ export const ShopProvider = ({ children }) => {
     fetchProducts,
     fetchCategories,
     buyNow,
+    requestUserLocation,
   };
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
