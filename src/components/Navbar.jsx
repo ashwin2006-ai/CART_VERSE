@@ -65,9 +65,10 @@ export const Navbar = () => {
     localStorage.removeItem('cartverse_token');
     localStorage.removeItem('aura_user');
     setShowUserMenu(false);
-    // Navigate to admin login after logout
-    setCurrentView('admin');
-    window.location.hash = '#admin';
+    // Redirect to home store after logout (not admin)
+    setCurrentView('store');
+    window.location.hash = '';
+    window.location.pathname = '/';
     addToast({
       type: 'success',
       title: 'Signed Out',

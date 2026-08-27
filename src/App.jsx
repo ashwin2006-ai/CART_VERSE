@@ -226,7 +226,24 @@ export function App() {
     sortBy, setSortBy,
     recentlyViewed,
     isLoadingProducts, totalProducts, hasMoreProducts, loadMoreProducts,
+    setCurrentView,
   } = useShop();
+
+  // Check URL on mount and update view accordingly
+  useEffect(() => {
+    const checkPath = () => {
+      if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
+        setCurrentView('admin');
+      } else if (window.location.pathname === '/account' || window.location.hash === '#account') {
+        setCurrentView('account');
+      } else {
+        setCurrentView('store');
+      }
+    };
+    checkPath();
+    window.addEventListener('hashchange', checkPath);
+    return () => window.removeEventListener('hashchange', checkPath);
+  }, [setCurrentView]);
 
   const isDark = theme === 'dark';
   const bg = isDark ? '#0b0f1a' : '#f7f8fa';
@@ -273,6 +290,7 @@ export function App() {
   const newArrivals= useMemo(() => products.filter(p => p.isNew).slice(0, 8), [products]);
   const recentProds= useMemo(() => products.filter(p => recentlyViewed.includes(p.id)).slice(0, 4), [products, recentlyViewed]);
 
+  // Admin portal on /admin route
   if (currentView === 'admin') {
     return (
       <>
