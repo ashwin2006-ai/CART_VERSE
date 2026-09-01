@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'aura_luxe_jwt_secret_key_2026_super_secure';
+const JWT_SECRET = process.env.JWT_SECRET || 'change_this_to_a_secure_random_string_in_production';
 
 // Verify Authenticated User
 export const protect = (req, res, next) => {

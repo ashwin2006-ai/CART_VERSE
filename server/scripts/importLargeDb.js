@@ -34,7 +34,7 @@ const MYSQL   = {
   host:     'localhost',
   port:     3306,
   user:     'root',
-  password: 'Ashunila',
+  password: process.env.MYSQL_PASSWORD || 'your_password_here',
   database: 'e_commerce',
   multipleStatements: true,
 };

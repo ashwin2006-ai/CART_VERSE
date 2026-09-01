@@ -58,13 +58,13 @@ PORT=5000
 JWT_SECRET=your_secure_random_string_here
 CORS_ORIGIN=https://your-frontend-domain.com
 
-DATABASE_URL=postgresql://postgres:Ashunila%402005@db.yjzkfwyattiibfgnngiv.supabase.co:5432/postgres?schema=public
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.your-project-id.supabase.co:5432/postgres?schema=public
 
-SUPABASE_URL=https://yjzkfwyattiibfgnngiv.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlqemtmd3lhdHRpaWJmZ25uZ2l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTE4NjUsImV4cCI6MjEwMzgyNzg2NX0.AjmaFKcARU0MOJHnUI-0PcLUOkQwtM9xC16AfFjgUJA
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 FLIPKART_AFFILIATE_ID=cartvers01
-FLIPKART_AFFILIATE_TOKEN=fk_aff_tok_998a4e12e345b801a6bc
+FLIPKART_AFFILIATE_TOKEN=fk_aff_tok_xxx
 FLIPKART_API_BASE_URL=https://affiliate-api.flipkart.net/affiliate/1.0
 ```
 
