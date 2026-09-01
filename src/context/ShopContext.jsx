@@ -234,7 +234,7 @@ export const ShopProvider = ({ children }) => {
     addToast({ type: 'success', title: 'Order Placed! 🎉', message: `Order ${order.id} confirmed. Estimated delivery: ${order.estimatedDelivery}` });
     
     return order;
-  }, [user?.id, addToast, setCart]);
+  }, [addToast]);
 
   // Load orders from localStorage
   useEffect(() => {

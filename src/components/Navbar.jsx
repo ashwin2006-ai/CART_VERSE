@@ -50,7 +50,7 @@ export const Navbar = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setCurrentView]);
+  }, []);
 
   const handleLogout = () => {
     // ✅ Clear all user data

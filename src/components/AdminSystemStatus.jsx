@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import {
   Server, Database, Users, Package, ShoppingBag, BarChart3,
@@ -11,6 +11,8 @@ export const AdminSystemStatus = () => {
   const [stats, setStats] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const statsTimerRef = useRef(null);
+  const prevStatsRef = useRef(null);
 
   const isDark = theme === 'dark';
   const bg = isDark ? '#0b0f1a' : '#f7f8fa';
@@ -20,10 +22,21 @@ export const AdminSystemStatus = () => {
   const muted = isDark ? '#64748b' : '#9ca3af';
   const accent = '#6C63FF';
 
-  // Calculate comprehensive statistics
+  // Calculate comprehensive statistics with debounce to prevent infinite loops
   useEffect(() => {
-    calculateStats();
-  }, [products, orders, user, cart, wishlist]);
+    // Clear any pending timer
+    if (statsTimerRef.current) clearTimeout(statsTimerRef.current);
+    
+    // Debounce the calculation by 1 second
+    statsTimerRef.current = setTimeout(() => {
+      calculateStats();
+    }, 1000);
+
+    // Cleanup
+    return () => {
+      if (statsTimerRef.current) clearTimeout(statsTimerRef.current);
+    };
+  }, [products?.length, orders?.length, user?.id, cart?.length, wishlist?.length]);
 
   const calculateStats = () => {
     // Get local users from localStorage
