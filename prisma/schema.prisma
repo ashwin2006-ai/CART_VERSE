@@ -1,6 +1,7 @@
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  // For connection pooling on serverless, use pgbouncer in connection string
 }
 
 generator client {
@@ -100,12 +101,12 @@ model Product {
   bestSeller   Boolean   @default(false)
   isNew        Boolean   @default(true)
   dealOfTheDay Boolean   @default(false)
-  images       String?   @db.Text
+  images       Json?
   description  String    @db.Text
-  features     String?   @db.Text
-  specs        String?   @db.Text
-  colors       String?   @db.Text
-  sizes        String?   @db.Text
+  features     Json?
+  specs        Json?
+  colors       Json?
+  sizes        Json?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -163,8 +164,8 @@ model Order {
   total              Float
   paymentMethod      String
   paymentStatus      String      @default("Paid")
-  shippingAddress    String      @db.Text
-  timeline           String      @db.Text
+  shippingAddress    Json?
+  timeline           Json?
   returnRequested    Boolean     @default(false)
   returnReason       String?     @db.Text
   returnStatus       String?
@@ -244,9 +245,9 @@ model FlipkartProduct {
   imageUrl     String?   @db.Text
   productUrl   String?   @db.Text
   affiliateUrl String?   @db.Text
-  specs        String?   @db.Text
+  specs        Json?
   brand        String?
-  offers       String?   @db.Text
+  offers       Json?
   lastSyncedAt DateTime  @default(now())
 
   @@map("flipkart_products")
