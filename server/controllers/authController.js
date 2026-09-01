@@ -218,3 +218,96 @@ export const getUsers = async (req, res) => {
     });
   }
 };
+
+// Admin Profile Management
+export const getAdminProfile = async (req, res) => {
+  try {
+    const admin = usersDb.find(u => u.role === 'admin');
+    if (!admin) {
+      return res.status(404).json({ success: false, message: 'Admin profile not found.' });
+    }
+    return res.json({
+      success: true,
+      data: {
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+        avatar: admin.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
+        tier: admin.tier || 'Super Administrator',
+        createdAt: admin.createdAt || new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateAdminProfile = async (req, res) => {
+  try {
+    const { name, email, avatar } = req.body;
+    const admin = usersDb.find(u => u.role === 'admin');
+
+    if (!admin) {
+      return res.status(404).json({ success: false, message: 'Admin profile not found.' });
+    }
+
+    // Update admin fields
+    if (name) admin.name = name;
+    if (email) admin.email = email.toLowerCase();
+    if (avatar) admin.avatar = avatar;
+
+    return res.json({
+      success: true,
+      message: 'Admin profile updated successfully.',
+      data: {
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+        avatar: admin.avatar,
+        tier: admin.tier,
+        createdAt: admin.createdAt
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateAdminPassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Current and new passwords are required.' });
+    }
+
+    const admin = usersDb.find(u => u.role === 'admin');
+    if (!admin) {
+      return res.status(404).json({ success: false, message: 'Admin profile not found.' });
+    }
+
+    // Verify current password (check against demo password or hashed password)
+    const isValidPassword = (currentPassword === 'Admin@2026!' || 
+                           (admin.passwordHash && await bcrypt.compare(currentPassword, admin.passwordHash).catch(() => false)));
+
+    if (!isValidPassword) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect.' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+    admin.passwordHash = newPasswordHash;
+    admin.plainDemoPassword = null; // Remove plain text password after first hash
+
+    return res.json({
+      success: true,
+      message: 'Admin password updated successfully.'
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};

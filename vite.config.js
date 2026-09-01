@@ -9,5 +9,12 @@ export default defineConfig({
     strictPort: true,
     open: false,
     allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        rewrite: (path) => path,
+      }
+    }
   }
 });

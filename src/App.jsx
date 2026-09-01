@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+﻿import React, { useMemo, useState, useEffect } from 'react';
 import { useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
@@ -20,10 +20,10 @@ import { Footer } from './components/Footer';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { CustomerAuthModal } from './components/CustomerAuthModal';
 import {
-  ChevronRight, Search, X, Loader2, ChevronDown, ArrowUp, HelpCircle
+  ChevronRight, Search, X, Loader2, ChevronDown, ArrowUp, HelpCircle, MessageCircle, Phone, Mail
 } from 'lucide-react';
 
-// â”€â”€â”€ Back to Top â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Back to Top ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
 const BackToTop = ({ isDark }) => {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -54,7 +54,7 @@ const BackToTop = ({ isDark }) => {
 };
 
 
-// â”€â”€â”€ Section Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Section Header ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
 const SectionHeader = ({ title, subtitle, onViewAll, isDark }) => (
   <div style={{
     display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
@@ -83,7 +83,7 @@ const SectionHeader = ({ title, subtitle, onViewAll, isDark }) => (
   </div>
 );
 
-// â”€â”€â”€ Product Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Product Grid ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
 const ProductGrid = ({ products: prods, isLoading, hasMore, onLoadMore, totalCount, isDark }) => (
   <section>
     {isLoading && prods.length === 0 ? (
@@ -93,25 +93,13 @@ const ProductGrid = ({ products: prods, isLoading, hasMore, onLoadMore, totalCou
       </div>
     ) : prods.length === 0 ? (
       <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '12px' }}>ðŸ”</div>
+        <div style={{ fontSize: '3rem', marginBottom: '12px' }}>├░┼╕ΓÇ¥┬ì</div>
         <h3 style={{ fontWeight: 700, color: isDark ? '#f1f5f9' : '#111827', marginBottom: '6px' }}>No Products Found</h3>
         <p style={{ color: isDark ? '#64748b' : '#9ca3af', fontSize: '0.84rem' }}>Try adjusting your search or filters.</p>
       </div>
     ) : (
       <>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '16px',
-          '@media (max-width: 768px)': {
-            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-            gap: '12px',
-          },
-          '@media (max-width: 480px)': {
-            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-            gap: '10px',
-          }
-        }}>
+        <div className="product-grid">
           {prods.map(p => <ProductCard key={p.id} product={p} />)}
         </div>
 
@@ -143,7 +131,7 @@ const ProductGrid = ({ products: prods, isLoading, hasMore, onLoadMore, totalCou
   </section>
 );
 
-// â”€â”€â”€ Help Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Help Widget ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
 const HelpWidget = ({ isDark }) => {
   const [open, setOpen] = useState(false);
   const bg = isDark ? '#1e293b' : '#ffffff';
@@ -216,7 +204,7 @@ const HelpWidget = ({ isDark }) => {
   );
 };
 
-// â”€â”€â”€ Main App â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Main App ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
 export function App() {
   const {
     currentView, adminAuth, user, products, theme,
@@ -311,7 +299,7 @@ export function App() {
           <>
             <CategoryBar />
 
-            {/* â”€â”€ Filtered / Search Results â”€â”€ */}
+            {/* ├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Filtered / Search Results ├óΓÇ¥Γé¼├óΓÇ¥Γé¼ */}
             {isFiltered ? (
               <div style={{ padding: '16px 12px', maxWidth: '1400px', margin: '0 auto' }}>
                 {/* Filter bar */}
@@ -336,16 +324,16 @@ export function App() {
                     <select value={sortBy} onChange={e => setSortBy(e.target.value)}
                       style={{ padding: '7px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600, border: `1px solid ${border}`, background: cardBg, color: text, outline: 'none' }}>
                       <option value="featured">Relevance</option>
-                      <option value="price-low">Price â†‘</option>
-                      <option value="price-high">Price â†“</option>
+                      <option value="price-low">Price ├óΓÇáΓÇÿ</option>
+                      <option value="price-high">Price ├óΓÇáΓÇ£</option>
                       <option value="rating">Top Rated</option>
                       <option value="newest">Newest</option>
                     </select>
                     <select value={minRating} onChange={e => setMinRating(Number(e.target.value))}
                       style={{ padding: '7px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600, border: `1px solid ${border}`, background: cardBg, color: text, outline: 'none' }}>
                       <option value={0}>All Ratings</option>
-                      <option value={4}>4â˜… & above</option>
-                      <option value={4.5}>4.5â˜… & above</option>
+                      <option value={4}>4├ó╦£ΓÇª & above</option>
+                      <option value={4.5}>4.5├ó╦£ΓÇª & above</option>
                     </select>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', color: text }}>
                       <input type="checkbox" checked={inStockOnly} onChange={e => setInStockOnly(e.target.checked)} style={{ accentColor: '#6C63FF' }} />
@@ -370,7 +358,7 @@ export function App() {
               </div>
 
             ) : (
-              /* â”€â”€ Homepage â”€â”€ */
+              /* ├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Homepage ├óΓÇ¥Γé¼├óΓÇ¥Γé¼ */
               <>
                 <HeroBanner />
 
@@ -411,11 +399,11 @@ export function App() {
                       }}>
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-                            <span style={{ fontSize: '1rem' }}>âš¡</span>
+                            <span style={{ fontSize: '1rem' }}>├ó┼í┬í</span>
                             <span style={{ fontWeight: 900, color: '#fff', fontSize: '0.95rem' }}>Flash Deals</span>
                             <span style={{ background: '#ef4444', color: '#fff', fontSize: '0.62rem', fontWeight: 800, padding: '2px 8px', borderRadius: '100px' }}>LIVE</span>
                           </div>
-                          <p style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.55)', margin: 0 }}>Limited time â€” up to 80% off</p>
+                          <p style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.55)', margin: 0 }}>Limited time ├óΓé¼ΓÇ¥ up to 80% off</p>
                         </div>
                         <button onClick={() => setSelectedCategory('all')} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6C63FF', fontSize: '0.78rem', fontWeight: 700 }}>
                           See all <ChevronRight size={13} />
@@ -477,8 +465,8 @@ export function App() {
                       <select value={sortBy} onChange={e => setSortBy(e.target.value)}
                         style={{ padding: '7px 12px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600, border: `1px solid ${border}`, background: cardBg, color: text, outline: 'none' }}>
                         <option value="featured">Featured</option>
-                        <option value="price-low">Price â†‘</option>
-                        <option value="price-high">Price â†“</option>
+                        <option value="price-low">Price ├óΓÇáΓÇÿ</option>
+                        <option value="price-high">Price ├óΓÇáΓÇ£</option>
                         <option value="rating">Top Rated</option>
                         <option value="newest">Newest</option>
                       </select>

@@ -3,7 +3,7 @@ import { useShop } from '../context/ShopContext';
 import { Star, Heart, ShoppingCart, Zap } from 'lucide-react';
 
 export const ProductCard = ({ product, compact = false }) => {
-  const { wishlist, toggleWishlist, setActiveProductId, addToCart, recordRecentlyViewed, theme } = useShop();
+  const { wishlist, toggleWishlist, setActiveProductId, addToCart, addToRecentlyViewed, theme } = useShop();
   const [imgErr, setImgErr] = useState(false);
   const [addedAnim, setAddedAnim] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -24,7 +24,7 @@ export const ProductCard = ({ product, compact = false }) => {
     ? 'https://placehold.co/300x300/f3f4f6/9ca3af?text=No+Image'
     : (Array.isArray(product.images) ? product.images[0] : (product.images || product.imageUrl || ''));
 
-  const handleClick = () => { recordRecentlyViewed(product.id); setActiveProductId(product.id); };
+  const handleClick = () => { addToRecentlyViewed(product); setActiveProductId(product.id); };
   const handleCart = (e) => {
     e.stopPropagation();
     if (isOutOfStock) return;

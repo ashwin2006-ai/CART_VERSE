@@ -1,24 +1,41 @@
 services:
   - type: web
-    name: e-commerce-api
+    name: cartverse-api
     env: node
+    region: oregon
     plan: free
+    
+    # Build configuration
     buildCommand: npm install
-    startCommand: node server/server.js
+    startCommand: npm run start:prod
+    
+    # Environment variables
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: cartverse-db
+          property: connectionString
       - key: JWT_SECRET
-        value: cartverse_jwt_secret_key_2026_super_secure_production
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://your-frontend-domain.com
       - key: FLIPKART_AFFILIATE_ID
-        value: cartvers01
+        sync: false
       - key: FLIPKART_AFFILIATE_TOKEN
-        value: fk_aff_tok_998a4e12e345b801a6bc
+        sync: false
       - key: FLIPKART_API_BASE_URL
         value: https://affiliate-api.flipkart.net/affiliate/1.0
-      - key: CORS_ORIGIN
-        value: https://e-commerce-virid-delta.vercel.app
+
+  - type: postgresql
+    name: cartverse-db
+    region: oregon
+    plan: free
+    databaseName: cartverse
+    user: postgres
+
+databases:
+  - name: cartverse-db
+    databaseName: cartverse
+    user: postgres

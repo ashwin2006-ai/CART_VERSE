@@ -1,16 +1,32 @@
 {
-  "name": "modern-ecommerce",
+  "name": "cartverse-ecommerce",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.1.0",
   "type": "module",
+  "description": "CartVerse - Full-stack e-commerce platform with Node.js/Express backend and PostgreSQL database",
+  "author": "CartVerse Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "vite",
-    "server": "node server/server.js",
-    "db:push": "npx prisma db push",
-    "db:seed": "node server/scripts/seed.js",
-    "db:studio": "npx prisma studio",
+    "dev:server": "node --watch server/server.js",
+    "start": "node server/server.js",
+    "start:prod": "NODE_ENV=production node server/server.js",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server/server.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "node server/scripts/seed.js",
+    "db:studio": "prisma studio",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --skip-generate --skip-seed",
+    "lint": "eslint . --ext .js,.jsx",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
@@ -19,10 +35,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "gsap": "^3.15.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^1.16.0",
-    "mongoose": "^8.9.5",
-    "mysql2": "^3.24.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -31,7 +46,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
-    "prisma": "5.22.0",
+    "prisma": "^5.22.0",
     "vite": "^6.2.0"
   }
 }

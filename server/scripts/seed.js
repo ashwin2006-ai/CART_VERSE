@@ -116,23 +116,29 @@ async function main() {
     { code: 'SUMMER50', discountType: 'fixed', discountValue: 50, description: 'Summer special: ₹50 off' }
   ];
 
+  let couponCount = 0;
   for (const coup of coupons) {
-    await prisma.coupon.upsert({
-      where: { code: coup.code },
-      update: {},
-      create: {
-        code: coup.code,
-        discountType: coup.discountType,
-        discountValue: coup.discountValue,
-        maxDiscount: coup.maxDiscount || null,
-        minCartValue: coup.minCartValue || null,
-        description: coup.description,
-        isActive: true,
-        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
-      }
-    });
+    try {
+      await prisma.coupon.upsert({
+        where: { code: coup.code },
+        update: {},
+        create: {
+          code: coup.code,
+          discountType: coup.discountType,
+          discountValue: coup.discountValue,
+          maxDiscount: coup.maxDiscount || null,
+          minCartValue: coup.minCartValue || null,
+          description: coup.description,
+          isActive: true,
+          expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
+        }
+      });
+      couponCount++;
+    } catch (couponError) {
+      console.warn(`⚠️ Warning: Could not seed coupon ${coup.code}. This may be expected if the database schema is not synced.`);
+    }
   }
-  console.log(`✓ Seeded ${coupons.length} coupons`);
+  console.log(`✓ Seeded ${couponCount}/${coupons.length} coupons`);
 
   console.log('✅ CARTVERSE MySQL Database Seeding Complete!');
   console.log('📊 Summary:');

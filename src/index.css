@@ -446,6 +446,25 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
+/* Product Grid Responsive Styling */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+
 /* ── Global Keyframes ─────────────────────────────────────────────────── */
 @keyframes spin {
   from { transform: rotate(0deg); }

@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { TrendingUp, BarChart3, PieChart, Calendar, Download, Filter } from 'lucide-react';
+import { TrendingUp, BarChart3, PieChart, Calendar, Download, Filter, Package, ShoppingCart, DollarSign } from 'lucide-react';
 
-import React, { useState } from 'react';
-import { TrendingUp, Package, ShoppingCart, DollarSign, BarChart3 } from 'lucide-react';
+export const AdminSalesAnalytics = ({ orders = [], products = [], categories = [], theme = 'light' }) => {
   const [timeRange, setTimeRange] = useState('month');
-  const [categoryFilter, setCategoryFilter] = useState('all'); // week, month, year
   const [categoryFilter, setCategoryFilter] = useState('all');
 
+  const isDark = theme === 'dark';
   const bg = isDark ? '#0f172a' : '#ffffff';
   const border = isDark ? 'rgba(255,255,255,0.07)' : '#e5e7eb';
   const text = isDark ? '#f1f5f9' : '#111827';
@@ -32,12 +31,28 @@ import { TrendingUp, Package, ShoppingCart, DollarSign, BarChart3 } from 'lucide
     .map(([name, data]) => ({ name, ...data }))
     .sort((a, b) => (b?.revenue || 0) - (a?.revenue || 0));
 
-  // Top selling products simulation with safe access
-  const topProducts = (products || []).slice(0, 5).map(p => ({
-    ...p,
-    salesCount: Math.floor(Math.random() * 100) + 10,
-    revenue: Math.random() * 50000 + 10000
-  })).sort((a, b) => (b?.revenue || 0) - (a?.revenue || 0));
+  // Top selling products - calculate from orders instead of random
+  const productSales = {};
+  (orders || []).forEach(order => {
+    (order.items || []).forEach(item => {
+      if (!productSales[item.id]) {
+        productSales[item.id] = { count: 0, revenue: 0, product: item };
+      }
+      productSales[item.id].count += item.quantity || 1;
+      productSales[item.id].revenue += (item.price || 0) * (item.quantity || 1);
+    });
+  });
+
+  const topProducts = Object.entries(productSales)
+    .map(([id, data]) => ({
+      id,
+      name: data.product.name || 'Unknown Product',
+      salesCount: data.count,
+      revenue: data.revenue,
+      price: data.product.price
+    }))
+    .sort((a, b) => (b.revenue || 0) - (a.revenue || 0))
+    .slice(0, 5);
 
   return (
     <div>

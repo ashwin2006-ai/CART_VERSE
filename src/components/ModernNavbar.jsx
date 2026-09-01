@@ -336,7 +336,6 @@ export const ModernNavbar = () => {
       {/* Mobile Search Bar */}
       <div style={{
         display: 'none',
-        '@media (max-width: 768px)': { display: 'block' },
         padding: '8px var(--space-lg)',
         borderTop: '1px solid var(--border-subtle)'
       }}>

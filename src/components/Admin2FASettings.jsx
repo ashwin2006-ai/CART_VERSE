@@ -15,7 +15,7 @@ export const Admin2FASettings = () => {
   const [disablePassword, setDisablePassword] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('authenticator');
 
-  const twoFA = adminAuth.twoFactorAuth || {};
+  const twoFA = adminAuth?.twoFactorAuth || {};
   const isEnabled = twoFA.enabled;
 
   const handleEnable2FA = () => {

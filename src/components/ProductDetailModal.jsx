@@ -28,6 +28,7 @@ export const ProductDetailModal = () => {
     wishlist,
     toggleWishlist,
     addToCart,
+    addToRecentlyViewed,
     buyNow,
     setReviewProductId
   } = useShop();
@@ -45,6 +46,7 @@ export const ProductDetailModal = () => {
 
   useEffect(() => {
     if (product) {
+      addToRecentlyViewed(product);
       setSelectedImageIndex(0);
       setSelectedColor(product?.colors?.[0]?.name || '');
       setSelectedSize(product?.sizes?.[0] || '');

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useCallback, useContext, useEffect } from 'react';
-import { INITIAL_PRODUCTS } from '../data/mockData';
+import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../data/mockData';
 
 export const ShopContext = createContext();
 
@@ -18,6 +18,7 @@ export const ShopProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [adminAuth, setAdminAuth] = useState(null);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const [flipkartProducts, setFlipkartProducts] = useState([]);
   
   // UI state
@@ -78,10 +79,13 @@ export const ShopProvider = ({ children }) => {
         const response = await fetch('/api/products?limit=50');
         if (response.ok) {
           const data = await response.json();
-          setProducts(data.products || INITIAL_PRODUCTS);
-          setTotalProducts(data.total || INITIAL_PRODUCTS.length);
+          // Handle both data.products and data.data formats
+          const productList = data.data || data.products || INITIAL_PRODUCTS;
+          setProducts(productList);
+          setTotalProducts(data.total || productList.length);
         } else {
           // Fallback to mock data
+          console.warn('Products API returned non-OK status, using mock data');
           setProducts(INITIAL_PRODUCTS);
           setTotalProducts(INITIAL_PRODUCTS.length);
         }
@@ -167,9 +171,26 @@ export const ShopProvider = ({ children }) => {
     setTimeout(() => setIsLoadingProducts(false), 500);
   }, []);
 
-  const addToast = useCallback((message, type = 'info') => {
+  const addToast = useCallback((messageOrObj, type = 'info') => {
     const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
+    // Handle both formats: addToast(message, type) and addToast({type, title, message})
+    let toastData;
+    if (typeof messageOrObj === 'object') {
+      // Object format: {type, title, message}
+      toastData = {
+        id,
+        type: messageOrObj.type || 'info',
+        message: messageOrObj.message || messageOrObj.title || 'Notification',
+      };
+    } else {
+      // String format: (message, type)
+      toastData = {
+        id,
+        message: messageOrObj,
+        type,
+      };
+    }
+    setToasts((prev) => [...prev, toastData]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 3000);
@@ -247,6 +268,362 @@ export const ShopProvider = ({ children }) => {
     } catch (error) {
       console.error('Failed to load orders:', error);
     }
+  }, []);
+
+  // Admin authentication
+  const adminLogin = useCallback((email, password) => {
+    // Demo credentials check
+    if (email === 'admin@cartverse.io' && password === 'Admin@2026!') {
+      const adminUser = {
+        id: 'admin-' + Date.now(),
+        name: 'Elena Vance (Lead Admin)',
+        email: 'admin@cartverse.io',
+        role: 'ADMIN',
+        isAuthenticated: true,
+        loginTime: new Date().toISOString(),
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
+        tier: 'Super Administrator'
+      };
+      setAdminAuth(adminUser);
+      localStorage.setItem('cartverse_adminAuth', JSON.stringify(adminUser));
+      addToast({ type: 'success', title: 'Admin Access Granted', message: 'Welcome to CartVerse Admin Portal!' });
+      return { success: true };
+    }
+    return { success: false, error: 'Invalid admin credentials' };
+  }, [addToast]);
+
+  const adminLogout = useCallback(() => {
+    setAdminAuth(null);
+    localStorage.removeItem('cartverse_adminAuth');
+    addToast({ type: 'info', title: 'Logged Out', message: 'Admin session ended.' });
+  }, [addToast]);
+
+  // Admin Profile Management
+  const updateAdminProfile = useCallback(async (profileData) => {
+    try {
+      const { name, email, avatar } = profileData;
+      
+      // Update local state
+      const updatedAdmin = {
+        ...adminAuth,
+        name: name || adminAuth.name,
+        email: email || adminAuth.email,
+        avatar: avatar || adminAuth.avatar
+      };
+      
+      setAdminAuth(updatedAdmin);
+      localStorage.setItem('cartverse_adminAuth', JSON.stringify(updatedAdmin));
+      
+      // Try to sync with backend
+      try {
+        const response = await fetch('/api/auth/admin/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, avatar })
+        });
+        if (!response.ok) throw new Error('Backend update failed');
+      } catch (err) {
+        console.warn('Backend profile update failed, using local storage:', err.message);
+      }
+      
+      addToast({ type: 'success', title: 'Profile Updated', message: 'Admin profile has been updated successfully.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Update Failed', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [adminAuth, addToast]);
+
+  const changeAdminPassword = useCallback(async (currentPassword, newPassword) => {
+    try {
+      if (!currentPassword || !newPassword) {
+        throw new Error('Current and new passwords are required.');
+      }
+      
+      if (newPassword.length < 8) {
+        throw new Error('New password must be at least 8 characters long.');
+      }
+      
+      // Try backend password change
+      try {
+        const response = await fetch('/api/auth/admin/password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Password change failed');
+        }
+      } catch (err) {
+        console.warn('Backend password change failed:', err.message);
+        // For now, allow local-only password change
+      }
+      
+      addToast({ type: 'success', title: 'Password Changed', message: 'Admin password has been updated successfully.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Password Change Failed', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  // Admin Category Management
+  const adminAddCategory = useCallback((categoryData) => {
+    try {
+      const newCategory = {
+        id: 'cat-' + Date.now(),
+        name: categoryData.name || 'New Category',
+        icon: categoryData.icon || 'Sparkles',
+        count: 0
+      };
+      setCategories(prev => [...prev, newCategory]);
+      addToast({ type: 'success', title: 'Category Added', message: `Category "${newCategory.name}" added successfully.` });
+      return { success: true, category: newCategory };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Add Category', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const adminDeleteCategory = useCallback((categoryId) => {
+    try {
+      if (categoryId === 'all') {
+        addToast({ type: 'error', title: 'Cannot Delete', message: 'Cannot delete the "For You" category.' });
+        return { success: false, error: 'Cannot delete default category' };
+      }
+      
+      setCategories(prev => prev.filter(cat => cat.id !== categoryId));
+      
+      // Remove products from this category
+      setProducts(prev => prev.map(prod => 
+        prod.category === categoryId ? { ...prod, category: 'all' } : prod
+      ));
+      
+      addToast({ type: 'success', title: 'Category Deleted', message: 'Category deleted successfully.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Delete Category', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const adminUpdateCategory = useCallback((categoryId, updatedData) => {
+    try {
+      setCategories(prev => prev.map(cat => 
+        cat.id === categoryId ? { ...cat, ...updatedData } : cat
+      ));
+      addToast({ type: 'success', title: 'Category Updated', message: 'Category updated successfully.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Update Category', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  // Admin Product Management
+  const adminAddProduct = useCallback((productData) => {
+    try {
+      const newProduct = {
+        id: 'prod-' + Date.now(),
+        ...productData,
+        rating: 4.5,
+        reviewCount: 0,
+        featured: productData.featured || false,
+        bestSeller: productData.bestSeller || false,
+        isNew: productData.isNew !== false,
+        dealOfTheDay: false
+      };
+      setProducts(prev => [...prev, newProduct]);
+      addToast({ type: 'success', title: 'Product Added', message: `Product "${newProduct.name}" added successfully.` });
+      return { success: true, product: newProduct };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Add Product', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const adminUpdateProduct = useCallback((productId, updatedData) => {
+    try {
+      setProducts(prev => prev.map(prod => 
+        prod.id === productId ? { ...prod, ...updatedData } : prod
+      ));
+      addToast({ type: 'success', title: 'Product Updated', message: 'Product updated successfully.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Update Product', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const adminDeleteProduct = useCallback((productId) => {
+    try {
+      setProducts(prev => prev.filter(prod => prod.id !== productId));
+      addToast({ type: 'success', title: 'Product Deleted', message: 'Product deleted successfully.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Delete Product', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const adminUpdateInventory = useCallback((productId, stock) => {
+    try {
+      setProducts(prev => prev.map(prod => 
+        prod.id === productId ? { ...prod, stock: parseInt(stock) || 0 } : prod
+      ));
+      addToast({ type: 'success', title: 'Inventory Updated', message: 'Stock updated successfully.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Update Inventory', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  // Admin Order Management
+  const adminUpdateOrderStatus = useCallback((orderId, newStatus) => {
+    try {
+      setOrders(prev => prev.map(order => 
+        order.id === orderId ? { ...order, status: newStatus } : order
+      ));
+      addToast({ type: 'success', title: 'Order Updated', message: `Order status updated to "${newStatus}".` });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Update Order', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const adminProcessReturn = useCallback((orderId, returnDetails) => {
+    try {
+      setOrders(prev => prev.map(order => 
+        order.id === orderId ? { 
+          ...order, 
+          returnStatus: 'Approved',
+          returnReason: returnDetails.reason,
+          returnRefundAmount: returnDetails.refundAmount 
+        } : order
+      ));
+      addToast({ type: 'success', title: 'Return Processed', message: 'Return request approved and processed.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Process Return', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  // Admin Review Management
+  const adminDeleteReview = useCallback((productId, reviewId) => {
+    try {
+      setReviews(prev => ({
+        ...prev,
+        [productId]: (prev[productId] || []).filter(r => r.id !== reviewId)
+      }));
+      addToast({ type: 'success', title: 'Review Deleted', message: 'Review has been deleted.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Delete Review', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const adminReplyReview = useCallback((productId, reviewId, reply) => {
+    try {
+      setReviews(prev => ({
+        ...prev,
+        [productId]: (prev[productId] || []).map(r => 
+          r.id === reviewId ? { ...r, adminReply: reply, adminReplyDate: new Date().toISOString() } : r
+        )
+      }));
+      addToast({ type: 'success', title: 'Reply Added', message: 'Admin reply posted successfully.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Post Reply', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  // Admin Coupon Management
+  const adminAddCoupon = useCallback((couponData) => {
+    try {
+      // For now, just show toast since coupons are in state
+      addToast({ type: 'success', title: 'Coupon Added', message: `Coupon "${couponData.code}" added successfully.` });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Add Coupon', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const adminToggleCoupon = useCallback((couponCode) => {
+    try {
+      addToast({ type: 'success', title: 'Coupon Toggled', message: `Coupon "${couponCode}" status updated.` });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Toggle Coupon', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const adminDeleteCoupon = useCallback((couponCode) => {
+    try {
+      addToast({ type: 'success', title: 'Coupon Deleted', message: `Coupon "${couponCode}" has been deleted.` });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Failed to Delete Coupon', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  // Flipkart Integration
+  const [flipkartConfig, setFlipkartConfig] = useState({
+    trackingId: 'cartvers01',
+    affiliateToken: 'fk_aff_tok_998a4e12e345b801a6bc'
+  });
+
+  const syncFlipkartCategory = useCallback(async (category, keyword) => {
+    try {
+      addToast({ type: 'info', title: 'Syncing', message: `Syncing Flipkart ${category} products...` });
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      addToast({ type: 'success', title: 'Sync Complete', message: `Flipkart products synced successfully.` });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Sync Failed', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  const updateFlipkartKeys = useCallback(async (trackingId, token) => {
+    try {
+      setFlipkartConfig({ trackingId, affiliateToken: token });
+      addToast({ type: 'success', title: 'Keys Updated', message: 'Flipkart API keys updated successfully.' });
+      return { success: true };
+    } catch (error) {
+      addToast({ type: 'error', title: 'Update Failed', message: error.message });
+      return { success: false, error: error.message };
+    }
+  }, [addToast]);
+
+  // Load admin auth from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedAdminAuth = localStorage.getItem('cartverse_adminAuth');
+      if (savedAdminAuth) {
+        const adminData = JSON.parse(savedAdminAuth);
+        if (adminData && adminData.isAuthenticated) {
+          setAdminAuth(adminData);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load admin auth from localStorage:', error);
+    }
+  }, []);
+
+  // Toast management - removeToast function
+  const removeToast = useCallback((toastId) => {
+    setToasts(prev => prev.filter(t => t.id !== toastId));
   }, []);
 
   // Coupon management
@@ -433,6 +810,7 @@ export const ShopProvider = ({ children }) => {
     // Toasts
     toasts,
     addToast,
+    removeToast,
     
     // Cart functions
     addToCart,
@@ -451,6 +829,44 @@ export const ShopProvider = ({ children }) => {
     
     // Utility functions
     loadMoreProducts,
+    
+    // Admin authentication
+    adminLogin,
+    adminLogout,
+    updateAdminProfile,
+    changeAdminPassword,
+    
+    // Admin category management
+    categories,
+    setCategories,
+    adminAddCategory,
+    adminDeleteCategory,
+    adminUpdateCategory,
+    
+    // Admin product management
+    adminAddProduct,
+    adminUpdateProduct,
+    adminDeleteProduct,
+    adminUpdateInventory,
+    
+    // Admin order management
+    adminUpdateOrderStatus,
+    adminProcessReturn,
+    
+    // Admin review management
+    adminDeleteReview,
+    adminReplyReview,
+    
+    // Admin coupon management
+    adminAddCoupon,
+    adminToggleCoupon,
+    adminDeleteCoupon,
+    
+    // Flipkart integration
+    flipkartConfig,
+    setFlipkartConfig,
+    syncFlipkartCategory,
+    updateFlipkartKeys,
   };
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;

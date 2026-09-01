@@ -1,0 +1,60 @@
+{
+  "version": "0.1",
+  "project": {
+    "name": "CartVerse E-Commerce API",
+    "baseUrl": "http://localhost:5000",
+    "description": "Complete API testing suite for CartVerse e-commerce platform",
+    "deployedAt": "2025-09-01T00:00:00Z"
+  },
+  "default": {
+    "workspace": "main",
+    "collection": "api-tests",
+    "environment": "local"
+  },
+  "workspaces": {
+    "main": {
+      "id": "pending",
+      "name": "CartVerse API Testing",
+      "type": "personal",
+      "description": "Main workspace for CartVerse e-commerce API testing"
+    }
+  },
+  "collections": {
+    "api-tests": {
+      "id": "pending",
+      "uid": "pending",
+      "name": "CartVerse E-Commerce API",
+      "workspace": "main",
+      "description": "Complete API test suite with all endpoints",
+      "requestCount": 0,
+      "createdAt": "2025-09-01T00:00:00Z"
+    }
+  },
+  "environments": {
+    "local": {
+      "id": "pending",
+      "uid": "pending",
+      "name": "Local Development",
+      "workspace": "main",
+      "variables": {
+        "API_URL": "http://localhost:5000",
+        "API_BASE": "http://localhost:5000/api",
+        "AUTH_TOKEN": "",
+        "ADMIN_TOKEN": "",
+        "USER_ID": "",
+        "PRODUCT_ID": "",
+        "ORDER_ID": "",
+        "CART_ITEM_ID": "",
+        "WISHLIST_ITEM_ID": ""
+      },
+      "createdAt": "2025-09-01T00:00:00Z"
+    }
+  },
+  "testResults": {
+    "lastRun": null,
+    "totalTests": 0,
+    "passed": 0,
+    "failed": 0,
+    "successRate": 0
+  }
+}

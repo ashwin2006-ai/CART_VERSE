@@ -27,8 +27,8 @@ export const AdminLogin = () => {
   };
 
   const handleFillDemo = () => {
-    setEmail('ashwin@cartverse.io');
-    setPassword(adminAuth.passwordHash || 'Ashwin@123!');
+    setEmail('admin@cartverse.io');
+    setPassword('Admin@2026!');
     setErrorMsg('');
   };
 

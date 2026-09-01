@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useShop } from '../context/ShopContext';
 import { AdminDashboard } from './AdminDashboard';
 import { AdminSystemStatus } from './AdminSystemStatus';
@@ -70,6 +70,7 @@ export const AdminPanel = () => {
     adminAddCoupon,
     adminToggleCoupon,
     adminDeleteCoupon,
+    addToast,
     setCurrentView,
     flipkartProducts,
     flipkartConfig,
@@ -122,9 +123,19 @@ export const AdminPanel = () => {
   // Password Change Form
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [profileForm, setProfileForm] = useState({
-    name: adminAuth?.adminUser?.name || 'Admin',
-    email: adminAuth?.adminUser?.email || ''
+    name: adminAuth?.name || 'Admin',
+    email: adminAuth?.email || ''
   });
+
+  // Sync profile form with adminAuth
+  useEffect(() => {
+    if (adminAuth) {
+      setProfileForm({
+        name: adminAuth.name || 'Admin',
+        email: adminAuth.email || ''
+      });
+    }
+  }, [adminAuth]);
 
   // Flipkart API Hub States
   const [fkSyncCategory, setFkSyncCategory] = useState('all');
@@ -279,16 +290,31 @@ export const AdminPanel = () => {
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (passwordForm.newPass !== passwordForm.confirm) {
-      alert('New password and confirmation do not match.');
+      addToast({ type: 'error', title: 'Mismatch', message: 'New password and confirmation do not match.' });
       return;
     }
-    const ok = changeAdminPassword(passwordForm.current, passwordForm.newPass);
-    if (ok) setPasswordForm({ current: '', newPass: '', confirm: '' });
+    if (passwordForm.newPass.length < 8) {
+      addToast({ type: 'error', title: 'Too Short', message: 'New password must be at least 8 characters.' });
+      return;
+    }
+    changeAdminPassword(passwordForm.current, passwordForm.newPass).then(result => {
+      if (result.success) {
+        setPasswordForm({ current: '', newPass: '', confirm: '' });
+      }
+    });
   };
 
   const handleProfileSubmit = (e) => {
     e.preventDefault();
-    updateAdminProfile(profileForm);
+    if (!profileForm.name.trim() || !profileForm.email.trim()) {
+      addToast({ type: 'error', title: 'Missing Fields', message: 'Name and email are required.' });
+      return;
+    }
+    updateAdminProfile(profileForm).then(result => {
+      if (result.success) {
+        addToast({ type: 'success', title: 'Saved', message: 'Profile updated successfully.' });
+      }
+    });
   };
 
   const handleSendReply = (prodId, revId) => {
@@ -302,13 +328,13 @@ export const AdminPanel = () => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'system', label: 'System Status', icon: Server, badge: null },
-    { id: 'products', label: 'Product Management', icon: Package, badge: products.length },
-    { id: 'categories', label: 'Category Management', icon: Layers, badge: categories.length },
+    { id: 'products', label: 'Product Management', icon: Package, badge: (products || []).length },
+    { id: 'categories', label: 'Category Management', icon: Layers, badge: (categories || []).length },
     { id: 'inventory', label: 'Inventory & Stock', icon: Boxes, badge: lowStockItems.length + outOfStockItems.length > 0 ? `${lowStockItems.length + outOfStockItems.length} alert` : null, badgeColor: 'rose' },
-    { id: 'orders', label: 'Order Management', icon: ShoppingBag, badge: orders.length },
+    { id: 'orders', label: 'Order Management', icon: ShoppingBag, badge: (orders || []).length },
     { id: 'customers', label: 'Customer Management', icon: Users },
-    { id: 'coupons', label: 'Coupons & Offers', icon: Tag, badge: coupons.length },
-    { id: 'reviews', label: 'Reviews Management', icon: MessageSquare, badge: allReviewsList.length },
+    { id: 'coupons', label: 'Coupons & Offers', icon: Tag, badge: (coupons || []).length },
+    { id: 'reviews', label: 'Reviews Management', icon: MessageSquare, badge: (allReviewsList || []).length },
     { id: 'analytics', label: 'Sales & Analytics', icon: BarChart3 },
     { id: 'returns', label: 'Return & Refunds', icon: RotateCcw, badge: pendingReturns.length > 0 ? `${pendingReturns.length} pending` : null, badgeColor: 'gold' },
     { id: 'flipkart', label: 'Flipkart API Hub', icon: Zap, badge: 'API Active', badgeColor: 'emerald' },
@@ -330,11 +356,13 @@ export const AdminPanel = () => {
         borderRight: '1px solid var(--border-subtle)',
         display: 'flex',
         flexDirection: 'column',
-        position: 'sticky',
+        position: 'fixed',
         top: 0,
+        left: 0,
         height: '100vh',
         transition: 'width var(--transition-smooth)',
-        zIndex: 100
+        zIndex: 1000,
+        overflow: 'hidden'
       }}>
         {/* Sidebar Header / Brand */}
         <div style={{
@@ -492,7 +520,14 @@ export const AdminPanel = () => {
       </aside>
 
       {/* Main Admin Workspace */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div style={{ 
+        flex: 1, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        minWidth: 0,
+        marginLeft: sidebarCollapsed ? '76px' : '280px',
+        transition: 'margin-left var(--transition-smooth)'
+      }}>
         {/* Admin Top Navbar */}
         <header style={{
           height: '70px',
@@ -588,7 +623,7 @@ export const AdminPanel = () => {
                     {totalProducts} Items
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                    Across {categories.length - 1} categories
+                    Across {Math.max(0, (categories || []).length - 1)} categories
                   </div>
                 </div>
 
@@ -598,10 +633,10 @@ export const AdminPanel = () => {
                     <AlertTriangle size={18} style={{ color: lowStockItems.length > 0 ? 'var(--accent-rose)' : 'var(--accent-emerald)' }} />
                   </div>
                   <div style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--text-primary)' }}>
-                    {lowStockItems.length + outOfStockItems.length}
+                    {(lowStockItems || []).length + (outOfStockItems || []).length}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--accent-rose)', marginTop: '4px', fontWeight: 700 }}>
-                    {lowStockItems.length} low stock, {outOfStockItems.length} out of stock
+                    {(lowStockItems || []).length} low stock, {(outOfStockItems || []).length} out of stock
                   </div>
                 </div>
 
@@ -616,7 +651,7 @@ export const AdminPanel = () => {
                   </div>
                   <div style={{ fontSize: '0.75rem', marginTop: '4px', color: '#2874f0', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
-                    {apiUserCount ? 'Live from database' : `${registeredUsers.length} locally tracked`}
+                    {apiUserCount ? 'Live from database' : `${(registeredUsers || []).length} locally tracked`}
                   </div>
                 </div>
               </div>
@@ -634,28 +669,50 @@ export const AdminPanel = () => {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '180px', paddingTop: '10px', gap: '12px' }}>
-                    {[
-                      { day: 'Mon', val: 420, h: '45%' },
-                      { day: 'Tue', val: 680, h: '65%' },
-                      { day: 'Wed', val: 510, h: '52%' },
-                      { day: 'Thu', val: 920, h: '88%' },
-                      { day: 'Fri', val: 1150, h: '100%' },
-                      { day: 'Sat', val: 840, h: '78%' },
-                      { day: 'Sun', val: 630, h: '60%' }
-                    ].map((bar, idx) => (
-                      <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end', gap: '8px' }}>
-                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)' }}>₹{bar.val}</span>
-                        <div style={{
-                          width: '100%',
-                          maxWidth: '42px',
-                          height: bar.h,
-                          borderRadius: '6px 6px 0 0',
-                          background: idx === 4 ? 'var(--primary-gradient)' : 'var(--bg-surface)',
-                          border: '1px solid var(--border-subtle)'
-                        }} />
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{bar.day}</span>
-                      </div>
-                    ))}
+                    {(() => {
+                      // Calculate actual weekly revenue from orders
+                      const today = new Date();
+                      const weekData = {};
+                      const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                      
+                      // Initialize week with zeros
+                      for (let i = 0; i < 7; i++) {
+                        const d = new Date(today);
+                        d.setDate(today.getDate() - today.getDay() + i);
+                        const dateKey = d.toISOString().split('T')[0];
+                        weekData[dateKey] = 0;
+                      }
+                      
+                      // Sum orders by date
+                      (orders || []).forEach(o => {
+                        const dateStr = (o.createdAt || new Date().toISOString()).split('T')[0];
+                        if (weekData.hasOwnProperty(dateStr)) {
+                          weekData[dateStr] += (o.total || 0);
+                        }
+                      });
+                      
+                      // Calculate max for scaling
+                      const values = Object.values(weekData);
+                      const maxRevenue = Math.max(...values, 1000); // Minimum scale of 1000
+                      
+                      return Object.entries(weekData).map(([ dateStr, revenue ], idx) => {
+                        const height = (revenue / maxRevenue) * 100;
+                        return (
+                          <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end', gap: '8px' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)' }}>₹{Math.round(revenue)}</span>
+                            <div style={{
+                              width: '100%',
+                              maxWidth: '42px',
+                              height: `${Math.max(height, 5)}%`,
+                              borderRadius: '6px 6px 0 0',
+                              background: idx === 5 ? 'var(--primary-gradient)' : 'var(--bg-surface)',
+                              border: '1px solid var(--border-subtle)'
+                            }} />
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{dayLabels[idx]}</span>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 </div>
 
@@ -1051,8 +1108,8 @@ export const AdminPanel = () => {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 {[
                   { label: 'Total Users', value: totalUserCount, color: '#2874f0', icon: '\uD83D\uDC65' },
-                  { label: 'MySQL Users', value: apiUsers.length, color: '#388e3c', icon: '\uD83D\uDDC4\uFE0F' },
-                  { label: 'Local Users', value: registeredUsers.length, color: '#7c3aed', icon: '\uD83E\uDDD1' },
+                  { label: 'MySQL Users', value: (apiUsers || []).length, color: '#388e3c', icon: '\uD83D\uDDC4\uFE0F' },
+                  { label: 'Local Users', value: (registeredUsers || []).length, color: '#7c3aed', icon: '\uD83E\uDDD1' },
                   { label: 'Total Orders', value: allUsers.reduce((s, u) => s + (u.orderCount || 0), 0), color: '#f59e0b', icon: '\uD83D\uDCE6' },
                 ].map(stat => (
                   <div key={stat.label} className="glass-panel" style={{ padding: '18px 20px' }}>
@@ -1080,7 +1137,7 @@ export const AdminPanel = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.length === 0 ? (
+                    {(filteredUsers || []).length === 0 ? (
                       <tr>
                         <td colSpan={9} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
                           {userSearch ? 'No users match your search.' : 'No registered users yet. Users who register on the site will appear here.'}
@@ -1131,9 +1188,9 @@ export const AdminPanel = () => {
                 </table>
               </div>
 
-              {apiUserCount && apiUserCount > allUsers.length && (
+              {apiUserCount && apiUserCount > (allUsers || []).length && (
                 <div style={{ marginTop: '16px', padding: '12px 16px', background: 'rgba(40,116,240,0.08)', borderRadius: '8px', fontSize: '0.82rem', color: '#2874f0', fontWeight: 600 }}>
-                  ℹ️ {apiUserCount - allUsers.length} additional users may be in MySQL. Start Docker to load all user data.
+                  ℹ️ {apiUserCount - (allUsers || []).length} additional users may be in MySQL. Start Docker to load all user data.
                 </div>
               )}
             </div>
@@ -1597,7 +1654,7 @@ export const AdminPanel = () => {
                     MySQL Cached Products
                   </div>
                   <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--accent-gold)', marginTop: '4px' }}>
-                    {flipkartProducts ? flipkartProducts.length : 6} Live Deals
+                    {(flipkartProducts || []).length} Live Deals
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
                     Cached in `flipkart_products` table

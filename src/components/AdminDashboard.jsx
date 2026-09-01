@@ -341,9 +341,6 @@ export const AdminDashboard = () => {
           gridTemplateColumns: '1fr 1fr',
           gap: '16px',
           marginBottom: '28px',
-          '@media (max-width: 1024px)': {
-            gridTemplateColumns: '1fr',
-          }
         }}>
           {/* Recent Orders */}
           <DataTable

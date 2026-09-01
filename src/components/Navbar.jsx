@@ -5,12 +5,14 @@ import {
   LogOut, ChevronDown, Sun, Moon, Package, Menu, ShoppingBag, MessageSquare
 } from 'lucide-react';
 import { CustomerAuthModal } from './CustomerAuthModal';
+import { PillNav } from './PillNav';
 
 export const Navbar = () => {
   const {
     theme, toggleTheme, currentView, setCurrentView,
     cart, wishlist, searchQuery, setSearchQuery,
-    products, setIsCartOpen, setActiveProductId, user, setUser, addToast
+    products, setIsCartOpen, setActiveProductId, user, setUser, addToast,
+    selectedCategory, setSelectedCategory
   } = useShop();
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -87,6 +89,18 @@ export const Navbar = () => {
   const searchBg = isDark ? '#1e293b' : '#f3f4f6';
   const accent = '#6C63FF';
 
+  // PillNav items - Product categories
+  const pillNavItems = [
+    { label: 'All', href: '#all', ariaLabel: 'All products' },
+    { label: 'Mobiles', href: '#mobiles', ariaLabel: 'Browse mobiles' },
+    { label: 'Electronics', href: '#electronics', ariaLabel: 'Browse electronics' },
+    { label: 'Fashion', href: '#fashion', ariaLabel: 'Browse fashion' },
+    { label: 'Footwear', href: '#footwear', ariaLabel: 'Browse footwear' },
+    { label: 'Beauty', href: '#beauty', ariaLabel: 'Browse beauty' },
+    { label: 'Home', href: '#home', ariaLabel: 'Browse home' },
+    { label: 'Accessories', href: '#accessories', ariaLabel: 'Browse accessories' }
+  ];
+
   return (
     <>
       <CustomerAuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
@@ -103,7 +117,7 @@ export const Navbar = () => {
       `}</style>
 
       <header style={{
-        position: 'sticky', top: 0, zIndex: 1000,
+        position: 'sticky', top: 0, zIndex: 999,
         background: bg,
         borderBottom: `1px solid ${border}`,
         boxShadow: isDark ? '0 1px 12px rgba(0,0,0,0.4)' : '0 1px 8px rgba(0,0,0,0.06)',
@@ -133,6 +147,27 @@ export const Navbar = () => {
               Cart<span style={{ color: accent }}>Verse</span>
             </span>
           </button>
+
+          {/* PillNav - Animated Desktop Navigation */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+            <PillNav
+              logo="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 6v6l4 2'/%3E%3C/svg%3E"
+              logoAlt="Navigation"
+              items={pillNavItems}
+              activeHref={`#${selectedCategory}`}
+              baseColor={bg}
+              pillColor={accent}
+              hoveredPillTextColor={bg}
+              pillTextColor={textPrimary}
+              ease="power3.easeOut"
+              initialLoadAnimation={true}
+              onItemClick={(href) => {
+                const category = href.replace('#', '');
+                setSelectedCategory(category);
+              }}
+              className="hidden md:flex"
+            />
+          </div>
 
           {/* Search Bar — desktop only */}
           <div className="navbar-search" ref={searchRef} style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', minWidth: '200px' }}>
