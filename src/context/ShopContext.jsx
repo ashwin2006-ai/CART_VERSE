@@ -249,6 +249,7 @@ export const ShopProvider = ({ children }) => {
   const [orderConfirmationData, setOrderConfirmationData] = useState(null);
   const [showOrderTracking, setShowOrderTracking] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState(null);
+  const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
 
   // ═══════════════════════════════════════════════════════════════════
   // ORDER STATE
@@ -273,6 +274,16 @@ export const ShopProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('cartverse-orders', JSON.stringify(orders));
   }, [orders]);
+
+  // ═══════════════════════════════════════════════════════════════════
+  // COUPONS STATE
+  // ═══════════════════════════════════════════════════════════════════
+  const [coupons, setCoupons] = useState([
+    { code: 'SAVE20', discount: 20, minOrder: 2999, description: '20% off on orders above ₹2,999' },
+    { code: 'WELCOME10', discount: 10, minOrder: 0, description: '10% off your entire first purchase' },
+    { code: 'FREESHIP', discount: 0, minOrder: 999, description: 'Free express shipping over ₹999' },
+    { code: 'FLAT500', discount: 500, minOrder: 3999, description: '₹500 instant discount on orders above ₹3,999' },
+  ]);
 
   // ═══════════════════════════════════════════════════════════════════
   // COMPUTED VALUES
@@ -380,10 +391,16 @@ export const ShopProvider = ({ children }) => {
     setShowOrderTracking,
     trackingOrderId,
     setTrackingOrderId,
+    isAiAssistantOpen,
+    setIsAiAssistantOpen,
 
     // Orders
     orders,
     createOrder,
+
+    // Coupons
+    coupons,
+    setCoupons,
 
     // Toasts
     toasts,
