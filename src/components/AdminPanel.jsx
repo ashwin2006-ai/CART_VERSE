@@ -3,6 +3,7 @@ import { useShop } from '../context/ShopContext';
 import { AdminDashboard } from './AdminDashboard';
 import { AdminSystemStatus } from './AdminSystemStatus';
 import { Admin2FASettings } from './Admin2FASettings';
+import { AdminSupportTickets } from './AdminSupportTickets';
 import {
   LayoutDashboard,
   Package,
@@ -335,6 +336,7 @@ export const AdminPanel = () => {
     { id: 'customers', label: 'Customer Management', icon: Users },
     { id: 'coupons', label: 'Coupons & Offers', icon: Tag, badge: (coupons || []).length },
     { id: 'reviews', label: 'Reviews Management', icon: MessageSquare, badge: (allReviewsList || []).length },
+    { id: 'support_tickets', label: 'Support Tickets', icon: MessageSquare, badge: null },
     { id: 'analytics', label: 'Sales & Analytics', icon: BarChart3 },
     { id: 'returns', label: 'Return & Refunds', icon: RotateCcw, badge: pendingReturns.length > 0 ? `${pendingReturns.length} pending` : null, badgeColor: 'gold' },
     { id: 'flipkart', label: 'Flipkart API Hub', icon: Zap, badge: 'API Active', badgeColor: 'emerald' },
@@ -576,6 +578,18 @@ export const AdminPanel = () => {
 
         {/* Dynamic Content Body */}
         <div style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
+          {/* Support Tickets Tab */}
+          {activeTab === 'support_tickets' && (
+            <div className="animate-fade-in">
+              <div style={{ marginBottom: '28px' }}>
+                <h1 style={{ fontSize: '1.75rem', fontWeight: 900 }}>Support Tickets Management</h1>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  View and manage customer support requests, respond to inquiries, and track ticket status.
+                </p>
+              </div>
+              <AdminSupportTickets />
+            </div>
+          )}
           {/* 1. DASHBOARD OVERVIEW */}
           {activeTab === 'dashboard' && (
             <div className="animate-fade-in">

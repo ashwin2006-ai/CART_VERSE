@@ -391,7 +391,7 @@ export const Navbar = () => {
                   )}
 
                   <button
-                    onClick={() => { setIsAuthModalOpen(true); setShowUserMenu(false); }}
+                    onClick={() => { setCurrentView('support'); setShowUserMenu(false); }}
                     style={{
                       width: '100%', textAlign: 'left', padding: '12px 16px', fontSize: '0.88rem',
                       color: textPrimary, fontWeight: 600,

@@ -19,6 +19,7 @@ import { ToastContainer } from './components/ToastContainer';
 import { Footer } from './components/Footer';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { CustomerAuthModal } from './components/CustomerAuthModal';
+import { SupportCenter } from './components/SupportCenter';
 import {
   ChevronRight, Search, X, Loader2, ChevronDown, ArrowUp, HelpCircle, MessageCircle, Phone, Mail
 } from 'lucide-react';
@@ -132,7 +133,7 @@ const ProductGrid = ({ products: prods, isLoading, hasMore, onLoadMore, totalCou
 );
 
 // ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Help Widget ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
-const HelpWidget = ({ isDark }) => {
+const HelpWidget = ({ isDark, onHelpClick }) => {
   const [open, setOpen] = useState(false);
   const bg = isDark ? '#1e293b' : '#ffffff';
   const border = isDark ? '#334155' : '#e5e7eb';
@@ -140,7 +141,7 @@ const HelpWidget = ({ isDark }) => {
   const muted = isDark ? '#64748b' : '#9ca3af';
 
   const options = [
-    { icon: MessageCircle, label: 'Live Chat', sub: 'Avg response: 2 min', color: '#6C63FF', action: () => alert('Chat support coming soon!') },
+    { icon: MessageCircle, label: 'Live Chat', sub: 'Avg response: 2 min', color: '#6C63FF', action: () => { onHelpClick(); setOpen(false); } },
     { icon: Phone, label: 'Call Us', sub: '1800-XXX-XXXX (Toll free)', color: '#10b981', action: () => window.open('tel:18001234567') },
     { icon: Mail, label: 'Email Support', sub: 'support@cartverse.io', color: '#f59e0b', action: () => window.open('mailto:support@cartverse.io') },
   ];
@@ -225,6 +226,8 @@ export function App() {
         setCurrentView('admin');
       } else if (window.location.pathname === '/account' || window.location.hash === '#account') {
         setCurrentView('account');
+      } else if (window.location.pathname === '/support' || window.location.hash === '#support') {
+        setCurrentView('support');
       } else {
         setCurrentView('store');
       }
@@ -488,6 +491,7 @@ export function App() {
         )}
 
         {currentView === 'account' && <AccountView />}
+        {currentView === 'support' && <SupportCenter />}
       </main>
 
       {/* Modals */}
@@ -510,6 +514,9 @@ export function App() {
 
       {/* Back to top */}
       <BackToTop isDark={isDark} />
+      
+      {/* Help Widget */}
+      <HelpWidget isDark={isDark} onHelpClick={() => setCurrentView('support')} />
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
