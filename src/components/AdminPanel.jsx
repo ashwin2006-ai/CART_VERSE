@@ -343,36 +343,46 @@ export const AdminPanel = () => {
     { id: 'security', label: 'Profile & Security', icon: ShieldCheck }
   ];
 
+  // Mobile detection
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isTablet = typeof window !== 'undefined' && window.innerWidth < 1024;
+
   return (
     <div style={{
       display: 'flex',
       minHeight: '100vh',
       background: 'var(--bg-main)',
       color: 'var(--text-primary)',
-      flexDirection: window.innerWidth < 1024 ? 'column' : 'row'
+      flexDirection: isTablet ? 'column' : 'row'
     }}>
       {/* Standalone Admin Sidebar */}
       <aside style={{
-        width: sidebarCollapsed ? '76px' : '280px',
+        width: isMobile ? '100%' : (sidebarCollapsed ? '76px' : '280px'),
+        maxWidth: isMobile ? '100%' : undefined,
+        height: isMobile ? 'auto' : '100vh',
         background: 'var(--bg-card-solid)',
-        borderRight: '1px solid var(--border-subtle)',
+        borderRight: isTablet ? 'none' : '1px solid var(--border-subtle)',
+        borderBottom: isTablet ? '1px solid var(--border-subtle)' : 'none',
         display: 'flex',
-        flexDirection: 'column',
-        position: 'fixed',
+        flexDirection: isMobile ? 'row' : 'column',
+        position: isMobile ? 'sticky' : 'fixed',
         top: 0,
         left: 0,
-        height: '100vh',
-        transition: 'width var(--transition-smooth)',
-        zIndex: 1000,
-        overflow: 'hidden'
+        zIndex: isMobile ? 950 : 1000,
+        overflow: isMobile ? 'auto' : 'hidden',
+        transition: 'all var(--transition-smooth)',
+        minHeight: isMobile ? 'auto' : '100vh',
       }}>
         {/* Sidebar Header / Brand */}
         <div style={{
-          padding: '20px 20px',
-          borderBottom: '1px solid var(--border-subtle)',
+          padding: isMobile ? '12px' : '20px 20px',
+          borderBottom: isMobile ? 'none' : '1px solid var(--border-subtle)',
+          borderRight: isMobile ? '1px solid var(--border-subtle)' : 'none',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          minWidth: isMobile ? 'auto' : undefined,
+          flex: isMobile ? '0 0 auto' : undefined,
         }}>
           {!sidebarCollapsed && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -416,12 +426,15 @@ export const AdminPanel = () => {
 
         {/* Sidebar Nav Links */}
         <nav style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '16px 12px',
+          flex: isMobile ? '0 1 auto' : 1,
+          overflowY: isMobile ? 'visible' : 'auto',
+          overflowX: isMobile ? 'auto' : 'visible',
+          padding: isMobile ? '0' : '16px 12px',
           display: 'flex',
-          flexDirection: 'column',
-          gap: '4px'
+          flexDirection: isMobile ? 'row' : 'column',
+          gap: isMobile ? '4px' : '4px',
+          minHeight: isMobile ? 'auto' : undefined,
+          minWidth: isMobile ? 'max-content' : undefined,
         }}>
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -434,28 +447,31 @@ export const AdminPanel = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
-                  padding: '11px 14px',
+                  gap: isMobile ? '6px' : '12px',
+                  padding: isMobile ? '8px 12px' : '11px 14px',
                   borderRadius: 'var(--radius-md)',
                   background: isSelected ? 'var(--primary-gradient)' : 'transparent',
                   color: isSelected ? '#ffffff' : 'var(--text-secondary)',
                   fontWeight: isSelected ? 700 : 600,
-                  fontSize: '0.86rem',
+                  fontSize: isMobile ? '0.75rem' : '0.86rem',
                   textAlign: 'left',
                   cursor: 'pointer',
                   transition: 'var(--transition-fast)',
-                  position: 'relative'
+                  position: 'relative',
+                  whiteSpace: isMobile ? 'nowrap' : 'normal',
+                  minWidth: isMobile ? 'max-content' : 'auto',
+                  flex: isMobile ? '0 0 auto' : undefined,
                 }}
-                title={sidebarCollapsed ? item.label : undefined}
+                title={sidebarCollapsed || isMobile ? item.label : undefined}
                 onMouseEnter={(e) => {
-                  if (!isSelected) e.currentTarget.style.background = 'var(--bg-surface)';
+                  if (!isSelected && !isMobile) e.currentTarget.style.background = 'var(--bg-surface)';
                 }}
                 onMouseLeave={(e) => {
-                  if (!isSelected) e.currentTarget.style.background = 'transparent';
+                  if (!isSelected && !isMobile) e.currentTarget.style.background = 'transparent';
                 }}
               >
-                <Icon size={18} style={{ flexShrink: 0, color: isSelected ? '#fff' : 'inherit' }} />
-                {!sidebarCollapsed && (
+                <Icon size={isMobile ? 14 : 18} style={{ flexShrink: 0, color: isSelected ? '#fff' : 'inherit' }} />
+                {!sidebarCollapsed && !isMobile && (
                   <>
                     <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {item.label}
@@ -481,9 +497,14 @@ export const AdminPanel = () => {
 
         {/* Sidebar Footer User Info & Sign Out */}
         <div style={{
-          padding: '16px',
-          borderTop: '1px solid var(--border-subtle)',
-          background: 'var(--bg-surface)'
+          padding: isMobile ? '8px 12px' : '16px',
+          borderTop: isMobile ? '1px solid var(--border-subtle)' : '1px solid var(--border-subtle)',
+          borderLeft: isMobile ? '1px solid var(--border-subtle)' : 'none',
+          background: 'var(--bg-surface)',
+          display: isMobile ? 'flex' : 'block',
+          alignItems: isMobile ? 'center' : undefined,
+          gap: isMobile ? '8px' : undefined,
+          minWidth: isMobile ? 'max-content' : undefined,
         }}>
           {!sidebarCollapsed && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
@@ -527,13 +548,15 @@ export const AdminPanel = () => {
         display: 'flex', 
         flexDirection: 'column', 
         minWidth: 0,
-        marginLeft: sidebarCollapsed ? '76px' : '280px',
-        transition: 'margin-left var(--transition-smooth)'
+        marginLeft: isTablet ? 0 : (sidebarCollapsed ? '76px' : '280px'),
+        marginTop: isMobile ? 'auto' : 0,
+        transition: 'margin-left var(--transition-smooth)',
+        minHeight: isTablet ? 'calc(100vh - 70px)' : undefined,
       }}>
         {/* Admin Top Navbar */}
         <header style={{
-          height: '70px',
-          padding: '0 32px',
+          height: isMobile ? '56px' : '70px',
+          padding: isMobile ? '0 12px' : '0 32px',
           background: 'var(--bg-card-solid)',
           borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
@@ -541,34 +564,38 @@ export const AdminPanel = () => {
           justifyContent: 'space-between',
           position: 'sticky',
           top: 0,
-          zIndex: 90
+          zIndex: 90,
+          flexWrap: 'wrap',
+          gap: isMobile ? '8px' : '14px',
         }}>
           {/* Breadcrumb & Section Name */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Admin Workspace</span>
-            <span style={{ color: 'var(--text-muted)' }}>/</span>
-            <span style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '4px' : '10px', flex: isMobile ? 1 : 'auto', minWidth: 0 }}>
+            <span style={{ fontSize: isMobile ? '0.7rem' : '0.82rem', color: 'var(--text-muted)', display: isMobile ? 'none' : 'inline' }}>Admin Workspace</span>
+            <span style={{ color: 'var(--text-muted)', display: isMobile ? 'none' : 'inline' }}>/</span>
+            <span style={{ fontSize: isMobile ? '0.75rem' : '0.92rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {activeTab}
             </span>
           </div>
 
           {/* Quick Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <button
-              onClick={() => {
-                setCurrentView('store');
-                window.location.hash = '';
-              }}
-              className="btn btn-secondary btn-sm"
-              style={{ gap: '6px', fontSize: '0.8rem' }}
-            >
-              <ExternalLink size={14} /> View Storefront
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '14px' }}>
+            {!isMobile && (
+              <button
+                onClick={() => {
+                  setCurrentView('store');
+                  window.location.hash = '';
+                }}
+                className="btn btn-secondary btn-sm"
+                style={{ gap: '6px', fontSize: '0.8rem' }}
+              >
+                <ExternalLink size={14} /> View Storefront
+              </button>
+            )}
 
             <button
               onClick={toggleTheme}
               className="btn-icon btn-secondary"
-              style={{ width: '36px', height: '36px', borderRadius: '50%' }}
+              style={{ width: isMobile ? '32px' : '36px', height: isMobile ? '32px' : '36px', borderRadius: '50%', padding: '6px' }}
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
             >
               {theme === 'dark' ? <Sun size={16} style={{ color: '#fbbf24' }} /> : <Moon size={16} style={{ color: '#6366f1' }} />}
@@ -577,7 +604,7 @@ export const AdminPanel = () => {
         </header>
 
         {/* Dynamic Content Body */}
-        <div style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
+        <div style={{ flex: 1, padding: isMobile ? '16px' : '32px', overflowY: 'auto', overflowX: 'hidden' }}>
           {/* Support Tickets Tab */}
           {activeTab === 'support_tickets' && (
             <div className="animate-fade-in">
@@ -601,7 +628,7 @@ export const AdminPanel = () => {
               </div>
 
               {/* KPI Cards Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', gap: isMobile ? '12px' : '20px', marginBottom: '32px' }}>
                 <div className="glass-panel" style={{ padding: '22px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '8px' }}>
                     <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' }}>Gross Revenue</span>
