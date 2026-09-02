@@ -49,6 +49,51 @@ export const ShopProvider = ({ children }) => {
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════
+  // ADMIN AUTHENTICATION
+  // ═══════════════════════════════════════════════════════════════════
+  const adminLogin = useCallback((email, password, twoFactorCode) => {
+    // Demo admin credentials (hardcoded for development)
+    const DEMO_EMAIL = 'admin@cartverse.io';
+    const DEMO_PASSWORD = 'Admin@2026!';
+    const DEMO_2FA = '123456'; // Simple demo 2FA
+
+    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      // For demo, we'll accept any 2FA code or empty
+      const adminUser = {
+        id: 'admin-1',
+        name: 'CartVerse Admin',
+        email: email,
+        role: 'admin',
+        permissions: ['manage-products', 'manage-orders', 'manage-users', 'view-analytics'],
+        twoFactorEnabled: true,
+      };
+
+      setAdminAuth({
+        isAuthenticated: true,
+        user: adminUser,
+        token: `admin-token-${Date.now()}`,
+      });
+
+      localStorage.setItem('cartverse-admin-token', `admin-token-${Date.now()}`);
+      localStorage.setItem('cartverse-admin-user', JSON.stringify(adminUser));
+
+      return { success: true, message: 'Admin login successful' };
+    }
+
+    return { success: false, error: 'Invalid email or password' };
+  }, []);
+
+  const adminLogout = useCallback(() => {
+    setAdminAuth({
+      isAuthenticated: false,
+      user: null,
+      token: null,
+    });
+    localStorage.removeItem('cartverse-admin-token');
+    localStorage.removeItem('cartverse-admin-user');
+  }, []);
+
+  // ═══════════════════════════════════════════════════════════════════
   // TOAST STATE (for notifications)
   // ═══════════════════════════════════════════════════════════════════
   const [toasts, setToasts] = useState([]);
@@ -264,6 +309,8 @@ export const ShopProvider = ({ children }) => {
     logout,
     adminAuth,
     setAdminAuth,
+    adminLogin,
+    adminLogout,
 
     // Products
     products,
