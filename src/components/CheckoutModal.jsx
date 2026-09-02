@@ -519,12 +519,13 @@ export const CheckoutModal = () => {
                 )}
 
                 {/* Continue Button - Below Address Section */}
-                <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                   {isAddingNewAddr && safeUser.addresses?.length > 0 && (
                     <button
                       type="button"
                       onClick={() => setIsAddingNewAddr(false)}
                       className="btn btn-secondary"
+                      style={{ fontWeight: 700, fontSize: '0.95rem', padding: '12px 20px' }}
                     >
                       Cancel
                     </button>
@@ -533,10 +534,18 @@ export const CheckoutModal = () => {
                     disabled={!selectedAddressObj || isAddingNewAddr}
                     onClick={() => setStep(2)}
                     className="btn btn-primary"
-                    style={{ gap: '6px', fontWeight: 700 }}
+                    style={{ 
+                      gap: '8px', 
+                      fontWeight: 700, 
+                      fontSize: '0.95rem',
+                      padding: '12px 28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      transition: 'all 0.3s ease'
+                    }}
                   >
                     <span>Continue to Shipping</span>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={18} />
                   </button>
                 </div>
                   </>

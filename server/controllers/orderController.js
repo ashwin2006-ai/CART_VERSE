@@ -1,7 +1,7 @@
 import prisma from '../config/prisma.js';
 import { SEED_PRODUCTS } from '../data/seedData.js';
 
-let ordersDb = [...INITIAL_ORDERS];
+let ordersDb = [];
 
 // Helper to generate tracking data
 const generateTrackingData = () => ({
