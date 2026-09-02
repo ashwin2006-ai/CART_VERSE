@@ -279,11 +279,11 @@ export const Navbar = () => {
                   minWidth: '220px', overflow: 'hidden', zIndex: 9999, maxHeight: '400px', overflowY: 'auto'
                 }}>
                   {/* Profile Header */}
-                  <div style={{ padding: '12px 16px', borderBottom: `1px solid ${border}` }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.9rem', color: textPrimary }}>
+                  <div style={{ padding: '14px 16px', borderBottom: `1px solid ${border}` }}>
+                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: textPrimary, lineHeight: 1.3 }}>
                       {user?.isLoggedIn ? (user?.name || 'User') : 'Guest User'}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: textMuted, marginTop: '2px' }}>
+                    <div style={{ fontSize: '0.8rem', color: textMuted, marginTop: '4px', lineHeight: 1.3 }}>
                       {user?.isLoggedIn ? (user?.email || 'Not set') : 'Not logged in'}
                     </div>
                   </div>
@@ -293,14 +293,14 @@ export const Navbar = () => {
                     <button
                       onClick={() => { setCurrentView('account'); setShowUserMenu(false); }}
                       style={{
-                        width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                        width: '100%', textAlign: 'left', padding: '12px 16px', fontSize: '0.88rem',
                         color: textPrimary, fontWeight: 600, borderTop: `1px solid ${border}`,
-                        display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
+                        display: 'flex', alignItems: 'center', gap: '12px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer', lineHeight: 1.4
                       }}
                       onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                      <User size={15} /> My Account
+                      <User size={16} /> My Account
                     </button>
                   )}
 
@@ -356,27 +356,27 @@ export const Navbar = () => {
                           });
                         }}
                         style={{
-                          width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                          width: '100%', textAlign: 'left', padding: '12px 16px', fontSize: '0.88rem',
                           color: '#10b981', fontWeight: 700, borderTop: `1px solid ${border}`,
-                          display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
+                          display: 'flex', alignItems: 'center', gap: '12px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer', lineHeight: 1.4
                         }}
                         onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <User size={15} /> 📌 Demo Login
+                        <User size={16} /> 📌 Demo Login
                       </button>
 
                       <button
                         onClick={() => { setIsAuthModalOpen(true); setShowUserMenu(false); }}
                         style={{
-                          width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                          width: '100%', textAlign: 'left', padding: '12px 16px', fontSize: '0.88rem',
                           color: textPrimary, fontWeight: 600, borderTop: `1px solid ${border}`,
-                          display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
+                          display: 'flex', alignItems: 'center', gap: '12px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer', lineHeight: 1.4
                         }}
                         onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <User size={15} /> Sign In / Register
+                        <User size={16} /> Sign In / Register
                       </button>
                     </>
                   )}
@@ -384,28 +384,28 @@ export const Navbar = () => {
                   <button
                     onClick={() => { setIsAuthModalOpen(true); setShowUserMenu(false); }}
                     style={{
-                      width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                      width: '100%', textAlign: 'left', padding: '12px 16px', fontSize: '0.88rem',
                       color: textPrimary, fontWeight: 600,
-                      display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
+                      display: 'flex', alignItems: 'center', gap: '12px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer', lineHeight: 1.4
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
-                    <MessageSquare size={15} /> Help & Support
+                    <MessageSquare size={16} /> Help & Support
                   </button>
 
                   {user?.isLoggedIn && (
                     <button
                       onClick={handleLogout}
                       style={{
-                        width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
+                        width: '100%', textAlign: 'left', padding: '12px 16px', fontSize: '0.88rem',
                         color: '#ef4444', fontWeight: 700, borderTop: `1px solid ${border}`,
-                        display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
+                        display: 'flex', alignItems: 'center', gap: '12px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer', lineHeight: 1.4
                       }}
                       onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                      <LogOut size={15} /> Sign Out
+                      <LogOut size={16} /> Sign Out
                     </button>
                   )}
                 </div>
