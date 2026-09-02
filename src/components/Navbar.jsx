@@ -300,7 +300,10 @@ export const Navbar = () => {
                       onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                      <User size={16} /> My Account
+                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <User size={16} />
+                      </span>
+                      <span>My Account</span>
                     </button>
                   )}
 
@@ -363,7 +366,10 @@ export const Navbar = () => {
                         onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <User size={16} /> 📌 Demo Login
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <User size={16} />
+                        </span>
+                        <span>📌 Demo Login</span>
                       </button>
 
                       <button
@@ -376,7 +382,10 @@ export const Navbar = () => {
                         onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <User size={16} /> Sign In / Register
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <User size={16} />
+                        </span>
+                        <span>Sign In / Register</span>
                       </button>
                     </>
                   )}
@@ -391,7 +400,10 @@ export const Navbar = () => {
                     onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
-                    <MessageSquare size={16} /> Help & Support
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <MessageSquare size={16} />
+                    </span>
+                    <span>Help & Support</span>
                   </button>
 
                   {user?.isLoggedIn && (
@@ -405,7 +417,10 @@ export const Navbar = () => {
                       onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                      <LogOut size={16} /> Sign Out
+                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <LogOut size={16} />
+                      </span>
+                      <span>Sign Out</span>
                     </button>
                   )}
                 </div>
