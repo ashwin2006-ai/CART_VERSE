@@ -98,9 +98,19 @@ export const ShopProvider = ({ children }) => {
   // ═══════════════════════════════════════════════════════════════════
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback((message, type = 'info') => {
+  const addToast = useCallback((msgOrObj, type = 'info') => {
     const id = Date.now();
-    setToasts(prev => [...prev, { id, message, type }]);
+    let toastObj;
+    
+    // Handle both old format: addToast(message, type)
+    // and new format: addToast({ type, title, message })
+    if (typeof msgOrObj === 'object' && msgOrObj !== null) {
+      toastObj = { id, ...msgOrObj };
+    } else {
+      toastObj = { id, message: msgOrObj, type };
+    }
+    
+    setToasts(prev => [...prev, toastObj]);
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 3000);

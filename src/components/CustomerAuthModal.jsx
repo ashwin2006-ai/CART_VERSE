@@ -85,8 +85,8 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
       isLoggedIn: true, // ✅ Always true after login
     };
     setUser(cleanUser);
-    // Save with the key that ShopContext's loadLocal('user') reads: aura_user
-    localStorage.setItem('aura_user', JSON.stringify(cleanUser));
+    // Save with the key that ShopContext reads: cartverse-user
+    localStorage.setItem('cartverse-user', JSON.stringify(cleanUser));
   };
 
 
