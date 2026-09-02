@@ -390,9 +390,8 @@ input:focus, select:focus, textarea:focus {
     display: none !important;
   }
 
-  body {
-    padding-bottom: 74px !important;
-  }
+  /* Remove padding to avoid overlap with bottom nav */
+  /* Padding is now handled dynamically in App.jsx using clamp and safe-area-inset */
 
   .btn-lg {
     padding: 12px 20px;

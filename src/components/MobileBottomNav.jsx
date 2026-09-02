@@ -13,8 +13,18 @@ export const MobileBottomNav = () => {
   const [localSearch, setLocalSearch] = React.useState('');
   const isDark = theme === 'dark';
 
-  const cartCount = cart.reduce((t, i) => t + i.quantity, 0);
-  const wishCount = wishlist.length;
+  // Prevent scroll when search overlay is open
+  React.useEffect(() => {
+    if (searchOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [searchOpen]);
+
+  const cartCount = (Array.isArray(cart) ? cart : []).reduce((t, i) => t + (i?.quantity || 0), 0);
+  const wishCount = Array.isArray(wishlist) ? wishlist.length : 0;
 
   const accent = '#6C63FF';
   const navBg = isDark ? '#0f172a' : '#ffffff';

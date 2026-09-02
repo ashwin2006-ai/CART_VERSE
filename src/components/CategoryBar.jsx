@@ -25,7 +25,7 @@ export const CategoryBar = () => {
         borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#e5e7eb'}`,
         position: 'sticky',
         top: '60px',
-        zIndex: 100,
+        zIndex: 200,
       }}
     >
       <div style={{

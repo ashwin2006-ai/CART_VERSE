@@ -37,7 +37,7 @@ const BackToTop = ({ isDark }) => {
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       style={{
-        position: 'fixed', bottom: '76px', left: '16px', zIndex: 1300,
+        position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom, 0px) + 16px)', left: '16px', zIndex: 1200,
         width: '40px', height: '40px', borderRadius: '50%',
         background: isDark ? '#1e293b' : '#ffffff',
         border: `1.5px solid ${isDark ? '#334155' : '#e5e7eb'}`,
@@ -146,7 +146,7 @@ const HelpWidget = ({ isDark }) => {
   ];
 
   return (
-    <div style={{ position: 'fixed', bottom: '76px', right: '16px', zIndex: 1300 }}>
+    <div style={{ position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom, 0px) + 16px)', right: '16px', zIndex: 1200 }}>
       {open && (
         <div style={{
           position: 'absolute', bottom: '56px', right: 0,
@@ -290,7 +290,7 @@ export function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: bg, paddingBottom: '68px', fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: bg, paddingBottom: 'clamp(68px, 60px + env(safe-area-inset-bottom), 100px)', fontFamily: "'Inter', sans-serif" }}>
       <ToastContainer />
       <Navbar />
 

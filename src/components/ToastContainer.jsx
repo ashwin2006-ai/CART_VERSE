@@ -3,9 +3,9 @@ import { useShop } from '../context/ShopContext';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export const ToastContainer = () => {
-  const { toasts, removeToast } = useShop();
+  const { toasts = [], removeToast } = useShop();
 
-  if (toasts.length === 0) return null;
+  if (!Array.isArray(toasts) || toasts.length === 0) return null;
 
   return (
     <div style={{

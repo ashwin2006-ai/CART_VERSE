@@ -8,10 +8,10 @@ import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <ShopProvider>
+    <ShopProvider>
+      <ErrorBoundary>
         <App />
-      </ShopProvider>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </ShopProvider>
   </React.StrictMode>
 );

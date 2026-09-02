@@ -19,8 +19,8 @@ export const Navbar = () => {
   const searchRef = useRef(null);
   const menuRef = useRef(null);
 
-  const cartCount = cart.reduce((t, i) => t + i.quantity, 0);
-  const wishlistCount = wishlist.length;
+  const cartCount = (Array.isArray(cart) ? cart : []).reduce((t, i) => t + (i?.quantity || 0), 0);
+  const wishlistCount = Array.isArray(wishlist) ? wishlist.length : 0;
 
   const suggestions = searchQuery.trim()
     ? (products || []).filter(p => p && p?.name && (
@@ -88,14 +88,20 @@ export const Navbar = () => {
 
       <style>{`
         @media (max-width: 768px) {
+          .navbar-logo-icon { display: flex !important; }
           .navbar-logo-text { display: none !important; }
           .navbar-search { max-width: 200px !important; }
+          .navbar-right-actions { gap: 8px !important; }
         }
         @media (max-width: 480px) {
-          .navbar-container { padding: 0 10px !important; gap: 6px !important; height: 56px !important; }
-          .navbar-left-actions button { width: 32px !important; height: 32px !important; }
-          .navbar-search { max-width: 150px !important; }
-          .navbar-search input { font-size: 0.8rem !important; }
+          .navbar-container { padding: 0 8px !important; gap: 4px !important; height: 64px !important; }
+          .navbar-logo-icon { width: 36px !important; height: 36px !important; }
+          .navbar-logo-icon svg { width: 16px !important; height: 16px !important; }
+          .navbar-left-actions button { width: 36px !important; height: 36px !important; }
+          .navbar-search { max-width: 100% !important; flex: 1 !important; }
+          .navbar-search input { font-size: 0.85rem !important; }
+          .navbar-right-actions button { width: 40px !important; height: 40px !important; }
+          .navbar-right-actions button svg { width: 20px !important; height: 20px !important; }
         }
       `}</style>
 
@@ -106,36 +112,38 @@ export const Navbar = () => {
         boxShadow: isDark ? '0 1px 12px rgba(0,0,0,0.4)' : '0 1px 8px rgba(0,0,0,0.06)',
       }}>
         <div className="navbar-container" style={{
-          display: 'flex', alignItems: 'center', gap: '10px',
-          padding: '0 clamp(10px, 3vw, 20px)', height: '60px',
+          display: 'flex', alignItems: 'center', gap: '8px',
+          padding: '0 clamp(8px, 2vw, 16px)', height: '64px',
           width: '100%', justifyContent: 'space-between',
         }}>
-          {/* LEFT: Logo */}
+          {/* LEFT: Logo (always visible on mobile) */}
           <button
             onClick={() => { setCurrentView('store'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}
+            className="navbar-logo"
           >
-            <div style={{
-              width: 'clamp(28px, 4vw, 32px)', height: 'clamp(28px, 4vw, 32px)', borderRadius: '10px',
+            <div className="navbar-logo-icon" style={{
+              width: 'clamp(32px, 5vw, 36px)', height: 'clamp(32px, 5vw, 36px)', borderRadius: '10px',
               background: `linear-gradient(135deg, ${accent} 0%, #a855f7 100%)`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <ShoppingBag size={14} color="#fff" />
+              <ShoppingBag size={16} color="#fff" />
             </div>
             <span className="navbar-logo-text" style={{
-              fontSize: 'clamp(0.95rem, 2vw, 1.2rem)', fontWeight: 900,
+              fontSize: 'clamp(1rem, 2.5vw, 1.2rem)', fontWeight: 900,
               color: textPrimary, letterSpacing: '-0.03em',
               fontFamily: "'Inter', sans-serif",
+              whiteSpace: 'nowrap',
             }}>
               Cart<span style={{ color: accent }}>Verse</span>
             </span>
           </button>
 
-          {/* CENTER: Search Bar - Permanently Centered */}
-          <div className="navbar-search" ref={searchRef} style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', minWidth: '150px', maxWidth: '500px', justifyContent: 'center' }}>
+          {/* CENTER: Search Bar - Full width on mobile */}
+          <div className="navbar-search" ref={searchRef} style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', minWidth: '100px', maxWidth: '500px', justifyContent: 'center' }}>
               <div style={{
                 flex: 1, display: 'flex', alignItems: 'center', background: searchBg,
-                borderRadius: '10px', padding: '0 12px', border: isSearchFocused ? `2px solid ${accent}` : `1px solid ${border}`,
+                borderRadius: '12px', padding: '0 12px', border: isSearchFocused ? `2px solid ${accent}` : `1px solid ${border}`,
                 position: 'relative', transition: 'all 0.2s'
               }}>
                 <Search size={16} style={{ color: textMuted, marginRight: '8px', flexShrink: 0 }} />
@@ -147,7 +155,7 @@ export const Navbar = () => {
                   onFocus={() => setIsSearchFocused(true)}
                   style={{
                     flex: 1, border: 'none', background: 'transparent',
-                    padding: '8px 0', fontSize: '0.9rem', outline: 'none', color: textPrimary, minWidth: '80px'
+                    padding: '10px 0', fontSize: '0.92rem', outline: 'none', color: textPrimary, minWidth: '80px'
                   }}
                 />
                 {searchQuery && (
@@ -252,11 +260,11 @@ export const Navbar = () => {
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 style={{
-                  width: 'clamp(32px, 5vw, 36px)', height: 'clamp(32px, 5vw, 36px)', borderRadius: '50%',
+                  width: 'clamp(40px, 6vw, 44px)', height: 'clamp(40px, 6vw, 44px)', borderRadius: '50%',
                   background: accent, border: 'none', cursor: 'pointer',
-                  color: '#fff', fontWeight: 800, fontSize: '0.75rem',
+                  color: '#fff', fontWeight: 800, fontSize: '0.8rem',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(108,99,255,0.3)'
                 }}
                 title={user?.name || 'User Menu'}
               >

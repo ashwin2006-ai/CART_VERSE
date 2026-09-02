@@ -88,7 +88,7 @@ export const CartDrawer = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <ShoppingBag size={20} style={{ color: 'var(--primary)' }} />
             <h2 style={{ fontSize: '1.15rem', fontWeight: 800 }}>
-              Shopping Bag ({cart.reduce((t, i) => t + i.quantity, 0)})
+              Shopping Bag ({(Array.isArray(cart) ? cart : []).reduce((t, i) => t + (i?.quantity || 0), 0)})
             </h2>
           </div>
 
