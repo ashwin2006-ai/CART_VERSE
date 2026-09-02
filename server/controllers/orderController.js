@@ -1,5 +1,5 @@
 import prisma from '../config/prisma.js';
-import { INITIAL_ORDERS } from '../../src/data/mockData.js';
+import { SEED_PRODUCTS } from '../data/seedData.js';
 
 let ordersDb = [...INITIAL_ORDERS];
 

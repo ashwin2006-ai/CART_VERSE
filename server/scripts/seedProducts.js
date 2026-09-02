@@ -8,7 +8,7 @@
  */
 
 import prisma from '../config/prisma.js';
-import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../../src/data/mockData.js';
+import { SEED_PRODUCTS, SEED_CATEGORIES } from '../data/seedData.js';
 
 async function main() {
   console.log('CartVerse Product Seeder');

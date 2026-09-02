@@ -1,11 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import {
-  INITIAL_CATEGORIES,
-  INITIAL_PRODUCTS,
-  INITIAL_COUPONS,
-  INITIAL_USER
-} from '../../src/data/mockData.js';
+  SEED_CATEGORIES,
+  SEED_PRODUCTS
+} from '../data/seedData.js';
 
 const prisma = new PrismaClient();
 
@@ -14,13 +12,12 @@ async function main() {
 
   // 1. Seed Categories
   console.log('🏷️ Seeding categories...');
-  for (const cat of INITIAL_CATEGORIES) {
-    if (cat.id === 'all') continue;
+  for (const cat of SEED_CATEGORIES) {
     await prisma.category.upsert({
-      where: { slug: cat.id },
+      where: { slug: cat.slug },
       update: { name: cat.name, icon: cat.icon },
       create: {
-        slug: cat.id,
+        slug: cat.slug,
         name: cat.name,
         icon: cat.icon,
         description: `Curated collection for ${cat.name}`
@@ -50,24 +47,24 @@ async function main() {
 
   // Customer User
   const customer = await prisma.user.upsert({
-    where: { email: INITIAL_USER.email },
+    where: { email: 'customer@cartverse.io' },
     update: { passwordHash: customerPasswordHash },
     create: {
-      name: INITIAL_USER.name,
-      email: INITIAL_USER.email,
+      name: 'John Demo',
+      email: 'customer@cartverse.io',
       passwordHash: customerPasswordHash,
       role: 'CUSTOMER',
-      phone: INITIAL_USER.phone,
-      avatar: INITIAL_USER.avatar,
-      tier: INITIAL_USER.tier,
-      rewardPoints: INITIAL_USER.rewardPoints
+      phone: '+91-9876543210',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+      tier: 'Gold',
+      rewardPoints: 1500
     }
   });
 
   // 3. Seed Products
   console.log('📦 Seeding products catalog...');
   let productCount = 0;
-  for (const prod of INITIAL_PRODUCTS) {
+  for (const prod of SEED_PRODUCTS) {
     const category = await prisma.category.findUnique({ where: { slug: prod.category } });
     if (!category) continue;
 
@@ -94,12 +91,12 @@ async function main() {
         bestSeller: prod.bestSeller || false,
         isNew: prod.isNew !== undefined ? prod.isNew : true,
         dealOfTheDay: prod.dealOfTheDay || false,
-        images: JSON.stringify(Array.isArray(prod.images) ? prod.images : [prod.images]),
+        images: typeof prod.images === 'string' ? prod.images : JSON.stringify(prod.images),
         description: prod.description,
-        features: prod.features ? JSON.stringify(prod.features) : null,
-        specs: prod.specs ? JSON.stringify(prod.specs) : null,
-        colors: prod.colors ? JSON.stringify(prod.colors) : null,
-        sizes: prod.sizes ? JSON.stringify(prod.sizes) : null
+        features: prod.features ? (typeof prod.features === 'string' ? prod.features : JSON.stringify(prod.features)) : null,
+        specs: prod.specs ? (typeof prod.specs === 'string' ? prod.specs : JSON.stringify(prod.specs)) : null,
+        colors: prod.colors ? (typeof prod.colors === 'string' ? prod.colors : JSON.stringify(prod.colors)) : null,
+        sizes: prod.sizes ? (typeof prod.sizes === 'string' ? prod.sizes : JSON.stringify(prod.sizes)) : null
       }
     });
     productCount++;
@@ -140,9 +137,9 @@ async function main() {
   }
   console.log(`✓ Seeded ${couponCount}/${coupons.length} coupons`);
 
-  console.log('✅ CARTVERSE MySQL Database Seeding Complete!');
+  console.log('✅ CARTVERSE Database Seeding Complete!');
   console.log('📊 Summary:');
-  console.log(`   ✓ ${INITIAL_CATEGORIES.length - 1} categories`);
+  console.log(`   ✓ ${SEED_CATEGORIES.length} categories`);
   console.log(`   ✓ 2 users (1 admin, 1 customer)`);
   console.log(`   ✓ ${productCount} products`);
   console.log(`   ✓ ${coupons.length} coupons`);
