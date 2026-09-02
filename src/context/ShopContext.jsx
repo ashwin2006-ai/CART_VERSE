@@ -355,7 +355,7 @@ export const ShopProvider = ({ children }) => {
     updateCartItem,
     removeFromCart,
     clearCart,
-    setIsCartOpen: () => {}, // placeholder
+    setIsCartOpen: setShowCartDrawer,
 
     // Wishlist
     wishlist,
@@ -384,11 +384,14 @@ export const ShopProvider = ({ children }) => {
     setCurrentView,
     selectedProduct,
     setSelectedProduct,
-    setActiveProductId: setSelectedProduct, // alias
+    setActiveProductId: setSelectedProduct,
     showProductDetail,
     setShowProductDetail,
     showReviewModal,
     setShowReviewModal,
+    reviewProductId: null,
+    setReviewProductId: () => {},
+    addReview: () => {},
     showCartDrawer,
     setShowCartDrawer,
     showCheckout,
@@ -407,6 +410,20 @@ export const ShopProvider = ({ children }) => {
     // Orders
     orders,
     createOrder,
+
+    // Users/Admin
+    users: [],
+    setUsers: () => {},
+    userLogin: () => {},
+    deleteAddress: () => {},
+    setDefaultAddress: () => {},
+    requestReturn: () => {},
+    requestLocation: () => {},
+
+    // 2FA
+    enable2FA: () => {},
+    disable2FA: () => {},
+    regenerateBackupCodes: () => {},
 
     // Coupons
     coupons,
