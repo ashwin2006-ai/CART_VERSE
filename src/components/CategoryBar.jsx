@@ -23,10 +23,6 @@ export const CategoryBar = () => {
       style={{
         background: isDark ? '#0f172a' : '#ffffff',
         borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#e5e7eb'}`,
-        overflowX: 'auto',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-        WebkitOverflowScrolling: 'touch',
         position: 'sticky',
         top: '60px',
         zIndex: 100,
@@ -35,9 +31,10 @@ export const CategoryBar = () => {
       <div style={{
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
         padding: '10px 12px',
         gap: '8px',
-        minWidth: 'max-content',
         maxWidth: '1400px',
         margin: '0 auto',
       }}>
@@ -73,10 +70,6 @@ export const CategoryBar = () => {
           );
         })}
       </div>
-
-      <style>{`
-        #category-bar-section::-webkit-scrollbar { display: none; }
-      `}</style>
     </div>
   );
 };

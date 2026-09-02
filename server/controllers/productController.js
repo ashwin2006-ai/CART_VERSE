@@ -1,9 +1,8 @@
 import prisma from '../config/prisma.js';
-import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../../src/data/mockData.js';
+import { SEED_PRODUCTS, SEED_CATEGORIES } from '../data/seedData.js';
 
-// In-memory fallback if DB is unreachable
-let productsDb = [...INITIAL_PRODUCTS];
-let categoriesDb = [...INITIAL_CATEGORIES];
+// Note: Using Supabase PostgreSQL database directly
+// No in-memory fallback for products - database is required for production
 
 // Helper: map Prisma product to frontend shape
 const mapProduct = (p) => {
@@ -101,27 +100,62 @@ export const getProducts = async (req, res) => {
       total,
       page: pageNum,
       totalPages: Math.ceil(total / limitNum),
-      data: results.map(mapProduct)
+      data: results.map(mapProduct),
+      source: 'database'
     });
   } catch (error) {
-    console.warn('MySQL unavailable, using mock data:', error.message);
-    // Fallback to in-memory
-    let results = [...productsDb];
-    const { category, search, minPrice, maxPrice, minRating, inStock, sort } = req.query;
-    if (category && category !== 'all') results = results.filter(p => p.category?.toLowerCase() === category.toLowerCase());
-    if (search) { const q = search.toLowerCase(); results = results.filter(p => p.name.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q)); }
-    if (minPrice) results = results.filter(p => p.price >= Number(minPrice));
-    if (maxPrice) results = results.filter(p => p.price <= Number(maxPrice));
-    if (minRating) results = results.filter(p => p.rating >= Number(minRating));
-    if (inStock === 'true') results = results.filter(p => p.stock > 0);
-    if (sort === 'price-low') results.sort((a, b) => a.price - b.price);
-    if (sort === 'price-high') results.sort((a, b) => b.price - a.price);
-    if (sort === 'rating') results.sort((a, b) => b.rating - a.rating);
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 100;
-    const skip = (page - 1) * limit;
-    const paginatedResults = results.slice(skip, skip + limit);
-    return res.json({ success: true, count: paginatedResults.length, total: results.length, page, totalPages: Math.ceil(results.length / limit), data: paginatedResults });
+    console.warn('⚠️  Database unavailable, using mock data:', error.message);
+    
+    // Fallback to mock data
+    let products = SEED_PRODUCTS.map(p => ({
+      ...p,
+      images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images,
+      colors: typeof p.colors === 'string' ? JSON.parse(p.colors) : p.colors,
+      specs: typeof p.specs === 'string' ? JSON.parse(p.specs) : p.specs,
+    }));
+
+    // Apply filters to mock data
+    const { category, search, minPrice, maxPrice, minRating, inStock, sort, page = 1, limit = 100 } = req.query;
+    
+    if (category && category !== 'all') {
+      products = products.filter(p => p.category?.toLowerCase() === category.toLowerCase());
+    }
+    
+    if (search) {
+      const q = search.toLowerCase();
+      products = products.filter(p => 
+        p.name?.toLowerCase().includes(q) || 
+        p.description?.toLowerCase().includes(q)
+      );
+    }
+    
+    if (minPrice) products = products.filter(p => p.price >= Number(minPrice));
+    if (maxPrice) products = products.filter(p => p.price <= Number(maxPrice));
+    if (minRating) products = products.filter(p => p.rating >= Number(minRating));
+    if (inStock === 'true') products = products.filter(p => p.stock > 0);
+    
+    // Apply sorting
+    if (sort === 'price-low') products.sort((a, b) => a.price - b.price);
+    else if (sort === 'price-high') products.sort((a, b) => b.price - a.price);
+    else if (sort === 'rating') products.sort((a, b) => b.rating - a.rating);
+    else products.sort((a, b) => b.featured - a.featured); // default: featured first
+    
+    // Paginate
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(500, Math.max(1, parseInt(limit)));
+    const skip = (pageNum - 1) * limitNum;
+    const paginatedResults = products.slice(skip, skip + limitNum);
+    
+    return res.json({
+      success: true,
+      count: paginatedResults.length,
+      total: products.length,
+      page: pageNum,
+      totalPages: Math.ceil(products.length / limitNum),
+      data: paginatedResults.map(mapProduct),
+      source: 'mock-data',
+      note: 'Using mock data - database unavailable'
+    });
   }
 };
 
@@ -134,9 +168,8 @@ export const getProductById = async (req, res) => {
     if (!product) return res.status(404).json({ success: false, message: 'Product not found.' });
     return res.json({ success: true, data: mapProduct(product) });
   } catch (error) {
-    const product = productsDb.find(p => p.id === req.params.id);
-    if (!product) return res.status(404).json({ success: false, message: 'Product not found.' });
-    return res.json({ success: true, data: product });
+    console.error('Error fetching product:', error.message);
+    return res.status(500).json({ success: false, message: 'Failed to fetch product', error: error.message });
   }
 };
 
@@ -191,25 +224,8 @@ export const searchProducts = async (req, res) => {
       data: results.map(mapProduct)
     });
   } catch (error) {
-    console.warn('Search failed, using mock data:', error.message);
-    const q = (req.query.q || '').toLowerCase();
-    let results = productsDb.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.description?.toLowerCase().includes(q)
-    );
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 24;
-    const skip = (page - 1) * limit;
-    const paginatedResults = results.slice(skip, skip + limit);
-    return res.json({
-      success: true,
-      query: q,
-      count: paginatedResults.length,
-      total: results.length,
-      page,
-      totalPages: Math.ceil(results.length / limit),
-      data: paginatedResults
-    });
+    console.error('Error searching products:', error.message);
+    return res.status(500).json({ success: false, message: 'Search failed', error: error.message });
   }
 };
 
@@ -227,15 +243,29 @@ export const getCategories = async (req, res) => {
         slug: c.slug,
         icon: c.icon || 'Tag',
         count: c._count.products
-      }))
+      })),
+      source: 'database'
     });
   } catch (error) {
-    console.warn('MySQL unavailable, using mock categories:', error.message);
-    return res.json({ success: true, data: categoriesDb });
+    console.warn('⚠️  Database unavailable, using mock categories:', error.message);
+    
+    // Fallback to mock categories
+    return res.json({
+      success: true,
+      data: SEED_CATEGORIES.map(cat => ({
+        id: cat.slug,
+        name: cat.name,
+        slug: cat.slug,
+        icon: cat.icon,
+        count: SEED_PRODUCTS.filter(p => p.category === cat.slug).length
+      })),
+      source: 'mock-data',
+      note: 'Using mock data - database unavailable'
+    });
   }
 };
 
-// ─── Admin CRUD (Prisma-backed with in-memory fallback) ─────────────────────
+// ─── Admin CRUD (Prisma-backed, database required) ─────────────────────
 
 export const createProduct = async (req, res) => {
   try {
@@ -278,15 +308,10 @@ export const createProduct = async (req, res) => {
       include: { category: { select: { name: true, slug: true } } }
     });
 
-    // Also add to in-memory fallback
-    productsDb.unshift(mapProduct(newProd));
-
     return res.status(201).json({ success: true, data: mapProduct(newProd) });
   } catch (error) {
-    console.warn('Prisma createProduct failed, falling back:', error.message);
-    const newProd = { id: 'prod-' + Date.now(), ...req.body, rating: 5.0, reviewCount: 0 };
-    productsDb.unshift(newProd);
-    return res.status(201).json({ success: true, data: newProd });
+    console.error('Error creating product in database:', error.message);
+    return res.status(500).json({ success: false, message: 'Failed to create product', error: error.message });
   }
 };
 
@@ -325,29 +350,20 @@ export const updateProduct = async (req, res) => {
       include: { category: { select: { name: true, slug: true } } }
     });
 
-    // Sync to in-memory
-    const idx = productsDb.findIndex(p => p.id === id);
-    if (idx > -1) productsDb[idx] = mapProduct(updated);
-
     return res.json({ success: true, data: mapProduct(updated) });
   } catch (error) {
-    console.warn('Prisma updateProduct failed, falling back:', error.message);
-    const idx = productsDb.findIndex(p => p.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ success: false, message: 'Product not found.' });
-    productsDb[idx] = { ...productsDb[idx], ...req.body };
-    return res.json({ success: true, data: productsDb[idx] });
+    console.error('Error updating product in database:', error.message);
+    return res.status(500).json({ success: false, message: 'Failed to update product', error: error.message });
   }
 };
 
 export const deleteProduct = async (req, res) => {
   try {
     await prisma.product.delete({ where: { id: req.params.id } });
-    productsDb = productsDb.filter(p => p.id !== req.params.id);
     return res.json({ success: true, message: 'Product deleted.' });
   } catch (error) {
-    console.warn('Prisma deleteProduct failed, falling back:', error.message);
-    productsDb = productsDb.filter(p => p.id !== req.params.id);
-    return res.json({ success: true, message: 'Product deleted from catalog.' });
+    console.error('Error deleting product from database:', error.message);
+    return res.status(500).json({ success: false, message: 'Failed to delete product', error: error.message });
   }
 };
 
@@ -359,15 +375,9 @@ export const updateInventoryStock = async (req, res) => {
       data: { stock: Math.max(0, Number(stock)) },
       include: { category: { select: { name: true, slug: true } } }
     });
-    // Sync to in-memory
-    const idx = productsDb.findIndex(p => p.id === req.params.id);
-    if (idx > -1) productsDb[idx] = { ...productsDb[idx], stock: updated.stock };
     return res.json({ success: true, message: 'Stock updated', data: mapProduct(updated) });
   } catch (error) {
-    console.warn('Prisma updateInventoryStock failed, falling back:', error.message);
-    const prod = productsDb.find(p => p.id === req.params.id);
-    if (!prod) return res.status(404).json({ success: false, message: 'Product not found.' });
-    prod.stock = Math.max(0, Number(req.body.stock));
-    return res.json({ success: true, message: 'Stock updated', data: prod });
+    console.error('Error updating inventory stock in database:', error.message);
+    return res.status(500).json({ success: false, message: 'Failed to update stock', error: error.message });
   }
 };

@@ -251,9 +251,10 @@ export const CheckoutModal = () => {
         {/* Two Column Layout: Step View on Left, Order Summary on Right */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))',
+          gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'minmax(350px, 1fr) 300px',
           gap: '24px',
-          padding: 'clamp(16px, 3vw, 28px)'
+          padding: 'clamp(16px, 3vw, 28px)',
+          alignItems: window.innerWidth < 768 ? 'stretch' : 'flex-start'
         }}>
           {/* Left: Active Step Forms */}
           <div>
@@ -264,113 +265,37 @@ export const CheckoutModal = () => {
                   <h3 style={{ fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <MapPin size={18} style={{ color: 'var(--primary)' }} /> Select Delivery Location
                   </h3>
-                  {!isAddingNewAddr && (
+                  {!isAddingNewAddr && (safeUser.addresses?.length > 0) && (
                     <button
                       onClick={() => setIsAddingNewAddr(true)}
                       className="btn btn-secondary btn-sm"
                       style={{ gap: '4px', fontSize: '0.75rem' }}
                     >
-                      <Plus size={14} /> Add New Address
+                      <Plus size={14} /> Add Another
                     </button>
                   )}
                 </div>
 
-                {/* Form to Add New Address */}
-                {isAddingNewAddr ? (
-                  <form onSubmit={handleSaveNewAddress} style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'var(--bg-surface)', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>Add Delivery Address</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <input
-                        type="text"
-                        placeholder="Address Title (e.g. Home, Work)"
-                        value={newAddress.title}
-                        onChange={(e) => setNewAddress({ ...newAddress, title: e.target.value })}
-                        required
-                        style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Recipient Full Name"
-                        value={newAddress.fullName}
-                        onChange={(e) => setNewAddress({ ...newAddress, fullName: e.target.value })}
-                        required
-                        style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
-                      />
-                    </div>
-                    <input
-                      type="tel"
-                      placeholder="Contact Mobile (+91 98765 43210)"
-                      value={newAddress.phone}
-                      onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
-                      required
-                      style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Flat / House no., Building, Street Address"
-                      value={newAddress.street}
-                      onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
-                      required
-                      style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Landmark (e.g. Near City Mall, Opp. Metro Station)"
-                      value={newAddress.landmark}
-                      onChange={(e) => setNewAddress({ ...newAddress, landmark: e.target.value })}
-                      style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
-                    />
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                      <input
-                        type="text"
-                        placeholder="City"
-                        value={newAddress.city}
-                        onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                        required
-                        style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
-                      />
-                      <input
-                        type="text"
-                        placeholder="State"
-                        value={newAddress.state}
-                        onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-                        required
-                        style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
-                      />
-                      <input
-                        type="text"
-                        placeholder="6-digit Pincode"
-                        value={newAddress.pincode}
-                        onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-                        required
-                        maxLength={6}
-                        pattern="[1-9][0-9]{5}"
-                        title="Enter valid 6-digit Indian pincode"
-                        style={{ padding: '8px 12px', borderRadius: 'var(--radius-sm)' }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                      <button type="submit" className="btn btn-primary btn-sm">Save &amp; Use Address</button>
-                      {safeUser.addresses?.length > 0 && (
-                        <button type="button" onClick={() => setIsAddingNewAddr(false)} className="btn btn-secondary btn-sm">Cancel</button>
-                      )}
-                    </div>
-                  </form>
-                ) : (
+                {/* Show saved addresses if user has any */}
+                {(safeUser.addresses?.length > 0) && !isAddingNewAddr ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px' }}>
+                      Your Saved Addresses
+                    </div>
                     {(safeUser.addresses || []).map((addr, index) => (
                       <div
                         key={addr.id}
                         onClick={() => setSelectedAddressId(addr.id)}
                         style={{
-                          padding: '16px',
+                          padding: 'clamp(12px, 2vw, 16px)',
                           borderRadius: 'var(--radius-md)',
                           background: selectedAddressId === addr.id ? 'var(--primary-light)' : 'var(--bg-surface)',
                           border: selectedAddressId === addr.id ? '2px solid var(--primary)' : '1px solid var(--border-subtle)',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'flex-start',
-                          gap: '12px'
+                          gap: '12px',
+                          transition: 'all 0.2s'
                         }}
                       >
                         <div style={{
@@ -390,27 +315,201 @@ export const CheckoutModal = () => {
                           {index + 1}
                         </div>
 
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                            <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
                               {addr?.fullName || 'Address'}
                             </span>
-                            <span className="badge badge-primary">{addr?.title || ''}</span>
-                            {addr?.isDefault && <span className="badge badge-emerald">Default</span>}
+                            <span className="badge badge-primary" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>{addr?.title || ''}</span>
+                            {addr?.isDefault && <span className="badge badge-emerald" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>Default</span>}
+                          </div>
+                          <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                            {addr.street}
+                            {addr.landmark && <>, Near {addr.landmark}</>}
                           </div>
                           <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                            {addr.street}{addr.landmark ? `, Near ${addr.landmark}` : ''}
+                            {addr.city}, {addr.state} — <strong>{addr.pincode}</strong>
                           </div>
-                          <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                            {addr.city}, {addr.state} — {addr.pincode}
-                          </div>
-                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                             📞 {addr.phone}
                           </div>
                         </div>
 
                         {selectedAddressId === addr.id && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--primary)', fontWeight: 700, fontSize: '0.78rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--primary)', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
+                            <CheckCircle size={16} /> Selected
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    {/* Show form to add new address */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>
+                        {safeUser.addresses?.length > 0 ? 'Add Another Address' : 'Add Delivery Address'}
+                      </h4>
+                      {safeUser.addresses?.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setIsAddingNewAddr(false)}
+                          className="btn btn-outline btn-sm"
+                          style={{ fontSize: '0.75rem' }}
+                        >
+                          ← Back to Addresses
+                        </button>
+                      )}
+                    </div>
+                {isAddingNewAddr ? (
+                  <form onSubmit={handleSaveNewAddress} style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'var(--bg-surface)', padding: 'clamp(14px, 3vw, 20px)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', width: '100%', boxSizing: 'border-box', maxWidth: '100%', overflow: 'hidden' }}>
+                    <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '6px' }}>Add Delivery Address</div>
+                    
+                    {/* Row 1: Address Title & Full Name */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', width: '100%' }}>
+                      <input
+                        type="text"
+                        placeholder="Address Title"
+                        value={newAddress.title}
+                        onChange={(e) => setNewAddress({ ...newAddress, title: e.target.value })}
+                        required
+                        style={{ padding: '10px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)', boxSizing: 'border-box', width: '100%' }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Full Name"
+                        value={newAddress.fullName}
+                        onChange={(e) => setNewAddress({ ...newAddress, fullName: e.target.value })}
+                        required
+                        style={{ padding: '10px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)', boxSizing: 'border-box', width: '100%' }}
+                      />
+                    </div>
+
+                    {/* Row 2: Phone (Full Width) */}
+                    <input
+                      type="tel"
+                      placeholder="Contact Mobile"
+                      value={newAddress.phone}
+                      onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                      required
+                      style={{ padding: '10px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)', boxSizing: 'border-box', width: '100%' }}
+                    />
+
+                    {/* Row 3: Street Address (Full Width) */}
+                    <input
+                      type="text"
+                      placeholder="Flat / House no., Building, Street"
+                      value={newAddress.street}
+                      onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+                      required
+                      style={{ padding: '10px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)', boxSizing: 'border-box', width: '100%' }}
+                    />
+
+                    {/* Row 4: Landmark (Full Width) */}
+                    <input
+                      type="text"
+                      placeholder="Landmark"
+                      value={newAddress.landmark}
+                      onChange={(e) => setNewAddress({ ...newAddress, landmark: e.target.value })}
+                      style={{ padding: '10px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)', boxSizing: 'border-box', width: '100%' }}
+                    />
+
+                    {/* Row 5: City, State, Pincode */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', width: '100%' }}>
+                      <input
+                        type="text"
+                        placeholder="City"
+                        value={newAddress.city}
+                        onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                        required
+                        style={{ padding: '10px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)', boxSizing: 'border-box', width: '100%' }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="State"
+                        value={newAddress.state}
+                        onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                        required
+                        style={{ padding: '10px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)', boxSizing: 'border-box', width: '100%' }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Pincode"
+                        value={newAddress.pincode}
+                        onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
+                        required
+                        maxLength={6}
+                        pattern="[1-9][0-9]{5}"
+                        title="Enter valid 6-digit Indian pincode"
+                        style={{ padding: '10px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', border: '1px solid var(--border-subtle)', background: 'var(--bg-card)', boxSizing: 'border-box', width: '100%' }}
+                      />
+                    </div>
+
+                    {/* Buttons */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px', width: '100%' }}>
+                      <button type="submit" className="btn btn-primary btn-sm" style={{ fontWeight: 700, width: '100%', boxSizing: 'border-box' }}>Save &amp; Use Address</button>
+                      {safeUser.addresses?.length > 0 && (
+                        <button type="button" onClick={() => setIsAddingNewAddr(false)} className="btn btn-secondary btn-sm" style={{ fontWeight: 700, width: '100%', boxSizing: 'border-box' }}>Cancel</button>
+                      )}
+                    </div>
+                  </form>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {(safeUser.addresses || []).map((addr, index) => (
+                      <div
+                        key={addr.id}
+                        onClick={() => setSelectedAddressId(addr.id)}
+                        style={{
+                          padding: 'clamp(12px, 2vw, 16px)',
+                          borderRadius: 'var(--radius-md)',
+                          background: selectedAddressId === addr.id ? 'var(--primary-light)' : 'var(--bg-surface)',
+                          border: selectedAddressId === addr.id ? '2px solid var(--primary)' : '1px solid var(--border-subtle)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '12px',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <div style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '50%',
+                          background: selectedAddressId === addr.id ? 'var(--primary)' : 'var(--bg-card)',
+                          color: selectedAddressId === addr.id ? '#ffffff' : 'var(--text-secondary)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 800,
+                          fontSize: '0.82rem',
+                          flexShrink: 0,
+                          border: '1px solid var(--border-subtle)'
+                        }}>
+                          {index + 1}
+                        </div>
+
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+                              {addr?.fullName || 'Address'}
+                            </span>
+                            <span className="badge badge-primary" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>{addr?.title || ''}</span>
+                            {addr?.isDefault && <span className="badge badge-emerald" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>Default</span>}
+                          </div>
+                          <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                            {addr.street}
+                            {addr.landmark && <>, Near {addr.landmark}</>}
+                          </div>
+                          <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                            {addr.city}, {addr.state} — <strong>{addr.pincode}</strong>
+                          </div>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            📞 {addr.phone}
+                          </div>
+                        </div>
+
+                        {selectedAddressId === addr.id && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--primary)', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
                             <CheckCircle size={16} /> Selected
                           </div>
                         )}
@@ -419,17 +518,29 @@ export const CheckoutModal = () => {
                   </div>
                 )}
 
-                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+                {/* Continue Button - Below Address Section */}
+                <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                  {isAddingNewAddr && safeUser.addresses?.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingNewAddr(false)}
+                      className="btn btn-secondary"
+                    >
+                      Cancel
+                    </button>
+                  )}
                   <button
                     disabled={!selectedAddressObj || isAddingNewAddr}
                     onClick={() => setStep(2)}
                     className="btn btn-primary"
-                    style={{ gap: '6px' }}
+                    style={{ gap: '6px', fontWeight: 700 }}
                   >
                     <span>Continue to Shipping</span>
                     <ArrowRight size={16} />
                   </button>
                 </div>
+                  </>
+                )}
               </div>
             )}
 
@@ -739,12 +850,16 @@ export const CheckoutModal = () => {
           </div>
 
           {/* Right Column: Sticky Order Summary */}
-          <div>
+          <div style={{
+            order: window.innerWidth < 768 ? -1 : 0
+          }}>
             <div style={{
               background: 'var(--bg-surface)',
               borderRadius: 'var(--radius-lg)',
-              padding: '20px',
-              border: '1px solid var(--border-subtle)'
+              padding: 'clamp(16px, 3vw, 20px)',
+              border: '1px solid var(--border-subtle)',
+              position: window.innerWidth < 768 ? 'relative' : 'sticky',
+              top: window.innerWidth < 768 ? 'auto' : '24px'
             }}>
               <h4 style={{ fontSize: '0.95rem', fontWeight: 800, marginBottom: '14px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '10px' }}>
                 Order Summary ({itemsToCheckout.length} items)

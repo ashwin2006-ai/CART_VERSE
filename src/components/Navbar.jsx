@@ -2,23 +2,20 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useShop } from '../context/ShopContext';
 import {
   Search, ShoppingCart, Heart, User, X,
-  LogOut, ChevronDown, Sun, Moon, Package, Menu, ShoppingBag, MessageSquare
+  LogOut, Sun, Moon, ShoppingBag, MessageSquare
 } from 'lucide-react';
 import { CustomerAuthModal } from './CustomerAuthModal';
-import { PillNav } from './PillNav';
 
 export const Navbar = () => {
   const {
     theme, toggleTheme, currentView, setCurrentView,
     cart, wishlist, searchQuery, setSearchQuery,
-    products, setIsCartOpen, setActiveProductId, user, setUser, addToast,
-    selectedCategory, setSelectedCategory
+    products, setIsCartOpen, setActiveProductId, user, setUser, addToast
   } = useShop();
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchRef = useRef(null);
   const menuRef = useRef(null);
 
@@ -41,7 +38,6 @@ export const Navbar = () => {
     return () => document.removeEventListener('mousedown', h);
   }, []);
 
-  // Keyboard shortcut: Ctrl+Shift+A to go to admin
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
@@ -55,21 +51,18 @@ export const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    // ✅ Clear all user data
     setUser(null);
     localStorage.removeItem('cartverse_token');
     localStorage.removeItem('aura_user');
     localStorage.removeItem('cartverse_local_users');
     setShowUserMenu(false);
     
-    // Show success toast
     addToast({
       type: 'success',
       title: 'Signed Out',
       message: 'You have been signed out successfully'
     });
     
-    // Redirect and refresh
     setCurrentView('store');
     window.location.hash = '';
     window.location.reload();
@@ -89,30 +82,20 @@ export const Navbar = () => {
   const searchBg = isDark ? '#1e293b' : '#f3f4f6';
   const accent = '#6C63FF';
 
-  // PillNav items - Product categories
-  const pillNavItems = [
-    { label: 'All', href: '#all', ariaLabel: 'All products' },
-    { label: 'Mobiles', href: '#mobiles', ariaLabel: 'Browse mobiles' },
-    { label: 'Electronics', href: '#electronics', ariaLabel: 'Browse electronics' },
-    { label: 'Fashion', href: '#fashion', ariaLabel: 'Browse fashion' },
-    { label: 'Footwear', href: '#footwear', ariaLabel: 'Browse footwear' },
-    { label: 'Beauty', href: '#beauty', ariaLabel: 'Browse beauty' },
-    { label: 'Home', href: '#home', ariaLabel: 'Browse home' },
-    { label: 'Accessories', href: '#accessories', ariaLabel: 'Browse accessories' }
-  ];
-
   return (
     <>
       <CustomerAuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
       <style>{`
         @media (max-width: 768px) {
-          .navbar-search { display: none !important; }
-          .navbar-desktop-actions { gap: 8px !important; }
+          .navbar-logo-text { display: none !important; }
+          .navbar-search { max-width: 200px !important; }
         }
         @media (max-width: 480px) {
-          .navbar-container { padding: 0 12px !important; gap: 8px !important; }
-          .navbar-logo-text { font-size: 1rem !important; }
+          .navbar-container { padding: 0 10px !important; gap: 6px !important; height: 56px !important; }
+          .navbar-left-actions button { width: 32px !important; height: 32px !important; }
+          .navbar-search { max-width: 150px !important; }
+          .navbar-search input { font-size: 0.8rem !important; }
         }
       `}</style>
 
@@ -123,24 +106,24 @@ export const Navbar = () => {
         boxShadow: isDark ? '0 1px 12px rgba(0,0,0,0.4)' : '0 1px 8px rgba(0,0,0,0.06)',
       }}>
         <div className="navbar-container" style={{
-          display: 'flex', alignItems: 'center', gap: '16px',
-          padding: '0 16px', height: '60px',
-          maxWidth: '1400px', margin: '0 auto',
+          display: 'flex', alignItems: 'center', gap: '10px',
+          padding: '0 clamp(10px, 3vw, 20px)', height: '60px',
+          width: '100%', justifyContent: 'space-between',
         }}>
-          {/* Logo */}
+          {/* LEFT: Logo */}
           <button
             onClick={() => { setCurrentView('store'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}
           >
             <div style={{
-              width: '32px', height: '32px', borderRadius: '10px',
+              width: 'clamp(28px, 4vw, 32px)', height: 'clamp(28px, 4vw, 32px)', borderRadius: '10px',
               background: `linear-gradient(135deg, ${accent} 0%, #a855f7 100%)`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <ShoppingBag size={16} color="#fff" />
+              <ShoppingBag size={14} color="#fff" />
             </div>
             <span className="navbar-logo-text" style={{
-              fontSize: '1.2rem', fontWeight: 900,
+              fontSize: 'clamp(0.95rem, 2vw, 1.2rem)', fontWeight: 900,
               color: textPrimary, letterSpacing: '-0.03em',
               fontFamily: "'Inter', sans-serif",
             }}>
@@ -148,88 +131,67 @@ export const Navbar = () => {
             </span>
           </button>
 
-          {/* PillNav - Animated Desktop Navigation */}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-            <PillNav
-              logo="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 6v6l4 2'/%3E%3C/svg%3E"
-              logoAlt="Navigation"
-              items={pillNavItems}
-              activeHref={`#${selectedCategory}`}
-              baseColor={bg}
-              pillColor={accent}
-              hoveredPillTextColor={bg}
-              pillTextColor={textPrimary}
-              ease="power3.easeOut"
-              initialLoadAnimation={true}
-              onItemClick={(href) => {
-                const category = href.replace('#', '');
-                setSelectedCategory(category);
-              }}
-              className="hidden md:flex"
-            />
-          </div>
+          {/* CENTER: Search Bar - Permanently Centered */}
+          <div className="navbar-search" ref={searchRef} style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', minWidth: '150px', maxWidth: '500px', justifyContent: 'center' }}>
+              <div style={{
+                flex: 1, display: 'flex', alignItems: 'center', background: searchBg,
+                borderRadius: '10px', padding: '0 12px', border: isSearchFocused ? `2px solid ${accent}` : `1px solid ${border}`,
+                position: 'relative', transition: 'all 0.2s'
+              }}>
+                <Search size={16} style={{ color: textMuted, marginRight: '8px', flexShrink: 0 }} />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  style={{
+                    flex: 1, border: 'none', background: 'transparent',
+                    padding: '8px 0', fontSize: '0.9rem', outline: 'none', color: textPrimary, minWidth: '80px'
+                  }}
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} style={{ color: textMuted, padding: '4px', flexShrink: 0, background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                    <X size={16} />
+                  </button>
+                )}
 
-          {/* Search Bar — desktop only */}
-          <div className="navbar-search" ref={searchRef} style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', minWidth: '200px' }}>
-            <div style={{
-              flex: 1, display: 'flex', alignItems: 'center', background: searchBg,
-              borderRadius: '10px', padding: '0 12px', border: isSearchFocused ? `2px solid ${accent}` : `1px solid ${border}`,
-              position: 'relative'
-            }}>
-              <Search size={16} style={{ color: textMuted, marginRight: '8px' }} />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                style={{
-                  flex: 1, border: 'none', background: 'transparent',
-                  padding: '8px 0', fontSize: '0.9rem', outline: 'none', color: textPrimary
-                }}
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} style={{ color: textMuted, padding: '4px' }}>
-                  <X size={16} />
-                </button>
-              )}
-
-              {/* Search Suggestions */}
-              {isSearchFocused && suggestions.length > 0 && (
-                <div style={{
-                  position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '8px',
-                  background: bg, border: `1px solid ${border}`, borderRadius: '10px',
-                  boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.1)',
-                  zIndex: 100
-                }}>
-                  {suggestions.map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => { setActiveProductId(p.id); setIsSearchFocused(false); }}
-                      style={{
-                        width: '100%', textAlign: 'left', padding: '10px 12px',
-                        fontSize: '0.85rem', color: textPrimary, border: 'none',
-                        background: 'transparent', cursor: 'pointer',
-                        borderBottom: `1px solid ${border}`, transition: 'background 0.1s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = isDark ? '#1e293b' : '#f3f4f6'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      {p?.name || 'Product'} — ₹{p?.price || 0}
-                    </button>
-                  ))}
-                </div>
-              )}
+                {/* Search Suggestions */}
+                {isSearchFocused && suggestions.length > 0 && (
+                  <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '8px',
+                    background: bg, border: `1px solid ${border}`, borderRadius: '10px',
+                    boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.1)',
+                    zIndex: 100, maxHeight: '300px', overflowY: 'auto'
+                  }}>
+                    {suggestions.map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => { setActiveProductId(p.id); setIsSearchFocused(false); }}
+                        style={{
+                          width: '100%', textAlign: 'left', padding: '10px 12px',
+                          fontSize: '0.85rem', color: textPrimary, border: 'none',
+                          background: 'transparent', cursor: 'pointer',
+                          borderBottom: `1px solid ${border}`, transition: 'background 0.1s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = isDark ? '#1e293b' : '#f3f4f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        {p?.name || 'Product'} — ₹{p?.price || 0}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Right Actions */}
-          <div className="navbar-desktop-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* RIGHT: Wishlist, Cart, Theme, Profile */}
+          <div className="navbar-left-actions" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 2vw, 10px)', marginLeft: 'auto' }}>
             {/* Wishlist */}
             <button
               onClick={() => setCurrentView('account')}
               style={{
-                width: '36px', height: '36px', borderRadius: '8px',
+                width: 'clamp(32px, 5vw, 36px)', height: 'clamp(32px, 5vw, 36px)', borderRadius: '8px',
                 background: searchBg, border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 position: 'relative', transition: 'all 0.2s'
@@ -252,7 +214,7 @@ export const Navbar = () => {
             <button
               onClick={() => setIsCartOpen(true)}
               style={{
-                width: '36px', height: '36px', borderRadius: '8px',
+                width: 'clamp(32px, 5vw, 36px)', height: 'clamp(32px, 5vw, 36px)', borderRadius: '8px',
                 background: searchBg, border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 position: 'relative', transition: 'all 0.2s'
@@ -275,7 +237,7 @@ export const Navbar = () => {
             <button
               onClick={toggleTheme}
               style={{
-                width: '36px', height: '36px', borderRadius: '8px',
+                width: 'clamp(32px, 5vw, 36px)', height: 'clamp(32px, 5vw, 36px)', borderRadius: '8px',
                 background: searchBg, border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'all 0.2s'
@@ -290,9 +252,9 @@ export const Navbar = () => {
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 style={{
-                  width: '36px', height: '36px', borderRadius: '50%',
+                  width: 'clamp(32px, 5vw, 36px)', height: 'clamp(32px, 5vw, 36px)', borderRadius: '50%',
                   background: accent, border: 'none', cursor: 'pointer',
-                  color: '#fff', fontWeight: 800, fontSize: '0.85rem',
+                  color: '#fff', fontWeight: 800, fontSize: '0.75rem',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'all 0.2s'
                 }}
@@ -306,7 +268,7 @@ export const Navbar = () => {
                   position: 'absolute', top: '100%', right: 0, marginTop: '8px',
                   background: bg, border: `1px solid ${border}`, borderRadius: '10px',
                   boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.4)' : '0 8px 24px rgba(0,0,0,0.1)',
-                  minWidth: '200px', overflow: 'hidden', zIndex: 1000
+                  minWidth: '220px', overflow: 'hidden', zIndex: 9999, maxHeight: '400px', overflowY: 'auto'
                 }}>
                   {/* Profile Header */}
                   <div style={{ padding: '12px 16px', borderBottom: `1px solid ${border}` }}>
@@ -325,7 +287,7 @@ export const Navbar = () => {
                       style={{
                         width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
                         color: textPrimary, fontWeight: 600, borderTop: `1px solid ${border}`,
-                        display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                        display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
                       }}
                       onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -388,7 +350,7 @@ export const Navbar = () => {
                         style={{
                           width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
                           color: '#10b981', fontWeight: 700, borderTop: `1px solid ${border}`,
-                          display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                          display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
                         }}
                         onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -401,7 +363,7 @@ export const Navbar = () => {
                         style={{
                           width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
                           color: textPrimary, fontWeight: 600, borderTop: `1px solid ${border}`,
-                          display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                          display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
                         }}
                         onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -416,7 +378,7 @@ export const Navbar = () => {
                     style={{
                       width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
                       color: textPrimary, fontWeight: 600,
-                      display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                      display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = isDark ? '#1e293b' : '#f9fafb'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -430,7 +392,7 @@ export const Navbar = () => {
                       style={{
                         width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: '0.84rem',
                         color: '#ef4444', fontWeight: 700, borderTop: `1px solid ${border}`,
-                        display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s'
+                        display: 'flex', alignItems: 'center', gap: '10px', transition: 'background 0.1s', background: 'transparent', border: 'none', cursor: 'pointer'
                       }}
                       onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -442,18 +404,6 @@ export const Navbar = () => {
               )}
             </div>
           </div>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{
-              display: 'none', width: '36px', height: '36px', borderRadius: '8px',
-              background: searchBg, border: 'none', cursor: 'pointer',
-              alignItems: 'center', justifyContent: 'center', color: textMuted,
-            }}
-          >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
         </div>
       </header>
     </>

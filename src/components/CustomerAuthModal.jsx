@@ -19,6 +19,7 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
   const [mode, setMode] = useState(defaultMode);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSavedUsers, setShowSavedUsers] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -320,16 +321,70 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
 
           <div>
             <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: '4px' }}>Email Address</label>
-            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '0 12px' }}>
-              <Mail size={16} style={{ color: 'var(--text-muted)', marginRight: '8px' }} />
-              <input
-                type="email"
-                placeholder="name@example.com"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                style={{ width: '100%', background: 'transparent', border: 'none', padding: '10px 0', fontSize: '0.85rem' }}
-              />
+            <div style={{ position: 'relative' }}>
+              <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '0 12px' }}>
+                <Mail size={16} style={{ color: 'var(--text-muted)', marginRight: '8px' }} />
+                <input
+                  type="email"
+                  placeholder="name@example.com"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onFocus={() => mode === 'login' && setShowSavedUsers(true)}
+                  style={{ width: '100%', background: 'transparent', border: 'none', padding: '10px 0', fontSize: '0.85rem' }}
+                />
+              </div>
+              
+              {/* Autofill Dropdown - Show saved users */}
+              {mode === 'login' && showSavedUsers && getLocalUsers().length > 0 && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '6px',
+                  background: 'var(--bg-card-solid)', border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)', zIndex: 100, maxHeight: '200px', overflowY: 'auto',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }}>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 700, padding: '8px 12px', color: 'var(--text-muted)' }}>
+                    Quick Login - Tap a user
+                  </div>
+                  {getLocalUsers().map((savedUser) => (
+                    <button
+                      key={savedUser.email}
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, email: savedUser.email, password: '' });
+                        setShowSavedUsers(false);
+                      }}
+                      style={{
+                        width: '100%', textAlign: 'left', padding: '10px 12px',
+                        borderBottom: '1px solid var(--border-subtle)',
+                        background: 'transparent', border: 'none', cursor: 'pointer',
+                        fontSize: '0.85rem', color: 'var(--text-primary)',
+                        display: 'flex', alignItems: 'center', gap: '10px',
+                        transition: 'background 0.1s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-surface)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <div style={{
+                        width: '28px', height: '28px', borderRadius: '50%',
+                        background: 'var(--primary-gradient)', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center',
+                        color: '#fff', fontWeight: 800, fontSize: '0.8rem', flexShrink: 0
+                      }}>
+                        {savedUser.name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>
+                          {savedUser.name || 'User'}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {savedUser.email}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
