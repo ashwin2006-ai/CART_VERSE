@@ -37,10 +37,21 @@ export const CheckoutModal = () => {
 
   // Address selection / new address form
   const safeUser = user || { name: 'Guest', phone: '', addresses: [] };
+  const defaultAddress = safeUser.addresses?.find(a => a.isDefault) || safeUser.addresses?.[0];
   const [selectedAddressId, setSelectedAddressId] = useState(
-    safeUser.addresses?.find(a => a.isDefault)?.id || (safeUser.addresses?.[0] && safeUser.addresses[0].id) || ''
+    defaultAddress?.id || ''
   );
   const [isAddingNewAddr, setIsAddingNewAddr] = useState((safeUser.addresses?.length || 0) === 0);
+  
+  // Auto-advance to shipping if default address exists and user just opened checkout
+  React.useEffect(() => {
+    if (defaultAddress && step === 1 && !isAddingNewAddr) {
+      const timer = setTimeout(() => {
+        setStep(2);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [defaultAddress, step, isAddingNewAddr]);
   const [newAddress, setNewAddress] = useState({
     title: 'Home',
     fullName: safeUser.name || '',
@@ -519,34 +530,41 @@ export const CheckoutModal = () => {
                 )}
 
                 {/* Continue Button - Below Address Section */}
-                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                  {isAddingNewAddr && safeUser.addresses?.length > 0 && (
+                <div style={{ marginTop: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                    {defaultAddress && !isAddingNewAddr && '✓ Default address selected'}
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    {isAddingNewAddr && safeUser.addresses?.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingNewAddr(false)}
+                        className="btn btn-secondary"
+                        style={{ fontWeight: 700, fontSize: '0.92rem', padding: '11px 20px' }}
+                      >
+                        Cancel
+                      </button>
+                    )}
                     <button
-                      type="button"
-                      onClick={() => setIsAddingNewAddr(false)}
-                      className="btn btn-secondary"
-                      style={{ fontWeight: 700, fontSize: '0.95rem', padding: '12px 20px' }}
+                      disabled={!selectedAddressObj || isAddingNewAddr}
+                      onClick={() => setStep(2)}
+                      className="btn btn-primary"
+                      style={{ 
+                        gap: '8px', 
+                        fontWeight: 700, 
+                        fontSize: '0.95rem',
+                        padding: '11px 28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        transition: 'all 0.3s ease',
+                        backgroundColor: 'var(--primary)',
+                        boxShadow: 'var(--shadow-md)'
+                      }}
                     >
-                      Cancel
+                      <span>Continue to Shipping</span>
+                      <ArrowRight size={18} />
                     </button>
-                  )}
-                  <button
-                    disabled={!selectedAddressObj || isAddingNewAddr}
-                    onClick={() => setStep(2)}
-                    className="btn btn-primary"
-                    style={{ 
-                      gap: '8px', 
-                      fontWeight: 700, 
-                      fontSize: '0.95rem',
-                      padding: '12px 28px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    <span>Continue to Shipping</span>
-                    <ArrowRight size={18} />
-                  </button>
+                  </div>
                 </div>
                   </>
                 )}

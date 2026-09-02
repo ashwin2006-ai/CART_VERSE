@@ -219,7 +219,6 @@ export const ShopProvider = ({ children }) => {
     const order = {
       id: 'ORD-' + Date.now(),
       userId: user?.id,
-      items: orderData.items,
       shippingAddress: orderData.shippingAddress,
       paymentMethod: orderData.paymentMethod,
       subtotal: orderData.totals.subtotal,
