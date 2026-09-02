@@ -20,6 +20,7 @@ import { Footer } from './components/Footer';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { CustomerAuthModal } from './components/CustomerAuthModal';
 import { SupportCenter } from './components/SupportCenter';
+import { DebugEnv } from './pages/DebugEnv';
 import {
   ChevronRight, Search, X, Loader2, ChevronDown, ArrowUp, HelpCircle, MessageCircle, Phone, Mail
 } from 'lucide-react';
@@ -228,6 +229,8 @@ export function App() {
         setCurrentView('account');
       } else if (window.location.pathname === '/support' || window.location.hash === '#support') {
         setCurrentView('support');
+      } else if (window.location.pathname === '/debug-env' || window.location.hash === '#debug-env') {
+        setCurrentView('debug-env');
       } else {
         setCurrentView('store');
       }
@@ -290,6 +293,11 @@ export function App() {
         {adminAuth.isAuthenticated ? <AdminPanel /> : <AdminLogin />}
       </>
     );
+  }
+
+  // Debug page for environment variables
+  if (currentView === 'debug-env') {
+    return <DebugEnv />;
   }
 
   return (
