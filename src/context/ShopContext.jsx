@@ -1,13 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../data/mockData.js';
 import apiClient from '../utils/apiClient.js';
 
 const ShopContext = createContext();
 
-const DEFAULT_PRODUCTS = INITIAL_PRODUCTS || [];
-const DEFAULT_CATEGORIES = INITIAL_CATEGORIES || [];
+const DEFAULT_PRODUCTS = [];
+const DEFAULT_CATEGORIES = [];
 
 export const ShopProvider = ({ children }) => {
+  // ═══════════════════════════════════════════════════════════════════
+  // PRODUCTS STATE (declare early for use in useEffect)
+  // ═══════════════════════════════════════════════════════════════════
+  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [hasMoreProducts, setHasMoreProducts] = useState(false);
+  const [productsPage, setProductsPage] = useState(1);
+
   // ═══════════════════════════════════════════════════════════════════
   // THEME STATE
   // ═══════════════════════════════════════════════════════════════════
@@ -26,21 +35,47 @@ export const ShopProvider = ({ children }) => {
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════
-  // AUTHENTICATION STATE
+  // LOAD PRODUCTS AND CATEGORIES FROM API ON MOUNT
   // ═══════════════════════════════════════════════════════════════════
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('cartverse-user');
-    return saved ? JSON.parse(saved) : null;
-  });
+  useEffect(() => {
+    const loadProductsAndCategories = async () => {
+      try {
+        setIsLoadingProducts(true);
 
-  const login = useCallback((userData) => {
-    setUser(userData);
-    localStorage.setItem('cartverse-user', JSON.stringify(userData));
+        // Load categories from API
+        const categoriesResponse = await apiClient.getCategories();
+        if (categoriesResponse.data) {
+          setCategories(categoriesResponse.data);
+        }
+
+        // Load products from API
+        const productsResponse = await apiClient.getProducts({
+          page: 1,
+          limit: 100,
+        });
+        if (productsResponse.data) {
+          setProducts(productsResponse.data);
+          setTotalProducts(productsResponse.total || productsResponse.data.length);
+          setHasMoreProducts(productsResponse.page < productsResponse.totalPages);
+        }
+      } catch (error) {
+        console.warn('Failed to load products from API:', error);
+        // Products will remain as empty array
+        setIsLoadingProducts(false);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+
+    loadProductsAndCategories();
   }, []);
 
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('cartverse-user');
+  const loadMoreProducts = useCallback(() => {
+    setIsLoadingProducts(true);
+    setTimeout(() => {
+      setProductsPage(p => p + 1);
+      setIsLoadingProducts(false);
+    }, 300);
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════
@@ -71,21 +106,21 @@ export const ShopProvider = ({ children }) => {
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════
-  // PRODUCTS STATE
+  // AUTHENTICATION STATE
   // ═══════════════════════════════════════════════════════════════════
-  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
-  const [totalProducts, setTotalProducts] = useState(DEFAULT_PRODUCTS.length);
-  const [hasMoreProducts, setHasMoreProducts] = useState(false);
-  const [productsPage, setProductsPage] = useState(1);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('cartverse-user');
+    return saved ? JSON.parse(saved) : null;
+  });
 
-  const loadMoreProducts = useCallback(() => {
-    setIsLoadingProducts(true);
-    setTimeout(() => {
-      setProductsPage(p => p + 1);
-      setIsLoadingProducts(false);
-    }, 300);
+  const login = useCallback((userData) => {
+    setUser(userData);
+    localStorage.setItem('cartverse-user', JSON.stringify(userData));
+  }, []);
+
+  const logout = useCallback(() => {
+    setUser(null);
+    localStorage.removeItem('cartverse-user');
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════
@@ -244,6 +279,56 @@ export const ShopProvider = ({ children }) => {
   const [showOrderTracking, setShowOrderTracking] = useState(false);
   const [trackingOrderId, setTrackingOrderId] = useState(null);
   const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
+
+  // ═══════════════════════════════════════════════════════════════════
+  // PRODUCT DETAIL & REVIEW STATE (CRITICAL)
+  // ═══════════════════════════════════════════════════════════════════
+  const [activeProductId, setActiveProductId] = useState(null);
+  const [recentOrder, setRecentOrder] = useState(null);
+  const [reviewProductId, setReviewProductId] = useState(null);
+  const [reviews, setReviews] = useState({});
+
+  // ═══════════════════════════════════════════════════════════════════
+  // REVIEW MANAGEMENT
+  // ═══════════════════════════════════════════════════════════════════
+  const addReview = useCallback((productId, reviewData) => {
+    const review = {
+      id: `review-${Date.now()}`,
+      productId,
+      ...reviewData,
+      createdAt: new Date().toISOString(),
+    };
+    
+    setReviews(prev => ({
+      ...prev,
+      [productId]: [...(prev[productId] || []), review],
+    }));
+    
+    addToast({
+      type: 'success',
+      title: 'Review Added!',
+      message: 'Thank you for your review.',
+    });
+    
+    return review;
+  }, [addToast]);
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BUY NOW FUNCTION (QUICK CHECKOUT)
+  // ═══════════════════════════════════════════════════════════════════
+  const buyNow = useCallback((product, quantity = 1, color = null, size = null) => {
+    setDirectCheckoutItem({
+      ...product,
+      quantity,
+      color,
+      size,
+    });
+    setIsCheckoutOpen(true);
+    addToast({
+      type: 'info',
+      message: 'Proceed to checkout',
+    });
+  }, [addToast]);
 
 
 
@@ -461,14 +546,19 @@ export const ShopProvider = ({ children }) => {
     setCurrentView,
     selectedProduct,
     setSelectedProduct,
-    setActiveProductId: setSelectedProduct,
+    activeProductId,
+    setActiveProductId,
     showProductDetail,
     setShowProductDetail,
     showReviewModal,
     setShowReviewModal,
-    reviewProductId: null,
-    setReviewProductId: () => {},
-    addReview: () => {},
+    reviewProductId,
+    setReviewProductId,
+    addReview,
+    reviews,
+    buyNow,
+    recentOrder,
+    setRecentOrder,
     showCartDrawer,
     setShowCartDrawer,
     showCheckout: isCheckoutOpen,

@@ -42,7 +42,7 @@ export const ProductDetailModal = () => {
 
   useEffect(() => {
     if (product) {
-      addToRecentlyViewed(product);
+      addToRecentlyViewed(product.id);
       setSelectedImageIndex(0);
       setSelectedColor(product?.colors?.[0]?.name || '');
       setSelectedSize(product?.sizes?.[0] || '');

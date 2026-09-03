@@ -1,5 +1,6 @@
 ﻿import React, { useMemo, useState, useEffect } from 'react';
 import { useShop } from './context/ShopContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Navbar } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
 import { CategoryBar } from './components/CategoryBar';
@@ -289,9 +290,10 @@ export function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: bg, paddingBottom: 'clamp(68px, 60px + env(safe-area-inset-bottom), 100px)', fontFamily: "'Inter', sans-serif" }}>
-      <ToastContainer />
-      <Navbar />
+    <ErrorBoundary>
+      <div style={{ minHeight: '100vh', background: bg, paddingBottom: 'clamp(68px, 60px + env(safe-area-inset-bottom), 100px)', fontFamily: "'Inter', sans-serif" }}>
+        <ToastContainer />
+        <Navbar />
 
       <main>
         {currentView === 'store' && (
@@ -493,7 +495,8 @@ export function App() {
         button { background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
         input, select, textarea { font-family: 'Inter', sans-serif; }
       `}</style>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
 
