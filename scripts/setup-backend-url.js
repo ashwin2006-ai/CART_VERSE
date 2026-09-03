@@ -4,7 +4,7 @@
  * Setup Backend URL Script
  * 
  * Usage: node scripts/setup-backend-url.js <backend-url>
- * Example: node scripts/setup-backend-url.js https://e-commerce-api.onrender.com
+ * Example: node scripts/setup-backend-url.js https://api.cartverse.com
  */
 
 const fs = require('fs');
@@ -15,7 +15,7 @@ const backendUrl = process.argv[2];
 if (!backendUrl) {
   console.error('❌ Error: Backend URL is required');
   console.error('Usage: node scripts/setup-backend-url.js <backend-url>');
-  console.error('Example: node scripts/setup-backend-url.js https://e-commerce-api.onrender.com');
+  console.error('Example: node scripts/setup-backend-url.js https://api.cartverse.com');
   process.exit(1);
 }
 
@@ -24,7 +24,7 @@ try {
   new URL(backendUrl);
 } catch {
   console.error('❌ Error: Invalid URL format');
-  console.error('Please provide a valid URL like: https://e-commerce-api.onrender.com');
+  console.error('Please provide a valid URL like: https://api.cartverse.com');
   process.exit(1);
 }
 

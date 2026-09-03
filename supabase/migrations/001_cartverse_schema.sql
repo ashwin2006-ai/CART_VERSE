@@ -116,27 +116,6 @@ CREATE TABLE IF NOT EXISTS "coupons" (
   CONSTRAINT "coupons_code_unique" UNIQUE ("code")
 );
 
--- Flipkart products table - External data sync
-CREATE TABLE IF NOT EXISTS "flipkart_products" (
-  "id" text NOT NULL,
-  "title" text NOT NULL,
-  "category" text,
-  "price" double precision NOT NULL,
-  "mrp" double precision,
-  "discount" integer NOT NULL DEFAULT 0,
-  "rating" double precision NOT NULL DEFAULT 4.5,
-  "reviewCount" integer NOT NULL DEFAULT 0,
-  "inStock" boolean NOT NULL DEFAULT true,
-  "imageUrl" text,
-  "productUrl" text,
-  "affiliateUrl" text,
-  "specs" jsonb,
-  "brand" text,
-  "offers" jsonb,
-  "lastSyncedAt" timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY ("id")
-);
-
 -- ───────────────────────────────────────────────────────────────────────────────
 -- STEP 3: CREATE DEPENDENT TABLES
 -- These tables reference the base tables above
@@ -345,18 +324,17 @@ CREATE INDEX IF NOT EXISTS "addresses_userId_idx" ON "addresses" ("userId");
 --   • OrderStatus (PLACED, CONFIRMED, PACKED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED, RETURNED_AND_REFUNDED)
 --   • CouponType (PERCENT, FIXED, SHIPPING)
 --
--- TABLES: 11
+-- TABLES: 10
 --   1. users                 (12 columns) - Customer and admin accounts
 --   2. categories            (5 columns)  - Product categories
 --   3. coupons               (10 columns) - Discount codes
---   4. flipkart_products     (15 columns) - External data sync
---   5. addresses             (11 columns) - Shipping/billing addresses
---   6. products              (20 columns) - E-commerce inventory
---   7. cart_items            (6 columns)  - Shopping cart
---   8. wishlist_items        (4 columns)  - Product wishlists
---   9. orders                (23 columns) - Purchase orders
---  10. order_items           (8 columns)  - Order line items
---  11. reviews               (14 columns) - Product reviews
+--   4. addresses             (11 columns) - Shipping/billing addresses
+--   5. products              (20 columns) - E-commerce inventory
+--   6. cart_items            (6 columns)  - Shopping cart
+--   7. wishlist_items        (4 columns)  - Product wishlists
+--   8. orders                (23 columns) - Purchase orders
+--   9. order_items           (8 columns)  - Order line items
+--  10. reviews               (14 columns) - Product reviews
 --
 -- FOREIGN KEYS: 14
 --   • addresses.userId → users.id (CASCADE)
@@ -402,7 +380,6 @@ CREATE INDEX IF NOT EXISTS "addresses_userId_idx" ON "addresses" ("userId");
 -- DROP TABLE IF EXISTS "users" CASCADE;
 -- DROP TABLE IF EXISTS "coupons" CASCADE;
 -- DROP TABLE IF EXISTS "categories" CASCADE;
--- DROP TABLE IF EXISTS "flipkart_products" CASCADE;
 -- DROP TYPE IF EXISTS "Role" CASCADE;
 -- DROP TYPE IF EXISTS "OrderStatus" CASCADE;
 -- DROP TYPE IF EXISTS "CouponType" CASCADE;

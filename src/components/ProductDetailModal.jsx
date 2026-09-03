@@ -13,9 +13,7 @@ import {
   MapPin,
   Sparkles,
   MessageSquarePlus,
-  ChevronRight,
-  ExternalLink,
-  Tag
+  ChevronRight
 } from 'lucide-react';
 
 export const ProductDetailModal = () => {
@@ -55,7 +53,6 @@ export const ProductDetailModal = () => {
 
   if (!product) return null;
 
-  const isFlipkart = !!product.isFlipkart || !!product.affiliateUrl;
   const isWishlisted = wishlist.includes(product.id);
   const productReviews = reviews[product.id] || [];
   const isOutOfStock = product.stock <= 0;
@@ -80,11 +77,6 @@ export const ProductDetailModal = () => {
     } else {
       setPincodeStatus({ valid: false });
     }
-  };
-
-  const handleFlipkartRedirect = () => {
-    const url = product.affiliateUrl || product.productUrl || 'https://www.flipkart.com';
-    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -117,7 +109,7 @@ export const ProductDetailModal = () => {
           borderRadius: 'var(--radius-xl)',
           overflowY: 'auto',
           position: 'relative',
-          border: isFlipkart ? '1px solid #2874f0' : '1px solid var(--border-highlight)',
+          border: '1px solid var(--border-highlight)',
           boxShadow: 'var(--shadow-lg)'
         }}
         onClick={(e) => e.stopPropagation()}
@@ -176,26 +168,6 @@ export const ProductDetailModal = () => {
                   objectFit: 'cover'
                 }}
               />
-
-              {/* Flipkart Assured Badge Overlay */}
-              {isFlipkart && (
-                <div style={{
-                  position: 'absolute',
-                  top: '14px',
-                  left: '14px',
-                  background: '#2874f0',
-                  color: '#ffffff',
-                  padding: '4px 10px',
-                  borderRadius: '4px',
-                  fontWeight: 800,
-                  fontSize: '0.72rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  🛍️ Official Flipkart Partner
-                </div>
-              )}
 
               {/* Wishlist toggle on image */}
               <button
@@ -281,7 +253,6 @@ export const ProductDetailModal = () => {
             {/* Category & Rating */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' }}>
               <span className="badge badge-primary">{product.category}</span>
-              {isFlipkart && <span className="badge badge-gold">Flipkart Live Deal</span>}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Star size={15} fill="#f59e0b" color="#f59e0b" />
                 <span style={{ fontWeight: 800, fontSize: '0.88rem' }}>{product.rating}</span>
@@ -336,26 +307,6 @@ export const ProductDetailModal = () => {
               )}
             </div>
 
-            {/* Flipkart Offers if available */}
-            {product.offers && product.offers.length > 0 && (
-              <div style={{
-                padding: '12px 14px',
-                background: 'rgba(40, 116, 240, 0.08)',
-                border: '1px solid rgba(40, 116, 240, 0.25)',
-                borderRadius: 'var(--radius-md)',
-                marginBottom: '18px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, fontSize: '0.82rem', color: '#38bdf8', marginBottom: '6px' }}>
-                  <Tag size={15} /> Available Bank & Partner Offers:
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                  {product.offers.map((off, i) => (
-                    <div key={i}>• {off}</div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Description */}
             <p style={{
               color: 'var(--text-secondary)',
@@ -367,51 +318,27 @@ export const ProductDetailModal = () => {
             </p>
 
             {/* Action Buttons */}
-            {isFlipkart ? (
-              <div style={{ marginTop: '24px' }}>
-                <button
-                  onClick={handleFlipkartRedirect}
-                  className="btn btn-primary btn-lg"
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    fontSize: '1.05rem',
-                    fontWeight: 900,
-                    gap: '10px',
-                    background: 'linear-gradient(135deg, #2874f0 0%, #1e3a8a 100%)',
-                    boxShadow: '0 8px 30px rgba(40, 116, 240, 0.45)'
-                  }}
-                >
-                  <span>Buy on Flipkart (Official Affiliate)</span>
-                  <ExternalLink size={20} />
-                </button>
-                <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                  Secure redirect via Cartverse Affiliate Integration (Tracking ID: {process.env.FLIPKART_AFFILIATE_ID || 'cartvers01'})
-                </div>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button
-                  disabled={isOutOfStock}
-                  onClick={() => addToCart(product, quantity, selectedColor, selectedSize)}
-                  className="btn btn-secondary btn-lg"
-                  style={{ flex: 1, minWidth: '130px', gap: '6px' }}
-                >
-                  <ShoppingBag size={17} />
-                  <span>Add to Bag</span>
-                </button>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                disabled={isOutOfStock}
+                onClick={() => addToCart(product, quantity, selectedColor, selectedSize)}
+                className="btn btn-secondary btn-lg"
+                style={{ flex: 1, minWidth: '130px', gap: '6px' }}
+              >
+                <ShoppingBag size={17} />
+                <span>Add to Bag</span>
+              </button>
 
-                <button
-                  disabled={isOutOfStock}
-                  onClick={() => buyNow(product, selectedColor, selectedSize)}
-                  className="btn btn-primary btn-lg"
-                  style={{ flex: 1.2, minWidth: '150px', gap: '6px' }}
-                >
-                  <Zap size={17} />
-                  <span>Buy Now (₹{Number(product.price).toLocaleString('en-IN')})</span>
-                </button>
-              </div>
-            )}
+              <button
+                disabled={isOutOfStock}
+                onClick={() => buyNow(product, selectedColor, selectedSize)}
+                className="btn btn-primary btn-lg"
+                style={{ flex: 1.2, minWidth: '150px', gap: '6px' }}
+              >
+                <Zap size={17} />
+                <span>Buy Now (₹{Number(product.price).toLocaleString('en-IN')})</span>
+              </button>
+            </div>
 
             {/* Specifications Key-Value List */}
             {product.specs && Object.keys(product.specs).length > 0 && (
