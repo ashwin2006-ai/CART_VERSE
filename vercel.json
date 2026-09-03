@@ -6,5 +6,12 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "/admin",
+      "permanent": false
+    }
   ]
 }
