@@ -98,89 +98,128 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
       if (mode === 'register') {
         if (!formData.name || !formData.email || !formData.password) {
           addToast({ type: 'error', title: 'Missing Fields', message: 'Please fill in all required fields.' });
-          setIsLoading(false); return;
+          setIsLoading(false);
+          return;
         }
 
-        // ✅ Always use local registration (no API call for registration)
-        const result = registerLocalUser(formData.name, formData.email, formData.password, formData.phone);
-        
-        if (result.error) {
-          addToast({ type: 'error', title: 'Already Registered', message: result.error });
+        if (formData.password.length < 6) {
+          addToast({ type: 'error', title: 'Weak Password', message: 'Password must be at least 6 characters.' });
           setIsLoading(false);
-        } else {
-          // Account created successfully
-          loginUser(result?.user);
+          return;
+        }
+
+        // Try database registration via API
+        const apiResult = await tryApi('/api/auth/register', {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone || null
+        });
+
+        if (apiResult?.success) {
+          // Save token
+          if (apiResult.token) {
+            localStorage.setItem('cartverse_token', apiResult.token);
+          }
           
-          // Clear form data
+          loginUser(apiResult?.user);
           setFormData({ name: '', email: '', phone: '', password: '' });
-          
-          addToast({ 
-            type: 'success', 
-            title: 'Account Created 🎉', 
-            message: `Welcome, ${result?.user?.name || 'User'}! You have 100 reward points.` 
+          addToast({
+            type: 'success',
+            title: 'Account Created 🎉',
+            message: `Welcome, ${apiResult?.user?.name}! You have ${apiResult?.user?.rewardPoints || 100} reward points.`
           });
-          
-          // Close modal and redirect to store
+
           setTimeout(() => {
             onClose();
             setCurrentView('store');
             setIsLoading(false);
           }, 800);
+        } else {
+          addToast({
+            type: 'error',
+            title: 'Registration Failed',
+            message: 'Email already registered or server error. Please try again.'
+          });
+          setIsLoading(false);
         }
 
       } else {
         // Login
         if (!formData.email || !formData.password) {
           addToast({ type: 'error', title: 'Missing Fields', message: 'Please enter email and password.' });
-          setIsLoading(false); return;
+          setIsLoading(false);
+          return;
         }
 
         if (formData.email.toLowerCase() === 'admin@cartverse.io') {
           addToast({ type: 'info', title: 'Admin Portal 🛡️', message: 'Redirecting to admin login...' });
-          onClose(); setCurrentView('admin');
+          onClose();
+          setCurrentView('admin');
           window.location.hash = '#admin';
-          setIsLoading(false); return;
+          setIsLoading(false);
+          return;
         }
 
-        // ✅ Try local auth first (most reliable for offline)
-        const localUser = loginLocalUser(formData.email, formData.password);
-        if (localUser) {
-          loginUser(localUser);
+        // Try database login via API
+        const apiResult = await tryApi('/api/auth/login', {
+          email: formData.email,
+          password: formData.password
+        });
+
+        if (apiResult?.success && apiResult?.user) {
+          // Save token
+          if (apiResult.token) {
+            localStorage.setItem('cartverse_token', apiResult.token);
+          }
+
+          loginUser(apiResult.user);
           setFormData({ name: '', email: '', phone: '', password: '' });
-          addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${localUser?.name || 'User'}` });
-          
+          addToast({
+            type: 'success',
+            title: 'Welcome Back! 👋',
+            message: `Signed in as ${apiResult.user?.name}`
+          });
+
           setTimeout(() => {
             onClose();
             setCurrentView('store');
             setIsLoading(false);
           }, 600);
         } else {
-          // Try API if local fails
-          const apiResult = await tryApi('/api/auth/login', {
-            email: formData.email, password: formData.password
-          });
-
-          if (apiResult?.success) {
-            if (apiResult.token) localStorage.setItem('cartverse_token', apiResult.token);
-            loginUser(apiResult?.user);
+          // Fallback to local auth only if API completely fails
+          const localUser = loginLocalUser(formData.email, formData.password);
+          if (localUser) {
+            loginUser(localUser);
             setFormData({ name: '', email: '', phone: '', password: '' });
-            addToast({ type: 'success', title: 'Welcome Back! 👋', message: `Signed in as ${apiResult?.user?.name || 'User'}` });
-            
+            addToast({
+              type: 'success',
+              title: 'Welcome Back! 👋',
+              message: `Signed in as ${localUser?.name}`
+            });
+
             setTimeout(() => {
               onClose();
               setCurrentView('store');
               setIsLoading(false);
             }, 600);
           } else {
-            addToast({ type: 'error', title: 'Login Failed', message: 'Invalid email or password. No account found.' });
+            addToast({
+              type: 'error',
+              title: 'Login Failed',
+              message: 'Invalid email or password.'
+            });
             setIsLoading(false);
           }
         }
       }
     } catch (err) {
       console.error('Auth error:', err);
-      addToast({ type: 'error', title: 'Error', message: 'Something went wrong. Please try again.' });
-    } finally {
+      addToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Something went wrong. Please try again.'
+      });
       setIsLoading(false);
     }
   };
