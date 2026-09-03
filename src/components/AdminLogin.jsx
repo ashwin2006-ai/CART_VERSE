@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, CheckCircle2, Lock, Mail, ArrowRight } from 'lucide-react';
 import apiClient from '../utils/apiClient';
 
 export const AdminLogin = ({ onLoginSuccess }) => {
@@ -44,19 +44,19 @@ export const AdminLogin = ({ onLoginSuccess }) => {
       justifyContent: 'center',
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-      padding: '20px'
+      padding: '16px'
     }}>
       <div style={{
         width: '100%',
-        maxWidth: '420px',
-        background: 'rgba(255, 255, 255, 0.95)',
+        maxWidth: '400px',
+        background: '#ffffff',
         borderRadius: '16px',
         boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-        padding: '40px',
-        backdropFilter: 'blur(10px)'
+        padding: '36px 24px',
+        border: '1px solid rgba(99, 102, 241, 0.2)'
       }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{
             width: '60px',
             height: '60px',

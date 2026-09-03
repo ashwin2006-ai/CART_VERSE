@@ -8,6 +8,7 @@ import { AdminCustomerManagement } from './AdminCustomerManagement';
 export const AdminPanel = ({ adminUser, onLogout }) => {
   const [sidebarOpen, setSearchOpen] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
@@ -25,92 +26,126 @@ export const AdminPanel = ({ adminUser, onLogout }) => {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f9fafb' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#f3f4f6', overflow: 'hidden' }}>
       {/* Sidebar */}
       <div style={{
-        width: sidebarOpen ? '280px' : '80px',
+        width: isMobile ? (sidebarOpen ? '70px' : '0px') : (sidebarOpen ? '280px' : '80px'),
         background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
         borderRight: '1px solid rgba(255,255,255,0.1)',
-        transition: 'all 0.3s',
+        transition: 'width 0.3s ease',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        position: isMobile ? 'fixed' : 'relative',
+        height: '100vh',
+        zIndex: 100,
+        overflowY: 'auto'
       }}>
         {/* Logo Area */}
         <div style={{
-          padding: '20px',
+          padding: '16px',
           borderBottom: '1px solid rgba(255,255,255,0.1)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          minHeight: '60px'
         }}>
-          {sidebarOpen && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {(sidebarOpen || !isMobile) && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
               <div style={{
-                width: '40px',
-                height: '40px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '8px',
                 background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
-                fontSize: '20px',
-                fontWeight: 'bold'
+                fontSize: '18px',
+                fontWeight: 'bold',
+                flexShrink: 0
               }}>
                 ⚙️
               </div>
-              <div>
-                <h2 style={{ color: '#fff', fontSize: '14px', fontWeight: '700', margin: 0 }}>
-                  CARTVERSE
-                </h2>
-                <p style={{ color: '#9ca3af', fontSize: '12px', margin: 0 }}>Admin</p>
-              </div>
+              {!isMobile && sidebarOpen && (
+                <div style={{ minWidth: 0 }}>
+                  <h2 style={{ color: '#fff', fontSize: '13px', fontWeight: '700', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    ADMIN
+                  </h2>
+                  <p style={{ color: '#9ca3af', fontSize: '11px', margin: 0 }}>CartVerse</p>
+                </div>
+              )}
             </div>
           )}
-          <button
-            onClick={() => setSearchOpen(!sidebarOpen)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#fff',
-              cursor: 'pointer',
-              padding: '8px',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {!isMobile && (
+            <button
+              onClick={() => setSearchOpen(!sidebarOpen)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#fff',
+                cursor: 'pointer',
+                padding: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                opacity: 0.7,
+                transition: 'opacity 0.3s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+            >
+              {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          )}
         </div>
 
         {/* Navigation Menu */}
-        <nav style={{ flex: 1, padding: '12px', overflowY: 'auto' }}>
+        <nav style={{ flex: 1, padding: '8px', overflowY: 'auto' }}>
           {menuItems.map(item => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveSection(item.id)}
+                onClick={() => {
+                  setActiveSection(item.id);
+                  if (isMobile) setSearchOpen(false);
+                }}
+                title={!sidebarOpen || isMobile ? item.label : ''}
                 style={{
                   width: '100%',
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: !sidebarOpen && !isMobile ? 'center' : 'flex-start',
                   gap: '12px',
-                  padding: '12px',
-                  marginBottom: '8px',
-                  background: isActive ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
+                  padding: '11px',
+                  marginBottom: '6px',
+                  background: isActive ? 'rgba(99, 102, 241, 0.25)' : 'transparent',
                   border: '1px solid ' + (isActive ? 'rgba(99, 102, 241, 0.5)' : 'transparent'),
                   borderRadius: '8px',
                   color: isActive ? '#6C63FF' : '#9ca3af',
                   cursor: 'pointer',
-                  fontSize: '14px',
+                  fontSize: '13px',
                   fontWeight: isActive ? '600' : '500',
-                  transition: 'all 0.3s'
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  minHeight: '40px'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                    e.currentTarget.style.color = '#e2e8f0';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#9ca3af';
+                  }
                 }}
               >
-                <Icon size={20} />
-                {sidebarOpen && item.label}
+                <Icon size={18} style={{ flexShrink: 0 }} />
+                {(sidebarOpen || !isMobile) && item.label}
               </button>
             );
           })}
@@ -118,19 +153,22 @@ export const AdminPanel = ({ adminUser, onLogout }) => {
 
         {/* User Profile & Logout */}
         <div style={{
-          padding: '16px',
-          borderTop: '1px solid rgba(255,255,255,0.1)'
+          padding: '12px',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
         }}>
-          {sidebarOpen && (
+          {(sidebarOpen || !isMobile) && (
             <div style={{
-              padding: '12px',
+              padding: '10px',
               background: 'rgba(255,255,255,0.05)',
               borderRadius: '8px',
-              marginBottom: '12px',
-              color: '#fff'
+              color: '#fff',
+              fontSize: '12px'
             }}>
-              <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>Logged in as:</p>
-              <p style={{ fontSize: '14px', fontWeight: '600', margin: '4px 0 0' }}>
+              <p style={{ fontSize: '11px', color: '#9ca3af', margin: 0 }}>Admin:</p>
+              <p style={{ fontSize: '13px', fontWeight: '600', margin: '3px 0 0', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {adminUser?.name || 'Administrator'}
               </p>
             </div>
@@ -141,16 +179,18 @@ export const AdminPanel = ({ adminUser, onLogout }) => {
               width: '100%',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: !sidebarOpen && !isMobile ? 'center' : 'flex-start',
               gap: '12px',
-              padding: '12px',
+              padding: '11px',
               background: 'transparent',
               border: '1px solid rgba(255,255,255,0.2)',
               borderRadius: '8px',
               color: '#ef4444',
               cursor: 'pointer',
-              fontSize: '14px',
+              fontSize: '13px',
               fontWeight: '500',
-              transition: 'all 0.3s'
+              transition: 'all 0.2s',
+              minHeight: '40px'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
@@ -161,44 +201,47 @@ export const AdminPanel = ({ adminUser, onLogout }) => {
               e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
             }}
           >
-            <LogOut size={18} />
-            {sidebarOpen && 'Logout'}
+            <LogOut size={18} style={{ flexShrink: 0 }} />
+            {(sidebarOpen || !isMobile) && 'Logout'}
           </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', marginLeft: isMobile && sidebarOpen ? '70px' : '0' }}>
         {/* Top Bar */}
         <div style={{
           background: '#fff',
           borderBottom: '1px solid #e5e7eb',
-          padding: '20px',
+          padding: isMobile ? '12px 16px' : '16px 24px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          minHeight: '60px'
         }}>
           <div>
-            <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111827', margin: 0 }}>
+            <h1 style={{ fontSize: isMobile ? '18px' : '24px', fontWeight: '800', color: '#111827', margin: 0 }}>
               {menuItems.find(m => m.id === activeSection)?.label || 'Dashboard'}
             </h1>
-            <p style={{ fontSize: '13px', color: '#9ca3af', margin: '4px 0 0' }}>
+            <p style={{ fontSize: isMobile ? '11px' : '13px', color: '#9ca3af', margin: '3px 0 0' }}>
               Manage your CartVerse store
             </p>
           </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            color: '#9ca3af',
-            fontSize: '13px'
-          }}>
-            <span>👤 {adminUser?.email}</span>
-          </div>
+          {!isMobile && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              color: '#9ca3af',
+              fontSize: '13px'
+            }}>
+              <span>👤 {adminUser?.email}</span>
+            </div>
+          )}
         </div>
 
         {/* Content Area */}
-        <div style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
+        <div style={{ flex: 1, padding: isMobile ? '12px' : '20px', overflowY: 'auto' }}>
           {activeSection === 'dashboard' && <AdminDashboard adminUser={adminUser} />}
           {activeSection === 'products' && <AdminProductManagement />}
           {activeSection === 'orders' && <AdminOrderManagement />}
@@ -207,6 +250,19 @@ export const AdminPanel = ({ adminUser, onLogout }) => {
           {activeSection === 'settings' && <AdminSettingsView />}
         </div>
       </div>
+
+      {/* Mobile Overlay */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={() => setSearchOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 50
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -367,7 +367,7 @@ export function App() {
                   {recentProds.length > 0 && (
                     <section style={{ marginBottom: '28px' }}>
                       <SectionHeader title="Recently Viewed" subtitle="Continue where you left off" isDark={isDark} />
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 480 ? 'repeat(2, 1fr)' : window.innerWidth < 768 ? 'repeat(3, 1fr)' : 'repeat(auto-fill, minmax(200px, 1fr))', gap: window.innerWidth < 480 ? '12px' : '16px' }}>
                         {recentProds.map(p => <ProductCard key={p.id} product={p} compact />)}
                       </div>
                     </section>
@@ -382,7 +382,7 @@ export function App() {
                         onViewAll={() => setSelectedCategory('all')}
                         isDark={isDark}
                       />
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 480 ? 'repeat(2, 1fr)' : window.innerWidth < 768 ? 'repeat(3, 1fr)' : 'repeat(auto-fill, minmax(200px, 1fr))', gap: window.innerWidth < 480 ? '12px' : '16px' }}>
                         {featured.map(p => <ProductCard key={p.id} product={p} />)}
                       </div>
                     </section>
@@ -399,7 +399,7 @@ export function App() {
                         onViewAll={() => setSelectedCategory('all')}
                         isDark={isDark}
                       />
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 480 ? 'repeat(2, 1fr)' : window.innerWidth < 768 ? 'repeat(3, 1fr)' : 'repeat(auto-fill, minmax(200px, 1fr))', gap: window.innerWidth < 480 ? '12px' : '16px' }}>
                         {bestSell.map(p => <ProductCard key={p.id} product={p} />)}
                       </div>
                     </section>
@@ -414,7 +414,7 @@ export function App() {
                         onViewAll={() => setSortBy('newest')}
                         isDark={isDark}
                       />
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 480 ? 'repeat(2, 1fr)' : window.innerWidth < 768 ? 'repeat(3, 1fr)' : 'repeat(auto-fill, minmax(200px, 1fr))', gap: window.innerWidth < 480 ? '12px' : '16px' }}>
                         {newArrivals.map(p => <ProductCard key={p.id} product={p} />)}
                       </div>
                     </section>
