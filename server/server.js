@@ -10,7 +10,6 @@ import cartRoutes from './routes/cartRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
-import flipkartRoutes from './routes/flipkartRoutes.js';
 
 dotenv.config();
 
@@ -87,7 +86,6 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api', reviewRoutes);
-app.use('/api/flipkart', flipkartRoutes);
 
 // ═══════════════════════════════════════════════════════════════
 // ERROR HANDLING

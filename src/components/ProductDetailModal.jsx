@@ -23,7 +23,6 @@ export const ProductDetailModal = () => {
     activeProductId,
     setActiveProductId,
     products,
-    flipkartProducts,
     reviews,
     wishlist,
     toggleWishlist,
@@ -33,8 +32,7 @@ export const ProductDetailModal = () => {
     setReviewProductId
   } = useShop();
 
-  const product = products.find(p => p.id === activeProductId) ||
-                  (flipkartProducts || []).find(p => p.id === activeProductId);
+  const product = products.find(p => p.id === activeProductId);
 
   // States
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);

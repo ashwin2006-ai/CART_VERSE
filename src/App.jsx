@@ -149,7 +149,7 @@ export function App() {
   useEffect(() => {
     const checkPath = () => {
       const pathname = window.location.pathname;
-      const hash = window.location.hash.replace('#', '');
+      const hash = window.location.hash.replace('#', '').toLowerCase().trim();
       
       // Check pathname first (for /account, /support, /debug-env routes)
       if (pathname === '/account' || pathname.endsWith('/account')) {
@@ -167,6 +167,7 @@ export function App() {
       } else if (hash === 'debug-env') {
         setCurrentView('debug-env');
       } else {
+        // Default to store view for empty hash or root
         setCurrentView('store');
       }
     };
