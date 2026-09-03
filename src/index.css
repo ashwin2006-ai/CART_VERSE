@@ -695,3 +695,604 @@ input:focus, select:focus, textarea:focus {
 
 .animate-spin { animation: spin 1s linear infinite; }
 .animate-scale-in { animation: animate-scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+
+/* ── Enhanced Mobile Portrait Responsiveness (< 375px ultra-narrow phones) ── */
+@media (max-width: 374px) {
+  html {
+    font-size: 13px;
+  }
+
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* Force all elements to fit viewport */
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Container fixes */
+  .container,
+  main,
+  section,
+  nav,
+  [role="main"] {
+    max-width: 100vw !important;
+    width: 100% !important;
+    padding: 8px !important;
+    margin: 0 !important;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  /* Product grid extreme mobile */
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    padding: 2px !important;
+  }
+
+  /* Text sizing */
+  h1, h2, h3, h4 { margin: 0 !important; line-height: 1.2; }
+  p { margin: 0 !important; }
+
+  /* Button sizing */
+  button {
+    min-height: 40px !important;
+    min-width: 40px !important;
+    padding: 8px 12px !important;
+  }
+
+  /* Input sizing */
+  input, select, textarea {
+    width: 100% !important;
+    box-sizing: border-box;
+    font-size: 16px !important;
+    min-height: 40px !important;
+  }
+}
+
+/* ── Mobile Portrait General (< 480px) Enhanced ── */
+@media (max-width: 480px) {
+  /* Prevent horizontal scroll absolutely */
+  html {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Wrapper elements */
+  #root,
+  [id="root"] {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* Hero section */
+  .hero,
+  [class*="banner"],
+  [class*="hero"] {
+    width: 100vw !important;
+    max-width: 100% !important;
+    margin-left: calc(-50vw + 50%) !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    box-sizing: border-box;
+  }
+
+  /* Section padding */
+  section {
+    padding: 12px 12px !important;
+    max-width: 100vw !important;
+    overflow-x: hidden;
+  }
+
+  /* Ensure flex layouts stack */
+  [style*="display: flex"],
+  .flex {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  /* Grid adjustments */
+  [style*="display: grid"],
+  .grid {
+    max-width: 100vw !important;
+    width: 100% !important;
+    overflow-x: hidden;
+  }
+
+  /* Modal/Drawer full width */
+  .modal,
+  .drawer,
+  [role="dialog"] {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 12px !important;
+    margin: 0 !important;
+  }
+
+  /* Navbar no overflow */
+  nav {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    padding: 10px 12px !important;
+  }
+
+  /* Cart drawer and overlays */
+  .cart-drawer,
+  .overlay {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    overflow-x: hidden;
+  }
+}
+
+/* ── Extra Small Phones (< 360px) ── */
+@media (max-width: 359px) {
+  html {
+    font-size: 12px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 4px !important;
+  }
+
+  button {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+
+  [class*="heading"] {
+    font-size: 16px !important;
+  }
+}
+
+
+/* ── Task 2: Optimize spacing for mobile portrait ── */
+
+/* Mobile Portrait Spacing Optimizations */
+@media (max-width: 480px) {
+  /* Section padding reduction */
+  section {
+    padding: 12px 12px !important;
+    margin: 8px 0 !important;
+  }
+
+  /* Reduce margins on headers and text */
+  h1, h2, h3, h4, h5, h6 {
+    margin: 4px 0 !important;
+    padding: 0 !important;
+  }
+
+  p {
+    margin: 4px 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Button spacing */
+  button {
+    padding: 10px 14px !important;
+    margin: 2px !important;
+    font-size: 13px !important;
+  }
+
+  /* Card padding */
+  [class*="card"],
+  [class*="product"] {
+    padding: 12px !important;
+    margin: 4px !important;
+  }
+
+  /* Form spacing */
+  input, select, textarea {
+    margin: 4px 0 !important;
+    padding: 10px 8px !important;
+  }
+
+  /* Modal spacing */
+  .modal, [role="dialog"] {
+    padding: 16px 12px !important;
+    margin: 0 !important;
+  }
+
+  /* Navbar spacing */
+  nav {
+    padding: 10px 12px !important;
+  }
+
+  /* Footer spacing */
+  footer {
+    padding: 16px 12px !important;
+  }
+
+  /* Hero banner */
+  .hero, [class*="banner"] {
+    padding: 16px 12px !important;
+    margin: 0 !important;
+  }
+
+  /* Category bar */
+  [class*="category"] {
+    padding: 8px 12px !important;
+    gap: 6px !important;
+  }
+}
+
+/* Ultra-narrow phones spacing */
+@media (max-width: 374px) {
+  section {
+    padding: 8px 8px !important;
+  }
+
+  button {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  h1 { font-size: 18px !important; }
+  h2 { font-size: 16px !important; }
+  h3 { font-size: 14px !important; }
+
+  .product-grid {
+    padding: 2px !important;
+    gap: 4px !important;
+  }
+}
+
+/* Extra small phones spacing */
+@media (max-width: 359px) {
+  section {
+    padding: 8px 8px !important;
+    margin: 4px 0 !important;
+  }
+
+  h1 { font-size: 16px !important; }
+  h2 { font-size: 14px !important; }
+}
+
+
+/* ── Task 3: Fix navbar for portrait mode ── */
+
+/* Navbar Portrait Mode Optimization */
+@media (max-width: 480px) {
+  /* Main navbar container */
+  nav {
+    min-height: 60px !important;
+    padding: 8px 12px !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Navbar logo area */
+  [class*="navbar"] [class*="logo"],
+  nav [style*="display: flex"] > div:first-child {
+    flex: 0 1 auto !important;
+    gap: 4px !important;
+    padding: 6px 8px !important;
+  }
+
+  /* Logo icon sizing */
+  [class*="logo"] div {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 16px !important;
+    flex-shrink: 0;
+  }
+
+  /* Hide logo text on mobile */
+  [class*="logo"] h1 {
+    display: none !important;
+  }
+
+  /* Search bar full width on mobile */
+  nav input,
+  [class*="search"] input {
+    width: 100% !important;
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+  }
+
+  /* Search container */
+  [class*="search"],
+  nav [style*="background: rgba"] {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+    margin: 6px 0 !important;
+    order: 2 !important;
+  }
+
+  /* Navbar buttons */
+  nav button {
+    flex: 1 !important;
+    min-width: auto !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+    margin: 2px !important;
+  }
+
+  /* Mobile bottom nav buttons row */
+  nav [style*="display: flex"][style*="order: 4"],
+  nav [style*="order: 4"] {
+    width: 100% !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+    margin-top: 6px !important;
+  }
+
+  /* Theme toggle and other icons */
+  [class*="theme"],
+  [class*="toggle"] {
+    padding: 6px 8px !important;
+  }
+
+  /* Navigation items spacing */
+  nav > * {
+    margin: 0 !important;
+  }
+}
+
+/* Ultra-narrow navbar */
+@media (max-width: 374px) {
+  nav {
+    min-height: 56px !important;
+    padding: 6px 8px !important;
+    gap: 4px !important;
+  }
+
+  nav button {
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+  }
+
+  [class*="logo"] div {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 14px !important;
+  }
+
+  /* Search input ultra-compact */
+  nav input {
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+  }
+}
+
+/* Extra-small navbar */
+@media (max-width: 359px) {
+  nav {
+    min-height: 52px !important;
+    padding: 6px 6px !important;
+  }
+
+  nav button {
+    padding: 6px 6px !important;
+    font-size: 11px !important;
+  }
+
+  [class*="logo"] div {
+    width: 24px !important;
+    height: 24px !important;
+  }
+}
+
+
+/* ── Task 4: Fix content width and grid ── */
+
+/* Content Width & Grid Portrait Optimization */
+@media (max-width: 480px) {
+  /* Main container width */
+  .container {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 0 12px !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+  }
+
+  /* Product grid - mobile optimized */
+  .product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    padding: 4px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Product card sizing */
+  [class*="product-card"],
+  [class*="card"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 12px !important;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Category grid */
+  [class*="category"],
+  [class*="categories"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    max-width: 100vw !important;
+    overflow-x: hidden;
+  }
+
+  /* Category items */
+  [class*="category"] > div,
+  [class*="category"] button {
+    flex: 0 1 auto !important;
+    max-width: calc(50% - 4px) !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Hero banner grid adjustment */
+  [class*="hero"],
+  [class*="banner"] {
+    width: 100% !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 12px 12px !important;
+    box-sizing: border-box;
+  }
+
+  /* Feature grid */
+  [class*="feature"],
+  [class*="features"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    margin: 0 !important;
+  }
+
+  /* Form layout */
+  form,
+  [role="form"] {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 12px !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+  }
+
+  /* Form rows */
+  [class*="form-row"],
+  [class*="form-group"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Modal content width */
+  .modal-content,
+  [role="dialog"] > div,
+  [class*="modal-body"] {
+    width: 100% !important;
+    max-width: 100vw !important;
+    max-height: 90vh !important;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  /* Drawer content */
+  [class*="drawer"],
+  [class*="drawer-content"] {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    right: 0 !important;
+    left: 0 !important;
+  }
+
+  /* Table responsive */
+  table,
+  [role="table"] {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden;
+  }
+
+  /* Flex containers stack */
+  [style*="display: flex"] {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  /* Grid containers fit viewport */
+  [style*="display: grid"] {
+    max-width: 100vw !important;
+    width: 100% !important;
+  }
+}
+
+/* Ultra-narrow content grid */
+@media (max-width: 374px) {
+  .container {
+    padding: 0 8px !important;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    padding: 2px !important;
+  }
+
+  [class*="product-card"],
+  [class*="card"] {
+    padding: 8px !important;
+  }
+
+  [class*="category"] > div,
+  [class*="category"] button {
+    max-width: calc(50% - 2px) !important;
+    font-size: 11px !important;
+  }
+
+  [class*="form-row"],
+  [class*="form-group"] {
+    gap: 6px !important;
+  }
+
+  /* Tight feature layout */
+  [class*="feature"],
+  [class*="features"] {
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+}
+
+/* Extra-small content grid */
+@media (max-width: 359px) {
+  .container {
+    padding: 0 6px !important;
+  }
+
+  .product-grid {
+    gap: 4px !important;
+    padding: 0 !important;
+  }
+
+  [class*="product-card"],
+  [class*="card"] {
+    padding: 6px !important;
+  }
+
+  form,
+  [role="form"] {
+    padding: 8px !important;
+  }
+
+  [class*="feature"],
+  [class*="features"] {
+    gap: 6px !important;
+    padding: 6px !important;
+  }
+}
