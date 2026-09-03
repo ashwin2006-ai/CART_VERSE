@@ -19,6 +19,8 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { CustomerAuthModal } from './components/CustomerAuthModal';
 import { SupportCenter } from './components/SupportCenter';
 import { DebugEnv } from './pages/DebugEnv';
+import { AdminLogin } from './components/AdminLogin';
+import { AdminPanel } from './components/AdminPanel';
 import {
   ChevronRight, Search, X, Loader2, ChevronDown, ArrowUp
 } from 'lucide-react';
@@ -145,13 +147,47 @@ export function App() {
     setCurrentView,
   } = useShop();
 
+  // Admin state
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [adminUser, setAdminUser] = useState(null);
+  const [adminView, setAdminView] = useState('dashboard');
+
+  // Check if admin is logged in on mount
+  useEffect(() => {
+    const adminToken = localStorage.getItem('admin_token');
+    const adminUserData = localStorage.getItem('admin_user');
+    
+    if (adminToken && adminUserData) {
+      try {
+        setIsAdminLoggedIn(true);
+        setAdminUser(JSON.parse(adminUserData));
+      } catch (e) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+      }
+    }
+  }, []);
+
   // Check URL on mount and update view accordingly
   useEffect(() => {
     const checkPath = () => {
       const pathname = window.location.pathname;
       const hash = window.location.hash.replace('#', '').toLowerCase().trim();
       
-      // Check pathname first (for /account, /support, /debug-env routes)
+      // Handle admin route - MUST BE CHECKED FIRST
+      if (pathname === '/admin' || pathname.endsWith('/admin')) {
+        // Admin route - check if logged in
+        const adminToken = localStorage.getItem('admin_token');
+        if (!adminToken) {
+          // Not logged in, redirect to admin login
+          window.location.pathname = '/admin';
+          return;
+        }
+        // Logged in, show admin panel (handled in return statement)
+        return;
+      }
+      
+      // Check pathname for customer routes
       if (pathname === '/account' || pathname.endsWith('/account')) {
         setCurrentView('account');
       } else if (pathname === '/support' || pathname.endsWith('/support')) {
@@ -228,6 +264,28 @@ export function App() {
   // Debug page for environment variables
   if (currentView === 'debug-env') {
     return <DebugEnv />;
+  }
+
+  // Admin routes
+  const adminPath = window.location.pathname === '/admin' || window.location.pathname.endsWith('/admin');
+  
+  if (adminPath) {
+    if (!isAdminLoggedIn) {
+      return <AdminLogin onLoginSuccess={(userData) => {
+        setIsAdminLoggedIn(true);
+        setAdminUser(userData);
+        window.history.pushState(null, '', '/admin');
+      }} />;
+    }
+    
+    return <AdminPanel 
+      adminUser={adminUser} 
+      onLogout={() => {
+        setIsAdminLoggedIn(false);
+        setAdminUser(null);
+        window.location.href = '/';
+      }} 
+    />;
   }
 
   return (
