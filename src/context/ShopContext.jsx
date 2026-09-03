@@ -176,6 +176,18 @@ export const ShopProvider = ({ children }) => {
     }
   }, []);
 
+  const updateCartQuantity = useCallback((index, newQuantity) => {
+    if (newQuantity <= 0) {
+      setCartItems(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setCartItems(prev =>
+        prev.map((item, i) =>
+          i === index ? { ...item, quantity: newQuantity } : item
+        )
+      );
+    }
+  }, []);
+
   const removeFromCart = useCallback((productId, color = null, size = null) => {
     setCartItems(prev =>
       prev.filter(item => !(item.id === productId && item.color === color && item.size === size))
@@ -190,6 +202,18 @@ export const ShopProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('cartverse-cart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ORDER STATE
+  // ═══════════════════════════════════════════════════════════════════
+  const [orders, setOrders] = useState(() => {
+    const saved = localStorage.getItem('cartverse-orders');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('cartverse-orders', JSON.stringify(orders));
+  }, [orders]);
 
   // ═══════════════════════════════════════════════════════════════════
   // WISHLIST STATE
@@ -261,15 +285,69 @@ export const ShopProvider = ({ children }) => {
   const [trackingOrderId, setTrackingOrderId] = useState(null);
   const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
 
-  // ═══════════════════════════════════════════════════════════════════
-  // ORDER STATE
-  // ═══════════════════════════════════════════════════════════════════
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('cartverse-orders');
-    return saved ? JSON.parse(saved) : [];
-  });
 
-  const createOrder = useCallback((orderData) => {
+
+  // ═══════════════════════════════════════════════════════════════════
+  // COUPONS STATE & MANAGEMENT
+  // ═══════════════════════════════════════════════════════════════════
+  const [coupons, setCoupons] = useState([
+    { code: 'SAVE20', discount: 20, minOrder: 2999, description: '20% off on orders above ₹2,999', active: true, type: 'percentage' },
+    { code: 'WELCOME10', discount: 10, minOrder: 0, description: '10% off your entire first purchase', active: true, type: 'percentage' },
+    { code: 'FREESHIP', discount: 0, minOrder: 999, description: 'Free express shipping over ₹999', active: true, type: 'shipping' },
+    { code: 'FLAT500', discount: 500, minOrder: 3999, description: '₹500 instant discount on orders above ₹3,999', active: true, type: 'flat' },
+  ]);
+
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+
+  const applyCoupon = useCallback((code) => {
+    const coupon = coupons.find(c => c.code === code);
+    if (!coupon || !coupon.active) return false;
+    setAppliedCoupon(coupon);
+    return true;
+  }, [coupons]);
+
+  const removeCoupon = useCallback(() => {
+    setAppliedCoupon(null);
+  }, []);
+
+  // ═══════════════════════════════════════════════════════════════════
+  // CHECKOUT STATE & MANAGEMENT
+  // ═══════════════════════════════════════════════════════════════════
+  const [directCheckoutItem, setDirectCheckoutItem] = useState(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ADDRESS MANAGEMENT
+  // ═══════════════════════════════════════════════════════════════════
+  const addAddress = useCallback((addressData) => {
+    const newAddress = {
+      ...addressData,
+      id: `addr-${Date.now()}`,
+    };
+    setUser(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        addresses: [...(prev.addresses || []), newAddress],
+      };
+    });
+    return newAddress;
+  }, []);
+
+  const removeAddress = useCallback((addressId) => {
+    setUser(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        addresses: (prev.addresses || []).filter(a => a.id !== addressId),
+      };
+    });
+  }, []);
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ORDER PLACEMENT
+  // ═══════════════════════════════════════════════════════════════════
+  const placeOrder = useCallback((orderData) => {
     const newOrder = {
       id: `order-${Date.now()}`,
       ...orderData,
@@ -277,23 +355,62 @@ export const ShopProvider = ({ children }) => {
       status: 'CONFIRMED',
       statusStep: 2,
     };
+    
     setOrders(prev => [...prev, newOrder]);
+    setOrderConfirmationData(newOrder);
+    setShowOrderConfirmation(true);
+    clearCart();
+    setAppliedCoupon(null);
+    
+    addToast({
+      type: 'success',
+      title: 'Order Placed!',
+      message: `Your order #${newOrder.id.slice(-8)} has been confirmed.`,
+    });
+    
     return newOrder;
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('cartverse-orders', JSON.stringify(orders));
-  }, [orders]);
+  }, [addToast]);
 
   // ═══════════════════════════════════════════════════════════════════
-  // COUPONS STATE
+  // CART TOTALS CALCULATION
   // ═══════════════════════════════════════════════════════════════════
-  const [coupons, setCoupons] = useState([
-    { code: 'SAVE20', discount: 20, minOrder: 2999, description: '20% off on orders above ₹2,999' },
-    { code: 'WELCOME10', discount: 10, minOrder: 0, description: '10% off your entire first purchase' },
-    { code: 'FREESHIP', discount: 0, minOrder: 999, description: 'Free express shipping over ₹999' },
-    { code: 'FLAT500', discount: 500, minOrder: 3999, description: '₹500 instant discount on orders above ₹3,999' },
-  ]);
+  const getCartTotals = useCallback((itemsToCalc = cartItems) => {
+    const subtotal = itemsToCalc.reduce((sum, item) => {
+      return sum + ((item?.price || 0) * (item?.quantity || 0));
+    }, 0);
+
+    const freeShippingThreshold = 999;
+    let discount = 0;
+    let shippingFee = subtotal >= freeShippingThreshold ? 0 : 99;
+
+    if (appliedCoupon) {
+      if (appliedCoupon.minOrder && subtotal < appliedCoupon.minOrder) {
+        // Coupon doesn't apply - order too small
+      } else {
+        if (appliedCoupon.type === 'percentage') {
+          discount = Math.round((subtotal * appliedCoupon.discount) / 100);
+        } else if (appliedCoupon.type === 'flat') {
+          discount = appliedCoupon.discount;
+        } else if (appliedCoupon.type === 'shipping') {
+          shippingFee = 0;
+        }
+      }
+    }
+
+    const taxableAmount = Math.max(0, subtotal - discount);
+    const tax = Math.round((taxableAmount * 18) / 100); // 18% GST
+    const total = subtotal - discount + shippingFee + tax;
+
+    return {
+      subtotal: Math.round(subtotal),
+      discount: Math.round(discount),
+      shippingFee: Math.round(shippingFee),
+      tax: Math.round(tax),
+      total: Math.round(total),
+      freeShippingThreshold,
+      progressToFreeShipping: Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100)),
+    };
+  }, [cartItems, appliedCoupon]);
 
   // ═══════════════════════════════════════════════════════════════════
   // COMPUTED VALUES
@@ -353,9 +470,12 @@ export const ShopProvider = ({ children }) => {
     cartCount,
     addToCart,
     updateCartItem,
+    updateCartQuantity,
     removeFromCart,
     clearCart,
+    isCartOpen: showCartDrawer,
     setIsCartOpen: setShowCartDrawer,
+    getCartTotals,
 
     // Wishlist
     wishlist,
@@ -394,8 +514,12 @@ export const ShopProvider = ({ children }) => {
     addReview: () => {},
     showCartDrawer,
     setShowCartDrawer,
-    showCheckout,
-    setShowCheckout,
+    showCheckout: isCheckoutOpen,
+    setShowCheckout: setIsCheckoutOpen,
+    isCheckoutOpen,
+    setIsCheckoutOpen,
+    directCheckoutItem,
+    setDirectCheckoutItem,
     showOrderConfirmation,
     setShowOrderConfirmation,
     orderConfirmationData,
@@ -409,25 +533,18 @@ export const ShopProvider = ({ children }) => {
 
     // Orders
     orders,
-    createOrder,
-
-    // Users/Admin
-    users: [],
-    setUsers: () => {},
-    userLogin: () => {},
-    deleteAddress: () => {},
-    setDefaultAddress: () => {},
-    requestReturn: () => {},
-    requestLocation: () => {},
-
-    // 2FA
-    enable2FA: () => {},
-    disable2FA: () => {},
-    regenerateBackupCodes: () => {},
+    placeOrder,
 
     // Coupons
     coupons,
     setCoupons,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
+
+    // Addresses
+    addAddress,
+    removeAddress,
 
     // Toasts
     toasts,
