@@ -11,8 +11,6 @@ export const ModernNavbar = () => {
     user, 
     setCurrentView, 
     setIsCartOpen,
-    adminAuth,
-    setAdminAuth,
     theme,
     toggleTheme
   } = useShop();
@@ -22,16 +20,6 @@ export const ModernNavbar = () => {
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
-  };
-
-  const handleLogout = () => {
-    setAdminAuth({
-      isAuthenticated: false,
-      token: null,
-      adminUser: null,
-      passwordHash: null
-    });
-    setUserMenuOpen(false);
   };
 
   return (
@@ -311,25 +299,6 @@ export const ModernNavbar = () => {
             )}
           </div>
 
-          {/* Admin Link */}
-          <button
-            onClick={() => setCurrentView('admin')}
-            style={{
-              background: 'var(--secondary)',
-              border: 'none',
-              color: 'white',
-              padding: '6px 12px',
-              borderRadius: 'var(--radius-lg)',
-              cursor: 'pointer',
-              fontSize: 'var(--text-xs)',
-              fontWeight: 'var(--font-semibold)',
-              transition: 'all var(--transition-normal)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-          >
-            Admin
-          </button>
         </div>
       </div>
 

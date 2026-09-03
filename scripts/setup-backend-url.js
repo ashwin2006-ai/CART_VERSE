@@ -43,7 +43,7 @@ try {
   console.log('   2. Push to GitHub: git push');
   console.log('   3. Vercel will auto-redeploy with the new backend URL');
   console.log('   4. Wait 2-3 minutes for the build to complete');
-  console.log('   5. Visit https://e-commerce-virid-delta.vercel.app/ to test');
+  console.log('   5. Visit https://cartverse-sable.vercel.app/ to test');
 } catch (err) {
   console.error('❌ Error writing to .env.production.local:', err.message);
   process.exit(1);

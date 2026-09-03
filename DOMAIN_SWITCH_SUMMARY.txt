@@ -1,0 +1,188 @@
+════════════════════════════════════════════════════════════════════════════════
+                    DOMAIN SWITCH COMPLETE ✅
+════════════════════════════════════════════════════════════════════════════════
+
+PRIMARY FRONTEND DOMAIN: https://cartverse-sable.vercel.app
+OLD DOMAIN (Deprecated):  https://e-commerce-virid-delta.vercel.app
+
+════════════════════════════════════════════════════════════════════════════════
+WHAT WAS CHANGED IN YOUR CODE:
+════════════════════════════════════════════════════════════════════════════════
+
+1. .env (Development)
+   ✅ CORS_ORIGIN=https://cartverse-sable.vercel.app
+
+2. .env.production (Production)
+   ✅ CORS_ORIGIN=https://cartverse-sable.vercel.app
+
+3. scripts/setup-backend-url.js
+   ✅ Test URL reference updated
+
+4. Documentation
+   ✅ MAIN_DOMAIN_UPDATED.md (New)
+   ✅ VERCEL_CONFIG_GUIDE.md (New)
+   ✅ DOMAIN_UPDATE.md (Updated)
+
+════════════════════════════════════════════════════════════════════════════════
+WHAT YOU NEED TO DO IN VERCEL (5 MINUTES):
+════════════════════════════════════════════════════════════════════════════════
+
+STEP 1: Open Vercel Dashboard
+   → https://vercel.com/dashboard
+
+STEP 2: Select "cartverse" project
+   → This is the one for cartverse-sable.vercel.app
+
+STEP 3: Go to Settings → Environment Variables
+
+STEP 4: Find or create "CORS_ORIGIN"
+   Value: https://cartverse-sable.vercel.app
+
+STEP 5: Click Save
+
+STEP 6: Redeploy
+   Option A: git push origin main
+   Option B: Click Redeploy in Vercel dashboard
+
+STEP 7: Wait for deployment (1-2 minutes)
+
+STEP 8: Test at https://cartverse-sable.vercel.app
+   ✓ Page loads
+   ✓ No console errors (F12)
+   ✓ Can register
+   ✓ Can login
+   ✓ Admin panel works
+
+════════════════════════════════════════════════════════════════════════════════
+CURRENT CONFIGURATION:
+════════════════════════════════════════════════════════════════════════════════
+
+Frontend URL:        https://cartverse-sable.vercel.app
+Backend Port:        5000
+Database:            Supabase PostgreSQL (yjzkfwyattiibfgnngiv)
+CORS_ORIGIN:         https://cartverse-sable.vercel.app
+JWT_SECRET:          [configured in Vercel]
+NODE_ENV:            production
+
+════════════════════════════════════════════════════════════════════════════════
+KEY ENVIRONMENT VARIABLES TO SET IN VERCEL:
+════════════════════════════════════════════════════════════════════════════════
+
+Required Variables (must be set):
+
+  CORS_ORIGIN
+  Value: https://cartverse-sable.vercel.app
+  
+  VITE_SUPABASE_URL
+  Value: https://yjzkfwyattiibfgnngiv.supabase.co
+  
+  VITE_SUPABASE_ANON_KEY
+  Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlqemtmd3lhdHRpaWJmZ25uZ2l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTE4NjUsImV4cCI6MjEwMzgyNzg2NX0.AjmaFKcARU0MOJHnUI-0PcLUOkQwtM9xC16AfFjgUJA
+  
+  DATABASE_URL
+  Value: postgresql://postgres.yjzkfwyattiibfgnngiv:Ashunila@2005@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true&schema=public
+  
+  DIRECT_URL
+  Value: postgresql://postgres.yjzkfwyattiibfgnngiv:Ashunila@2005@aws-0-ap-south-1.pooler.supabase.com:5432/postgres?schema=public
+  
+  JWT_SECRET
+  Value: [use strong random value]
+
+════════════════════════════════════════════════════════════════════════════════
+TROUBLESHOOTING:
+════════════════════════════════════════════════════════════════════════════════
+
+Problem: CORS errors when accessing API
+Solution: Verify CORS_ORIGIN in Vercel is exactly https://cartverse-sable.vercel.app
+          Make sure deployment is complete
+
+Problem: "Invalid supabaseUrl" error
+Solution: Check VITE_SUPABASE_URL is set in Vercel
+          Value: https://yjzkfwyattiibfgnngiv.supabase.co
+
+Problem: Authentication not working
+Solution: Check JWT_SECRET is set in Vercel
+          Clear browser cache and try again
+
+Problem: Still seeing CORS errors after redeploy
+Solution: Clear browser cache (Ctrl+Shift+Del)
+          Try in private/incognito window
+          Check Network tab in DevTools (F12)
+
+════════════════════════════════════════════════════════════════════════════════
+FILES THAT NEED YOUR ACTION IN VERCEL:
+════════════════════════════════════════════════════════════════════════════════
+
+MUST DO (Critical):
+☐ Update/Add CORS_ORIGIN to https://cartverse-sable.vercel.app
+☐ Redeploy project
+
+SHOULD DO (Recommended):
+☐ Verify all other environment variables are set
+☐ Test frontend at https://cartverse-sable.vercel.app
+☐ Check console for errors (F12)
+
+OPTIONAL (Nice to have):
+☐ Delete old "e-commerce" Vercel project if not needed
+☐ Update team documentation with new URL
+
+════════════════════════════════════════════════════════════════════════════════
+DOCUMENTATION GUIDE:
+════════════════════════════════════════════════════════════════════════════════
+
+Start here (in order):
+
+1. VERCEL_CONFIG_GUIDE.md
+   → Step-by-step guide for updating Vercel (5 min)
+
+2. MAIN_DOMAIN_UPDATED.md
+   → Complete overview of all changes
+
+3. DOMAIN_UPDATE.md
+   → Technical details about domain switch
+
+4. QUICK_START.md
+   → How to run locally and test
+
+5. DEPLOYMENT_READY.md
+   → Full deployment reference
+
+════════════════════════════════════════════════════════════════════════════════
+QUICK CHECKLIST:
+════════════════════════════════════════════════════════════════════════════════
+
+Before going live, verify:
+
+Configuration Complete:
+☐ CORS_ORIGIN set in .env files ✅
+☐ CORS_ORIGIN set in Vercel environment variables ⏳
+☐ All other env variables present in Vercel ⏳
+☐ Project redeployed ⏳
+
+Testing Complete:
+☐ Frontend loads at https://cartverse-sable.vercel.app ⏳
+☐ Console clean (no errors in F12) ⏳
+☐ Can register new account ⏳
+☐ Can login with credentials ⏳
+☐ Admin panel works ⏳
+☐ API calls successful (Network tab shows 200/201) ⏳
+☐ Mobile responsive ⏳
+
+════════════════════════════════════════════════════════════════════════════════
+STATUS:
+════════════════════════════════════════════════════════════════════════════════
+
+Code:         ✅ READY (all files updated)
+Vercel:       ⏳ WAITING (needs your configuration)
+Database:     ✅ READY (Supabase connected)
+API:          ✅ READY (backend configured)
+
+Next Step:    Configure CORS_ORIGIN in Vercel and redeploy
+
+════════════════════════════════════════════════════════════════════════════════
+
+For detailed step-by-step instructions, see: VERCEL_CONFIG_GUIDE.md
+
+Your app is ready! Just update Vercel and you're live. 🚀
+
+════════════════════════════════════════════════════════════════════════════════

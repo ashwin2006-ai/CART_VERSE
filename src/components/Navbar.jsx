@@ -38,17 +38,7 @@ export const Navbar = () => {
     return () => document.removeEventListener('mousedown', h);
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
-        e.preventDefault();
-        window.location.hash = '#admin';
-        setCurrentView('admin');
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // Admin keyboard shortcut removed - no admin access for regular users
 
   const handleLogout = () => {
     setUser(null);
@@ -260,15 +250,15 @@ export const Navbar = () => {
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 style={{
-                  width: 'clamp(40px, 6vw, 44px)', height: 'clamp(40px, 6vw, 44px)', borderRadius: '50%',
-                  background: accent, border: 'none', cursor: 'pointer',
-                  color: '#fff', fontWeight: 800, fontSize: '0.8rem',
+                  width: 'clamp(40px, 6vw, 44px)', height: 'clamp(40px, 6vw, 44px)', borderRadius: '8px',
+                  background: searchBg, border: 'none', cursor: 'pointer',
+                  color: textPrimary, fontWeight: 700, fontSize: '0.9rem',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.2s', boxShadow: '0 2px 8px rgba(108,99,255,0.3)'
+                  transition: 'all 0.2s'
                 }}
-                title={user?.name || 'User Menu'}
+                title="User Menu"
               >
-                {getInitials(user?.name)}
+                <User size={20} color={textPrimary} />
               </button>
 
               {showUserMenu && (

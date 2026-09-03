@@ -11,8 +11,6 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { OrderConfirmationModal } from './components/OrderConfirmationModal';
 import { OrderTrackingModal } from './components/OrderTrackingModal';
 import { AccountView } from './components/AccountView';
-import { AdminPanel } from './components/AdminPanel';
-import { AdminLogin } from './components/AdminLogin';
 import { UserLoginPage } from './components/UserLoginPage';
 import { AiAssistant } from './components/AiAssistant';
 import { ToastContainer } from './components/ToastContainer';
@@ -136,7 +134,7 @@ const ProductGrid = ({ products: prods, isLoading, hasMore, onLoadMore, totalCou
 // ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Main App ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
 export function App() {
   const {
-    currentView, adminAuth, user, products, theme,
+    currentView, user, products, theme,
     searchQuery, setSearchQuery,
     selectedCategory, setSelectedCategory,
     minRating, setMinRating,
@@ -150,13 +148,23 @@ export function App() {
   // Check URL on mount and update view accordingly
   useEffect(() => {
     const checkPath = () => {
-      if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
-        setCurrentView('admin');
-      } else if (window.location.pathname === '/account' || window.location.hash === '#account') {
+      const pathname = window.location.pathname;
+      const hash = window.location.hash.replace('#', '');
+      
+      // Check pathname first (for /account, /support, /debug-env routes)
+      if (pathname === '/account' || pathname.endsWith('/account')) {
         setCurrentView('account');
-      } else if (window.location.pathname === '/support' || window.location.hash === '#support') {
+      } else if (pathname === '/support' || pathname.endsWith('/support')) {
         setCurrentView('support');
-      } else if (window.location.pathname === '/debug-env' || window.location.hash === '#debug-env') {
+      } else if (pathname === '/debug-env' || pathname.endsWith('/debug-env')) {
+        setCurrentView('debug-env');
+      } 
+      // Check hash for backwards compatibility (#account, etc)
+      else if (hash === 'account') {
+        setCurrentView('account');
+      } else if (hash === 'support') {
+        setCurrentView('support');
+      } else if (hash === 'debug-env') {
         setCurrentView('debug-env');
       } else {
         setCurrentView('store');
@@ -164,7 +172,11 @@ export function App() {
     };
     checkPath();
     window.addEventListener('hashchange', checkPath);
-    return () => window.removeEventListener('hashchange', checkPath);
+    window.addEventListener('popstate', checkPath);
+    return () => {
+      window.removeEventListener('hashchange', checkPath);
+      window.removeEventListener('popstate', checkPath);
+    };
   }, [setCurrentView]);
 
   const isDark = theme === 'dark';
@@ -211,16 +223,6 @@ export function App() {
   const bestSell   = useMemo(() => (products || []).filter(p => p && p.bestSeller).slice(0, 8), [products]);
   const newArrivals= useMemo(() => (products || []).filter(p => p && p.isNew).slice(0, 8), [products]);
   const recentProds= useMemo(() => (products || []).filter(p => p && recentlyViewed.includes(p.id)).slice(0, 4), [products, recentlyViewed]);
-
-  // Admin portal on /admin route
-  if (currentView === 'admin') {
-    return (
-      <>
-        <ToastContainer />
-        {adminAuth.isAuthenticated ? <AdminPanel /> : <AdminLogin />}
-      </>
-    );
-  }
 
   // Debug page for environment variables
   if (currentView === 'debug-env') {

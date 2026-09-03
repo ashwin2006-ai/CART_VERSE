@@ -187,24 +187,6 @@ export const Footer = () => {
             <span>© 2026 CARTVERSE INC. All Rights Reserved.</span>
             <span>•</span>
             <span>Official Contact: <strong>ashwincreator@gmail.com</strong></span>
-            <span>•</span>
-            <button
-              onClick={() => {
-                setCurrentView('admin');
-                window.location.hash = '#admin';
-              }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                color: 'var(--text-muted)',
-                fontSize: '0.76rem',
-                cursor: 'pointer'
-              }}
-              title="Secure Merchant Management Gateway"
-            >
-              <Lock size={12} /> Merchant Portal
-            </button>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontWeight: 700 }}>

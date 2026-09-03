@@ -19,21 +19,9 @@ import {
   ShoppingBag,
   ExternalLink,
   Edit3,
-  Camera,
   Check,
-  Upload,
-  Image as ImageIcon,
   X as CloseIcon
 } from 'lucide-react';
-
-const AVATAR_OPTIONS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80'
-];
 
 export const AccountView = () => {
   const {
@@ -54,8 +42,6 @@ export const AccountView = () => {
     addToast
   } = useShop();
 
-  const fileInputRef = useRef(null);
-
   const getInitials = (name) => {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -74,32 +60,8 @@ export const AccountView = () => {
   const [profileForm, setProfileForm] = useState({
     name: safeUser.name || '',
     email: safeUser.email || '',
-    phone: safeUser.phone || '',
-    avatar: safeUser.avatar || ''
+    phone: safeUser.phone || ''
   });
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 4 * 1024 * 1024) {
-      addToast({
-        type: 'error',
-        title: 'Image Too Large',
-        message: 'Please choose an image under 4MB.'
-      });
-      return;
-    }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfileForm(prev => ({ ...prev, avatar: reader.result }));
-      addToast({
-        type: 'success',
-        title: 'Photo Selected 📸',
-        message: 'Click Save Profile to update your account.'
-      });
-    };
-    reader.readAsDataURL(file);
-  };
 
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [newAddr, setNewAddr] = useState({
@@ -156,8 +118,7 @@ export const AccountView = () => {
       ...user,
       name: profileForm.name,
       email: profileForm.email,
-      phone: profileForm.phone,
-      avatar: profileForm.avatar
+      phone: profileForm.phone
     };
     setUser(updatedUser);
     setIsEditingProfile(false);
@@ -165,8 +126,7 @@ export const AccountView = () => {
     // Call API to persist to database
     apiClient.updateCustomerProfile({
       name: profileForm.name,
-      phone: profileForm.phone,
-      avatar: profileForm.avatar
+      phone: profileForm.phone
     }).then(res => {
       if (res.success && res.data) {
         // Update user with server response to ensure sync
@@ -174,7 +134,7 @@ export const AccountView = () => {
         addToast({
           type: 'success',
           title: 'Profile Saved 🎉',
-          message: 'Your profile has been saved to your account.'
+          message: 'Your profile has been updated.'
         });
       } else {
         addToast({
@@ -250,35 +210,6 @@ export const AccountView = () => {
                   {getInitials(user?.name || 'U')}
                 </div>
               )}
-              <button
-                onClick={() => {
-                  setProfileForm({
-                    name: user?.name || '',
-                    email: user?.email || '',
-                    phone: user?.phone || '',
-                    avatar: user?.avatar || ''
-                  });
-                  setIsEditingProfile(true);
-                }}
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  background: 'var(--primary)',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '2px solid #fff',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.4)'
-                }}
-                title="Change Profile Picture"
-              >
-                <Camera size={13} />
-              </button>
             </div>
 
             <div>
@@ -292,8 +223,7 @@ export const AccountView = () => {
                     setProfileForm({
                       name: user?.name || '',
                       email: user?.email || '',
-                      phone: user?.phone || '',
-                      avatar: user?.avatar || ''
+                      phone: user?.phone || ''
                     });
                     setIsEditingProfile(true);
                   }}
@@ -381,130 +311,12 @@ export const AccountView = () => {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '6px' }}>Personal Profile & Photo</h2>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '6px' }}>Personal Information</h2>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                Upload your personal photo or customize your profile details for deliveries.
+                Update your profile details for your account and deliveries.
               </p>
 
               <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {/* Avatar Preview & Upload Action */}
-                <div style={{
-                  background: 'var(--bg-surface)',
-                  padding: '16px',
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--border-subtle)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    {profileForm.avatar ? (
-                      <img
-                        src={profileForm.avatar}
-                        alt="Profile preview"
-                        style={{
-                          width: '64px',
-                          height: '64px',
-                          borderRadius: '50%',
-                          objectFit: 'cover',
-                          border: '2px solid var(--primary)',
-                          flexShrink: 0
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: '64px',
-                          height: '64px',
-                          borderRadius: '50%',
-                          background: 'var(--primary-gradient)',
-                          color: '#ffffff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '1.4rem',
-                          fontWeight: 900,
-                          flexShrink: 0
-                        }}
-                      >
-                        {getInitials(profileForm.name)}
-                      </div>
-                    )}
-
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <div style={{ fontSize: '0.84rem', fontWeight: 700 }}>Profile Photo</div>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={handleImageUpload}
-                          accept="image/*"
-                          style={{ display: 'none' }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="btn btn-primary btn-sm"
-                          style={{ gap: '6px' }}
-                        >
-                          <Upload size={14} /> Upload Photo
-                        </button>
-                        {profileForm.avatar && (
-                          <button
-                            type="button"
-                            onClick={() => setProfileForm(prev => ({ ...prev, avatar: '' }))}
-                            className="btn btn-secondary btn-sm"
-                            style={{ gap: '4px', color: 'var(--accent-rose)' }}
-                          >
-                            <Trash2 size={13} /> Remove
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Or Custom URL */}
-                  <div>
-                    <label style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                      Or enter Image Web URL:
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://example.com/my-photo.jpg"
-                      value={profileForm.avatar.startsWith('data:') ? '' : profileForm.avatar}
-                      onChange={(e) => setProfileForm({ ...profileForm, avatar: e.target.value })}
-                      style={{ width: '100%', padding: '8px 12px', fontSize: '0.8rem', borderRadius: 'var(--radius-sm)' }}
-                    />
-                  </div>
-
-                  {/* Optional Preset Swatches */}
-                  <div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
-                      Or choose a preset style:
-                    </span>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      {AVATAR_OPTIONS.map((av, idx) => (
-                        <img
-                          key={idx}
-                          src={av}
-                          alt="preset avatar"
-                          onClick={() => setProfileForm({ ...profileForm, avatar: av })}
-                          style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '50%',
-                            objectFit: 'cover',
-                            cursor: 'pointer',
-                            border: profileForm.avatar === av ? '2px solid var(--primary)' : '1px solid transparent',
-                            transform: profileForm.avatar === av ? 'scale(1.1)' : 'scale(1)',
-                            transition: 'all 0.15s ease'
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
                 <div>
                   <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: '4px' }}>Full Name</label>
                   <input

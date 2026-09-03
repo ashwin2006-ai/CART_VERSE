@@ -9,8 +9,7 @@ import {
   Sparkles,
   ArrowRight,
   Eye,
-  EyeOff,
-  ShieldCheck
+  EyeOff
 } from 'lucide-react';
 
 export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonDismissible = false }) => {
@@ -148,15 +147,6 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
         // Login
         if (!formData.email || !formData.password) {
           addToast({ type: 'error', title: 'Missing Fields', message: 'Please enter email and password.' });
-          setIsLoading(false);
-          return;
-        }
-
-        if (formData.email.toLowerCase() === 'admin@cartverse.io') {
-          addToast({ type: 'info', title: 'Admin Portal 🛡️', message: 'Redirecting to admin login...' });
-          onClose();
-          setCurrentView('admin');
-          window.location.hash = '#admin';
           setIsLoading(false);
           return;
         }
@@ -493,35 +483,6 @@ export const CustomerAuthModal = ({ isOpen, onClose, defaultMode = 'login', nonD
           <span>🔒 Your data is secure and never shared with third parties.</span>
         </div>
 
-        {/* Administrator Portal Switcher */}
-        <div style={{
-          marginTop: '12px',
-          textAlign: 'center',
-          paddingTop: '12px',
-          borderTop: '1px solid var(--border-subtle)'
-        }}>
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              setCurrentView('admin');
-              window.location.hash = '#admin';
-            }}
-            style={{
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              color: '#f59e0b',
-              background: 'transparent',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer'
-            }}
-          >
-            <ShieldCheck size={15} />
-            <span>Store Administrator & Staff Portal ↗</span>
-          </button>
-        </div>
       </div>
     </div>
   );

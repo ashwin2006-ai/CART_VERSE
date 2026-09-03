@@ -30,10 +30,47 @@ export const AiAssistant = () => {
         '✨ Trending this week',
         '🎯 Help me find something',
         '💰 Best deals right now',
-        '📦 Track my order'
+        '📦 Track my order',
+        '❓ Help & Support'
       ]
     }
   ]);
+
+  // FAQ Database
+  const faqDatabase = [
+    {
+      question: 'How do I place an order?',
+      answer: '🛒 Placing an order is simple!\n\n1. Browse our catalog by category or search\n2. Click on a product to view details\n3. Select quantity and add to bag\n4. Go to checkout and enter delivery address\n5. Choose payment method\n6. Place order\n\nYou\'ll receive an order confirmation via email!'
+    },
+    {
+      question: 'What payment methods do you accept?',
+      answer: '💳 We accept multiple payment methods:\n\n• Credit/Debit Cards (Visa, Mastercard)\n• Digital Wallets (Google Pay, Apple Pay)\n• Net Banking\n• UPI Transfers\n• Cash on Delivery (COD)\n\nAll payments are secure and encrypted!'
+    },
+    {
+      question: 'How do I track my order?',
+      answer: '📦 Track your order easily:\n\n1. Go to "My Account"\n2. Click "My Orders"\n3. Find your order and click "Track Delivery"\n4. View real-time tracking status\n\nYou\'ll also receive SMS updates when your order ships!'
+    },
+    {
+      question: 'What\'s your return policy?',
+      answer: '🔄 Our return policy:\n\n• 7 days to return from delivery date\n• Product must be unused and in original condition\n• Click "Return Item" in your orders\n• Free return pickup at your location\n• Refund within 3-5 business days\n\nFor damaged items, return within 24 hours!'
+    },
+    {
+      question: 'Do you offer free shipping?',
+      answer: '🚚 Free shipping details:\n\n• Free shipping on orders above ₹999\n• Express delivery available (charges apply)\n• Delivery to most cities across India\n\nUse code "FREESHIP" for free shipping on qualifying orders!'
+    },
+    {
+      question: 'How can I contact customer support?',
+      answer: '📞 Reach our support team:\n\n• Chat with us here (24/7)\n• Email: support@cartverse.com\n• Phone: +91-9999-XXX-XXX\n• WhatsApp support available\n• Response time: Usually within 2 hours'
+    },
+    {
+      question: 'Is there a loyalty program?',
+      answer: '⭐ Yes! CartVerse Rewards:\n\n• Earn points on every purchase\n• 1 point = ₹1 (approximately)\n• Redeem points for discounts\n• Exclusive member-only deals\n• Birthday bonuses\n\nJoin now and start earning!'
+    },
+    {
+      question: 'How do I apply a coupon code?',
+      answer: '🎟️ Using coupon codes:\n\n1. Add items to bag\n2. Go to checkout\n3. Look for "Apply Coupon" field\n4. Enter code and click Apply\n5. Discount applies instantly\n\nCheck our promotions section for active codes!'
+    }
+  ];
 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -132,9 +169,41 @@ export const AiAssistant = () => {
     setTimeout(() => {
       let replyText = '';
       let recommendedProducts = [];
+      let faqResponse = null;
       const lowerQuery = query.toLowerCase();
 
-      if (lowerQuery.includes('tech') || lowerQuery.includes('headphone') || lowerQuery.includes('projector') || lowerQuery.includes('keyboard') || lowerQuery.includes('laptop') || lowerQuery.includes('computer')) {
+      // Help & Support Handler
+      if (lowerQuery.includes('help') || lowerQuery.includes('support') || lowerQuery.includes('faq') || lowerQuery.includes('question') || lowerQuery === '❓ help & support') {
+        replyText = `🆘 Welcome to CartVerse Help & Support!\n\nI can help you with common questions. Click on any topic below:`;
+        faqResponse = {
+          type: 'faq_menu',
+          faqs: faqDatabase.slice(0, 4)
+        };
+      } else if (lowerQuery.includes('order') && lowerQuery.includes('how')) {
+        const faq = faqDatabase.find(f => f.question.toLowerCase().includes('place'));
+        replyText = faq ? faq.answer : 'How to place an order? Let me show you the steps...';
+      } else if (lowerQuery.includes('payment')) {
+        const faq = faqDatabase.find(f => f.question.toLowerCase().includes('payment'));
+        replyText = faq ? faq.answer : 'We accept multiple payment methods for your convenience.';
+      } else if (lowerQuery.includes('track')) {
+        const faq = faqDatabase.find(f => f.question.toLowerCase().includes('track'));
+        replyText = faq ? faq.answer : 'You can track your order from your account dashboard.';
+      } else if (lowerQuery.includes('return') || lowerQuery.includes('refund')) {
+        const faq = faqDatabase.find(f => f.question.toLowerCase().includes('return'));
+        replyText = faq ? faq.answer : 'Our return process is simple and customer-friendly.';
+      } else if (lowerQuery.includes('ship') || lowerQuery.includes('delivery')) {
+        const faq = faqDatabase.find(f => f.question.toLowerCase().includes('shipping'));
+        replyText = faq ? faq.answer : 'We offer fast and reliable shipping across India.';
+      } else if (lowerQuery.includes('contact') || lowerQuery.includes('customer')) {
+        const faq = faqDatabase.find(f => f.question.toLowerCase().includes('contact'));
+        replyText = faq ? faq.answer : 'Our support team is ready to help you 24/7!';
+      } else if (lowerQuery.includes('reward') || lowerQuery.includes('loyalty')) {
+        const faq = faqDatabase.find(f => f.question.toLowerCase().includes('loyalty'));
+        replyText = faq ? faq.answer : 'Join our rewards program and earn points on every purchase!';
+      } else if (lowerQuery.includes('coupon') || lowerQuery.includes('code')) {
+        const faq = faqDatabase.find(f => f.question.toLowerCase().includes('coupon'));
+        replyText = faq ? faq.answer : 'Use coupon codes at checkout to get instant discounts!';
+      } else if (lowerQuery.includes('tech') || lowerQuery.includes('headphone') || lowerQuery.includes('projector') || lowerQuery.includes('keyboard') || lowerQuery.includes('laptop') || lowerQuery.includes('computer')) {
         recommendedProducts = products.filter(p => p.category === 'electronics');
         replyText = `🎮 Nice! Here are some awesome tech gadgets and audio gear I think you'll love:`;
       } else if (lowerQuery.includes('shoe') || lowerQuery.includes('footwear') || lowerQuery.includes('runner') || lowerQuery.includes('sneaker') || lowerQuery.includes('boot')) {
@@ -167,9 +236,10 @@ export const AiAssistant = () => {
         id: 'ai_' + Date.now(),
         sender: 'ai',
         text: replyText,
-        recommendedProducts,
+        recommendedProducts: recommendedProducts.length > 0 ? recommendedProducts : undefined,
+        faqResponse,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        suggestions: [
+        suggestions: faqResponse ? [] : [
           '💰 Show me deals',
           '📦 Help with order',
           '🎁 What\'s trending'
@@ -442,6 +512,56 @@ export const AiAssistant = () => {
                         {sug}
                       </button>
                     ))}
+                  </div>
+                )}
+
+                {/* FAQ Menu */}
+                {msg.faqResponse?.type === 'faq_menu' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
+                    {msg.faqResponse.faqs.map((faq, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSendMessage(faq.question)}
+                        style={{
+                          textAlign: 'left',
+                          padding: '10px 12px',
+                          background: 'var(--bg-surface)',
+                          border: '1px solid var(--border-subtle)',
+                          borderRadius: 'var(--radius-md)',
+                          fontSize: '0.78rem',
+                          fontWeight: 600,
+                          color: 'var(--text-primary)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--primary)';
+                          e.currentTarget.style.background = 'var(--bg-card-solid)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                          e.currentTarget.style.background = 'var(--bg-surface)';
+                        }}
+                      >
+                        ❓ {faq.question}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => handleSendMessage('Show more FAQ')}
+                      style={{
+                        textAlign: 'center',
+                        padding: '8px 12px',
+                        background: 'var(--primary-gradient)',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: '0.76rem',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      📚 View More FAQs
+                    </button>
                   </div>
                 )}
               </div>
