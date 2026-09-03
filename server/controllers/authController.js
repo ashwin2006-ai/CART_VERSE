@@ -524,3 +524,54 @@ export const updateAdminPassword = async (req, res) => {
     });
   }
 };
+
+// ═══════════════════════════════════════════════════════════════════
+// CUSTOMER PROFILE MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════
+
+export const updateCustomerProfile = async (req, res) => {
+  try {
+    const userId = req.user?.id; // From JWT middleware
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authenticated'
+      });
+    }
+
+    const { name, phone, avatar } = req.body;
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (phone !== undefined) updateData.phone = phone;
+    if (avatar !== undefined) updateData.avatar = avatar;
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        avatar: true,
+        tier: true,
+        rewardPoints: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    return res.json({
+      success: true,
+      message: 'Profile updated successfully.',
+      data: updated
+    });
+  } catch (error) {
+    console.error('Update customer profile error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update profile.'
+    });
+  }
+};

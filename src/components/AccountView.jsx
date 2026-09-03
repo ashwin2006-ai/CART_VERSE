@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
+import apiClient from '../utils/apiClient';
 import {
   User,
   Package,
@@ -149,18 +150,48 @@ export const AccountView = () => {
 
   const handleSaveProfile = (e) => {
     e.preventDefault();
-    setUser({
+    
+    // Update local state immediately for optimistic UI
+    const updatedUser = {
       ...user,
       name: profileForm.name,
       email: profileForm.email,
       phone: profileForm.phone,
       avatar: profileForm.avatar
-    });
+    };
+    setUser(updatedUser);
     setIsEditingProfile(false);
-    addToast({
-      type: 'success',
-      title: 'Profile Updated 🎉',
-      message: 'Your personal information and profile image were saved.'
+    
+    // Call API to persist to database
+    apiClient.updateCustomerProfile({
+      name: profileForm.name,
+      phone: profileForm.phone,
+      avatar: profileForm.avatar
+    }).then(res => {
+      if (res.success && res.data) {
+        // Update user with server response to ensure sync
+        setUser(res.data);
+        addToast({
+          type: 'success',
+          title: 'Profile Saved 🎉',
+          message: 'Your profile has been saved to your account.'
+        });
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Save Failed',
+          message: res.message || 'Failed to save profile. Please try again.'
+        });
+        // Revert to previous user state on failure
+        setUser(user);
+      }
+    }).catch(err => {
+      addToast({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'An error occurred while saving your profile.'
+      });
+      setUser(user);
     });
   };
 

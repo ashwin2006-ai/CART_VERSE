@@ -24,13 +24,13 @@ export const AiAssistant = () => {
     {
       id: 'm1',
       sender: 'ai',
-      text: 'Hello! I am Cartverse AI, your smart shopping concierge. Looking for product suggestions, checking order status, or finding discount codes in ₹ (INR)?',
+      text: '👋 Hey there! I\'m CartVerse AI, your personal shopping buddy!\n\nI can help you find amazing products, track orders, explore deals, or answer any questions. What are you in the mood for today?',
       time: 'Just now',
       suggestions: [
-        'Top tech under ₹5,000',
-        'Find running shoes',
-        'Active promo codes',
-        'Track my order'
+        '✨ Trending this week',
+        '🎯 Help me find something',
+        '💰 Best deals right now',
+        '📦 Track my order'
       ]
     }
   ]);
@@ -134,27 +134,33 @@ export const AiAssistant = () => {
       let recommendedProducts = [];
       const lowerQuery = query.toLowerCase();
 
-      if (lowerQuery.includes('tech') || lowerQuery.includes('headphone') || lowerQuery.includes('projector') || lowerQuery.includes('keyboard')) {
+      if (lowerQuery.includes('tech') || lowerQuery.includes('headphone') || lowerQuery.includes('projector') || lowerQuery.includes('keyboard') || lowerQuery.includes('laptop') || lowerQuery.includes('computer')) {
         recommendedProducts = products.filter(p => p.category === 'electronics');
-        replyText = `Here are our top rated electronics and audio gear in ₹ INR:`;
-      } else if (lowerQuery.includes('shoe') || lowerQuery.includes('footwear') || lowerQuery.includes('runner') || lowerQuery.includes('sneaker')) {
+        replyText = `🎮 Nice! Here are some awesome tech gadgets and audio gear I think you'll love:`;
+      } else if (lowerQuery.includes('shoe') || lowerQuery.includes('footwear') || lowerQuery.includes('runner') || lowerQuery.includes('sneaker') || lowerQuery.includes('boot')) {
         recommendedProducts = products.filter(p => p.category === 'footwear');
-        replyText = `Here are our bestselling high-performance shoes:`;
-      } else if (lowerQuery.includes('cloth') || lowerQuery.includes('fashion') || lowerQuery.includes('hoodie') || lowerQuery.includes('shirt')) {
+        replyText = `👟 Perfect! Check out these amazing shoes. Perfect for any occasion:`;
+      } else if (lowerQuery.includes('cloth') || lowerQuery.includes('fashion') || lowerQuery.includes('hoodie') || lowerQuery.includes('shirt') || lowerQuery.includes('dress')) {
         recommendedProducts = products.filter(p => p.category === 'fashion');
-        replyText = `Explore our contemporary apparel collection:`;
-      } else if (lowerQuery.includes('code') || lowerQuery.includes('coupon') || lowerQuery.includes('discount') || lowerQuery.includes('promo')) {
-        replyText = `Active Cartverse discount coupons:\n• **SAVE20** – 20% off on orders above ₹2,999\n• **WELCOME10** – 10% off your entire first purchase\n• **FREESHIP** – Free express shipping over ₹999\n• **FLAT500** – ₹500 instant discount on orders above ₹3,999`;
-      } else if (lowerQuery.includes('track') || lowerQuery.includes('order') || lowerQuery.includes('shipping')) {
+        replyText = `👕 Great choice! Here's our latest fashion picks just for you:`;
+      } else if (lowerQuery.includes('code') || lowerQuery.includes('coupon') || lowerQuery.includes('discount') || lowerQuery.includes('promo') || lowerQuery.includes('offer')) {
+        replyText = `💰 Score! Here are the active discount codes right now:\n\n• **SAVE20** – 20% off on orders above ₹2,999\n• **WELCOME10** – 10% off your entire first purchase\n• **FREESHIP** – Free express shipping over ₹999\n• **FLAT500** – ₹500 instant discount on orders above ₹3,999\n\nLet me know if you need help applying a code!`;
+      } else if (lowerQuery.includes('track') || lowerQuery.includes('order') || lowerQuery.includes('shipping') || lowerQuery.includes('status')) {
         if (orders.length > 0) {
           const latestOrder = orders[0];
-          replyText = `Your latest order **#${latestOrder.id}** is currently **${latestOrder.status}** with ${latestOrder.carrier}.`;
+          replyText = `📦 Here's your latest order:\n\n**Order #${latestOrder.id}**\nStatus: ${latestOrder.status}\nCarrier: ${latestOrder.carrier || 'Processing'}\n\nFull tracking details are in your Account Dashboard!`;
         } else {
-          replyText = `You can view and track all your deliveries in your Account Dashboard!`;
+          replyText = `📭 You haven't placed any orders yet! Browse our collection and place your first order today. I'm here to help!`;
         }
+      } else if (lowerQuery.includes('trending') || lowerQuery.includes('popular') || lowerQuery.includes('best seller') || lowerQuery.includes('new')) {
+        recommendedProducts = products.filter(p => p.featured || p.bestSeller).slice(0, 4);
+        replyText = `🔥 Here's what's trending right now on CartVerse:`;
+      } else if (lowerQuery.includes('find') || lowerQuery.includes('search') || lowerQuery.includes('looking for')) {
+        recommendedProducts = products.slice(0, 4);
+        replyText = `🔍 Let me show you some great options! If you want something specific, just ask me directly (like "shoes under 2000" or "gaming laptops").`;
       } else {
         recommendedProducts = products.filter(p => p.featured).slice(0, 3);
-        replyText = `Here are featured trending items you might love:`;
+        replyText = `✨ Here are some amazing products you might love! Browse through and let me know if anything catches your eye:`;
       }
 
       const aiMsg = {
@@ -164,9 +170,9 @@ export const AiAssistant = () => {
         recommendedProducts,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         suggestions: [
-          'Deals under ₹2,000',
-          'Cartverse return policy',
-          'Track my package'
+          '💰 Show me deals',
+          '📦 Help with order',
+          '🎁 What\'s trending'
         ]
       };
 
@@ -290,10 +296,10 @@ export const AiAssistant = () => {
                 <Sparkles size={18} />
               </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>CartVerse Assistant</div>
+                <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>CartVerse AI Assistant</div>
                 <div style={{ fontSize: '0.72rem', opacity: 0.85, display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
-                  Online · Ready to help
+                  Always here to help 🎉
                 </div>
               </div>
             </div>
@@ -466,7 +472,7 @@ export const AiAssistant = () => {
           >
             <input
               type="text"
-              placeholder="Ask Cartverse anything (e.g. Find shoes under ₹3,000)..."
+              placeholder="Ask me anything... (e.g., 'shoes under 3000' or 'track order')"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               style={{

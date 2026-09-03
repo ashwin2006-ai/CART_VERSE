@@ -22,7 +22,7 @@ import { CustomerAuthModal } from './components/CustomerAuthModal';
 import { SupportCenter } from './components/SupportCenter';
 import { DebugEnv } from './pages/DebugEnv';
 import {
-  ChevronRight, Search, X, Loader2, ChevronDown, ArrowUp, HelpCircle, MessageCircle, Phone, Mail
+  ChevronRight, Search, X, Loader2, ChevronDown, ArrowUp
 } from 'lucide-react';
 
 // ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Back to Top ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
@@ -132,79 +132,6 @@ const ProductGrid = ({ products: prods, isLoading, hasMore, onLoadMore, totalCou
     )}
   </section>
 );
-
-// ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Help Widget ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
-const HelpWidget = ({ isDark, onHelpClick }) => {
-  const [open, setOpen] = useState(false);
-  const bg = isDark ? '#1e293b' : '#ffffff';
-  const border = isDark ? '#334155' : '#e5e7eb';
-  const text = isDark ? '#f1f5f9' : '#111827';
-  const muted = isDark ? '#64748b' : '#9ca3af';
-
-  const options = [
-    { icon: MessageCircle, label: 'Live Chat', sub: 'Avg response: 2 min', color: '#6C63FF', action: () => { onHelpClick(); setOpen(false); } },
-    { icon: Phone, label: 'Call Us', sub: '1800-XXX-XXXX (Toll free)', color: '#10b981', action: () => window.open('tel:18001234567') },
-    { icon: Mail, label: 'Email Support', sub: 'support@cartverse.io', color: '#f59e0b', action: () => window.open('mailto:support@cartverse.io') },
-  ];
-
-  return (
-    <div style={{ position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom, 0px) + 16px)', right: '16px', zIndex: 1200 }}>
-      {open && (
-        <div style={{
-          position: 'absolute', bottom: '56px', right: 0,
-          background: bg, border: `1px solid ${border}`,
-          borderRadius: '16px', minWidth: '240px',
-          boxShadow: isDark ? '0 12px 40px rgba(0,0,0,0.5)' : '0 12px 40px rgba(0,0,0,0.12)',
-          overflow: 'hidden', animation: 'slideUp 0.2s ease',
-        }}>
-          <div style={{ padding: '14px 16px', borderBottom: `1px solid ${border}` }}>
-            <div style={{ fontWeight: 800, color: text, fontSize: '0.88rem' }}>How can we help?</div>
-            <div style={{ fontSize: '0.74rem', color: muted, marginTop: '2px' }}>We typically respond within minutes</div>
-          </div>
-          {options.map(opt => {
-            const Icon = opt.icon;
-            return (
-              <button key={opt.label} onClick={opt.action}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
-                  padding: '12px 16px', textAlign: 'left', transition: 'background 0.1s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = isDark ? '#334155' : '#f8fafc'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <div style={{
-                  width: '36px', height: '36px', borderRadius: '10px',
-                  background: `${opt.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                }}>
-                  <Icon size={16} color={opt.color} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.84rem', fontWeight: 700, color: text }}>{opt.label}</div>
-                  <div style={{ fontSize: '0.72rem', color: muted, marginTop: '1px' }}>{opt.sub}</div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      )}
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          width: '46px', height: '46px', borderRadius: '50%',
-          background: open ? '#374151' : '#6C63FF',
-          color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 20px rgba(108,99,255,0.4)',
-          transition: 'all 0.2s',
-          transform: open ? 'rotate(45deg)' : 'rotate(0)',
-        }}
-        title="Help & Support"
-      >
-        {open ? <X size={20} /> : <HelpCircle size={20} />}
-      </button>
-      <style>{`@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }`}</style>
-    </div>
-  );
-};
 
 // ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼ Main App ├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼├óΓÇ¥Γé¼
 export function App() {
@@ -523,9 +450,6 @@ export function App() {
       {/* Back to top */}
       <BackToTop isDark={isDark} />
       
-      {/* Help Widget */}
-      <HelpWidget isDark={isDark} onHelpClick={() => setCurrentView('support')} />
-
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         * { box-sizing: border-box; }

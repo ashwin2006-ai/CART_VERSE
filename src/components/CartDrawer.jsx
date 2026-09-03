@@ -65,10 +65,10 @@ export const CartDrawer = () => {
         className="animate-fade-in"
         style={{
           width: '100%',
-          maxWidth: '460px',
+          maxWidth: typeof window !== 'undefined' && window.innerWidth < 640 ? '100%' : '460px',
           height: '100%',
           background: 'var(--bg-card-solid)',
-          borderLeft: '1px solid var(--border-highlight)',
+          borderLeft: typeof window !== 'undefined' && window.innerWidth < 640 ? 'none' : '1px solid var(--border-highlight)',
           boxShadow: 'var(--shadow-lg)',
           display: 'flex',
           flexDirection: 'column',
@@ -78,7 +78,7 @@ export const CartDrawer = () => {
       >
         {/* Header */}
         <div style={{
-          padding: '20px 24px',
+          padding: typeof window !== 'undefined' && window.innerWidth < 640 ? '16px 16px' : '20px 24px',
           borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
@@ -151,7 +151,7 @@ export const CartDrawer = () => {
         <div style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '20px 24px',
+          padding: typeof window !== 'undefined' && window.innerWidth < 640 ? '16px 12px' : '20px 24px',
           display: 'flex',
           flexDirection: 'column',
           gap: '16px'
@@ -323,7 +323,7 @@ export const CartDrawer = () => {
         {/* Footer & Checkout Box */}
         {cart.length > 0 && (
           <div style={{
-            padding: '20px 24px',
+            padding: typeof window !== 'undefined' && window.innerWidth < 640 ? '16px 12px' : '20px 24px',
             borderTop: '1px solid var(--border-subtle)',
             background: 'var(--bg-surface)'
           }}>

@@ -652,6 +652,224 @@ class APIClient {
       return { success: false, message: error.message };
     }
   }
+
+  // ============================================================================
+  // ADMIN PRODUCT MANAGEMENT API METHODS
+  // ============================================================================
+
+  /**
+   * Create a new product (Admin only)
+   */
+  async createProduct(productData) {
+    try {
+      const response = await this.post('/api/products', productData);
+      return response;
+    } catch (error) {
+      console.warn('Create product failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Update an existing product (Admin only)
+   */
+  async updateProduct(productId, productData) {
+    try {
+      const response = await this.put(`/api/products/${productId}`, productData);
+      return response;
+    } catch (error) {
+      console.warn('Update product failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Delete a product (Admin only)
+   */
+  async deleteProduct(productId) {
+    try {
+      const response = await this.delete(`/api/products/${productId}`);
+      return response;
+    } catch (error) {
+      console.warn('Delete product failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Update product inventory stock (Admin only)
+   */
+  async updateProductStock(productId, stock) {
+    try {
+      const response = await this.patch(`/api/products/${productId}/stock`, { stock });
+      return response;
+    } catch (error) {
+      console.warn('Update stock failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  // ============================================================================
+  // ADMIN CATEGORY MANAGEMENT API METHODS
+  // ============================================================================
+
+  /**
+   * Create a new category (Admin only)
+   */
+  async createCategory(categoryData) {
+    try {
+      const response = await this.post('/api/categories', categoryData);
+      return response;
+    } catch (error) {
+      console.warn('Create category failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Delete a category (Admin only)
+   */
+  async deleteCategory(categoryId) {
+    try {
+      const response = await this.delete(`/api/categories/${categoryId}`);
+      return response;
+    } catch (error) {
+      console.warn('Delete category failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  // ============================================================================
+  // ADMIN COUPON MANAGEMENT API METHODS
+  // ============================================================================
+
+  /**
+   * Create a new coupon (Admin only)
+   */
+  async createCoupon(couponData) {
+    try {
+      const response = await this.post('/api/coupons', couponData);
+      return response;
+    } catch (error) {
+      console.warn('Create coupon failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Update a coupon (Admin only)
+   */
+  async updateCoupon(couponId, couponData) {
+    try {
+      const response = await this.put(`/api/coupons/${couponId}`, couponData);
+      return response;
+    } catch (error) {
+      console.warn('Update coupon failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Delete a coupon (Admin only)
+   */
+  async deleteCoupon(couponId) {
+    try {
+      const response = await this.delete(`/api/coupons/${couponId}`);
+      return response;
+    } catch (error) {
+      console.warn('Delete coupon failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  // ============================================================================
+  // ADMIN USER MANAGEMENT API METHODS
+  // ============================================================================
+
+  /**
+   * Delete a user (Admin only)
+   */
+  async deleteUser(userId) {
+    try {
+      const response = await this.delete(`/api/admin/users/${userId}`);
+      return response;
+    } catch (error) {
+      console.warn('Delete user failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Update a user (Admin only)
+   */
+  async updateUser(userId, userData) {
+    try {
+      const response = await this.put(`/api/admin/users/${userId}`, userData);
+      return response;
+    } catch (error) {
+      console.warn('Update user failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  // ============================================================================
+  // ADMIN PROFILE & SECURITY API METHODS
+  // ============================================================================
+
+  /**
+   * Get admin profile (Admin only)
+   */
+  async getAdminProfile() {
+    try {
+      const response = await this.get('/api/auth/admin/profile');
+      return response;
+    } catch (error) {
+      console.warn('Get admin profile failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Update admin profile (Admin only)
+   */
+  async updateAdminProfile(profileData) {
+    try {
+      const response = await this.put('/api/auth/admin/profile', profileData);
+      return response;
+    } catch (error) {
+      console.warn('Update admin profile failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Change admin password (Admin only)
+   */
+  async changeAdminPassword(currentPassword, newPassword) {
+    try {
+      const response = await this.post('/api/auth/admin/password', {
+        currentPassword,
+        newPassword
+      });
+      return response;
+    } catch (error) {
+      console.warn('Change admin password failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
+
+  /**
+   * Update customer profile
+   */
+  async updateCustomerProfile(profileData) {
+    try {
+      const response = await this.put('/api/auth/profile', profileData);
+      return response;
+    } catch (error) {
+      console.warn('Update customer profile failed:', error.message);
+      return { success: false, message: error.message };
+    }
+  }
 }
 
 // Export singleton instance
