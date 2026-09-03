@@ -31,7 +31,17 @@ const createSupabaseClient = () => {
     );
     // Return a mock object that won't crash
     return {
-      from: () => ({ select: () => Promise.resolve({ data: [], error: null }) }),
+      from: () => ({ select: () => Promise.resolve({ data: [], error: null }), insert: () => Promise.resolve({ data: null, error: null }), update: () => Promise.resolve({ data: null, error: null }) }),
+      auth: { getSession: () => Promise.resolve({ data: { session: null }, error: null }) },
+    };
+  }
+
+  // Validate URL format
+  if (!SUPABASE_URL.startsWith('http://') && !SUPABASE_URL.startsWith('https://')) {
+    console.error(`❌ Invalid VITE_SUPABASE_URL: "${SUPABASE_URL}". Must start with http:// or https://`);
+    // Return mock on invalid URL
+    return {
+      from: () => ({ select: () => Promise.resolve({ data: [], error: null }), insert: () => Promise.resolve({ data: null, error: null }), update: () => Promise.resolve({ data: null, error: null }) }),
       auth: { getSession: () => Promise.resolve({ data: { session: null }, error: null }) },
     };
   }
@@ -46,10 +56,12 @@ const createSupabaseClient = () => {
       },
     });
   } catch (error) {
-    console.error('❌ Failed to create Supabase client:', error);
+    console.error('❌ Failed to create Supabase client:', error?.message);
+    console.error('   URL:', SUPABASE_URL);
+    console.error('   Key present:', !!SUPABASE_ANON_KEY);
     // Return mock on error
     return {
-      from: () => ({ select: () => Promise.resolve({ data: [], error: null }) }),
+      from: () => ({ select: () => Promise.resolve({ data: [], error: null }), insert: () => Promise.resolve({ data: null, error: null }), update: () => Promise.resolve({ data: null, error: null }) }),
       auth: { getSession: () => Promise.resolve({ data: { session: null }, error: null }) },
     };
   }
@@ -61,7 +73,7 @@ export const supabase = createSupabaseClient();
  * Check if Supabase is properly configured
  */
 export const isSupabaseConfigured = () => {
-  return !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+  return !!(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL.startsWith('https://'));
 };
 
 /**
