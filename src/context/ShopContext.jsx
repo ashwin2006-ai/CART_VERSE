@@ -234,6 +234,16 @@ export const ShopProvider = ({ children }) => {
     setWishlist(prev => prev.filter(id => id !== productId));
   }, []);
 
+  const toggleWishlist = useCallback((productId) => {
+    setWishlist(prev => {
+      if (prev.includes(productId)) {
+        return prev.filter(id => id !== productId);
+      } else {
+        return [...prev, productId];
+      }
+    });
+  }, []);
+
   const isInWishlist = useCallback((productId) => {
     return wishlist.includes(productId);
   }, [wishlist]);
@@ -481,6 +491,7 @@ export const ShopProvider = ({ children }) => {
     wishlist,
     addToWishlist,
     removeFromWishlist,
+    toggleWishlist,
     isInWishlist,
 
     // Recently Viewed
