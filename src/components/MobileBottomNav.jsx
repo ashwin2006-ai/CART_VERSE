@@ -12,6 +12,9 @@ export const MobileBottomNav = () => {
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [localSearch, setLocalSearch] = React.useState('');
   const isDark = theme === 'dark';
+  const isMobile = window.innerWidth < 768;
+  const isUltraMobile = window.innerWidth < 480;
+  const isExtraSmall = window.innerWidth < 360;
 
   // Prevent scroll when search overlay is open
   React.useEffect(() => {
@@ -154,14 +157,14 @@ export const MobileBottomNav = () => {
       <nav style={{
         position: 'fixed',
         bottom: 0, left: 0, right: 0,
-        height: '60px',
+        height: isExtraSmall ? '52px' : isUltraMobile ? '56px' : '60px',
         background: navBg,
         borderTop: `1px solid ${navBorder}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
         zIndex: 1400,
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        paddingBottom: `max(0px, env(safe-area-inset-bottom, 0px))`,
         boxShadow: isDark ? '0 -4px 20px rgba(0,0,0,0.3)' : '0 -2px 16px rgba(0,0,0,0.07)',
       }}>
         {tabs.map(tab => {
@@ -175,27 +178,31 @@ export const MobileBottomNav = () => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '2px',
+                gap: isExtraSmall ? '1px' : '2px',
                 flex: 1,
                 height: '100%',
                 color: tab.active ? accent : inactiveColor,
                 position: 'relative',
-                padding: '4px 0 6px',
+                padding: isExtraSmall ? '2px 0 4px' : isUltraMobile ? '3px 0 5px' : '4px 0 6px',
                 transition: 'color 0.15s',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                minHeight: '44px',
               }}
             >
               {/* Active indicator bar */}
               {tab.active && (
                 <div style={{
                   position: 'absolute', top: 0, left: '25%', right: '25%',
-                  height: '2px', borderRadius: '0 0 4px 4px',
+                  height: isExtraSmall ? '1.5px' : '2px', borderRadius: '0 0 4px 4px',
                   background: accent,
                 }} />
               )}
 
               <div style={{ position: 'relative' }}>
                 <Icon
-                  size={21}
+                  size={isExtraSmall ? 18 : isUltraMobile ? 20 : 21}
                   strokeWidth={tab.active ? 2.5 : 1.8}
                   fill={tab.id === 'wishlist' && tab.badge > 0 ? '#ef4444' : 'none'}
                   stroke={tab.id === 'wishlist' && tab.badge > 0 ? '#ef4444' : 'currentColor'}
@@ -205,20 +212,25 @@ export const MobileBottomNav = () => {
                     position: 'absolute', top: '-5px', right: '-7px',
                     background: tab.id === 'wishlist' ? '#ef4444' : accent,
                     color: '#fff',
-                    width: '15px', height: '15px', borderRadius: '50%',
-                    fontSize: '0.56rem', fontWeight: 900,
+                    width: isExtraSmall ? '14px' : '15px',
+                    height: isExtraSmall ? '14px' : '15px',
+                    borderRadius: '50%',
+                    fontSize: isExtraSmall ? '0.48rem' : '0.56rem',
+                    fontWeight: 900,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: '1.5px solid ' + navBg,
                   }}>
                     {tab.badge > 9 ? '9+' : tab.badge}
                   </span>
                 )}
               </div>
 
-              {/* Cart badge on account? No — this is just tab icons */}
+              {/* Tab label */}
               <span style={{
-                fontSize: '0.6rem',
+                fontSize: isExtraSmall ? '0.5rem' : isUltraMobile ? '0.55rem' : '0.6rem',
                 fontWeight: tab.active ? 800 : 500,
                 lineHeight: 1,
+                whiteSpace: 'nowrap',
               }}>
                 {tab.label}
               </span>

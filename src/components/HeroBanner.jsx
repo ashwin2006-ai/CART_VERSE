@@ -67,6 +67,9 @@ export const HeroBanner = () => {
   }, [cur]);
 
   const slide = SLIDES[cur];
+  const isMobile = window.innerWidth < 768;
+  const isUltraMobile = window.innerWidth < 480;
+  const isExtraSmall = window.innerWidth < 360;
 
   return (
     <div style={{
@@ -79,12 +82,12 @@ export const HeroBanner = () => {
         style={{
           background: slide.bg,
           transition: 'background 0.5s ease',
-          minHeight: '220px',
+          minHeight: isExtraSmall ? '140px' : isUltraMobile ? '160px' : isMobile ? '180px' : '220px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '28px 20px 28px 24px',
-          gap: '16px',
+          padding: isExtraSmall ? '12px 10px 12px 12px' : isUltraMobile ? '14px 12px 14px 14px' : isMobile ? '16px 14px 16px 16px' : '28px 20px 28px 24px',
+          gap: isUltraMobile ? '8px' : isMobile ? '12px' : '16px',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -111,11 +114,12 @@ export const HeroBanner = () => {
             display: 'inline-flex', alignItems: 'center', gap: '6px',
             background: `${slide.accent}25`,
             border: `1px solid ${slide.accent}50`,
-            borderRadius: '100px', padding: '4px 12px',
-            marginBottom: '12px',
+            borderRadius: '100px', padding: isExtraSmall ? '2px 8px' : isUltraMobile ? '3px 10px' : '4px 12px',
+            marginBottom: isUltraMobile ? '6px' : '12px',
           }}>
             <span style={{
-              fontSize: '0.7rem', fontWeight: 800, color: slide.accent,
+              fontSize: isExtraSmall ? '0.55rem' : isUltraMobile ? '0.62rem' : '0.7rem',
+              fontWeight: 800, color: slide.accent,
               textTransform: 'uppercase', letterSpacing: '0.05em',
             }}>
               {slide.badge}
@@ -123,9 +127,9 @@ export const HeroBanner = () => {
           </div>
 
           <h1 style={{
-            fontSize: 'clamp(1.3rem, 5vw, 2rem)',
+            fontSize: isExtraSmall ? 'clamp(0.95rem, 4vw, 1.3rem)' : isUltraMobile ? 'clamp(1.1rem, 4.5vw, 1.6rem)' : 'clamp(1.3rem, 5vw, 2rem)',
             fontWeight: 900, color: '#ffffff',
-            lineHeight: 1.2, marginBottom: '8px',
+            lineHeight: 1.2, marginBottom: isUltraMobile ? '4px' : '8px',
             letterSpacing: '-0.02em',
             fontFamily: "'Inter', sans-serif",
           }}>
@@ -133,8 +137,14 @@ export const HeroBanner = () => {
           </h1>
 
           <p style={{
-            fontSize: '0.82rem', color: 'rgba(255,255,255,0.65)',
-            marginBottom: '18px', lineHeight: 1.5,
+            fontSize: isExtraSmall ? '0.68rem' : isUltraMobile ? '0.74rem' : '0.82rem',
+            color: 'rgba(255,255,255,0.65)',
+            marginBottom: isUltraMobile ? '8px' : '18px',
+            lineHeight: 1.4,
+            display: isExtraSmall ? '-webkit-box' : 'block',
+            WebkitLineClamp: isExtraSmall ? 1 : 'unset',
+            WebkitBoxOrient: 'vertical',
+            overflow: isExtraSmall ? 'hidden' : 'visible',
           }}>
             {slide.sub}
           </p>
@@ -142,26 +152,32 @@ export const HeroBanner = () => {
           <button
             onClick={() => setSelectedCategory(slide.category)}
             style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              display: 'inline-flex', alignItems: 'center', gap: '4px',
               background: slide.accent,
-              color: '#fff', borderRadius: '10px',
-              padding: '10px 20px', fontSize: '0.84rem', fontWeight: 700,
+              color: '#fff', borderRadius: '8px',
+              padding: isExtraSmall ? '6px 12px' : isUltraMobile ? '8px 14px' : '10px 20px',
+              fontSize: isExtraSmall ? '0.7rem' : isUltraMobile ? '0.76rem' : '0.84rem',
+              fontWeight: 700,
               boxShadow: `0 6px 20px ${slide.accent}50`,
               transition: 'transform 0.15s, box-shadow 0.15s',
+              minHeight: '32px',
             }}
             onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; }}
             onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
           >
-            {slide.cta} <ArrowRight size={15} />
+            {slide.cta} <ArrowRight size={isExtraSmall ? 12 : 15} />
           </button>
         </div>
 
         {/* Right: Product image */}
         <div style={{
-          flexShrink: 0, width: '130px', height: '130px',
-          borderRadius: '16px', overflow: 'hidden',
-          boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
-          border: '2px solid rgba(255,255,255,0.1)',
+          flexShrink: 0, 
+          width: isExtraSmall ? '80px' : isUltraMobile ? '100px' : isMobile ? '110px' : '130px',
+          height: isExtraSmall ? '80px' : isUltraMobile ? '100px' : isMobile ? '110px' : '130px',
+          borderRadius: isExtraSmall ? '10px' : '16px',
+          overflow: 'hidden',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          border: '1.5px solid rgba(255,255,255,0.1)',
           position: 'relative', zIndex: 1,
         }}>
           <img
@@ -179,43 +195,61 @@ export const HeroBanner = () => {
         <button
           onClick={() => goTo((cur - 1 + SLIDES.length) % SLIDES.length)}
           style={{
-            position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)',
+            position: 'absolute', left: '6px', top: '50%', transform: 'translateY(-50%)',
             background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)',
-            borderRadius: '50%', width: '30px', height: '30px',
+            borderRadius: '50%',
+            width: isUltraMobile ? '36px' : '40px',
+            height: isUltraMobile ? '36px' : '40px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', zIndex: 2,
+            border: '1px solid rgba(255,255,255,0.2)',
+            transition: 'all 0.2s',
+            opacity: isMobile ? 0.7 : 1,
           }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.25)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft size={isUltraMobile ? 14 : 18} />
         </button>
         <button
           onClick={() => goTo((cur + 1) % SLIDES.length)}
           style={{
-            position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+            position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)',
             background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)',
-            borderRadius: '50%', width: '30px', height: '30px',
+            borderRadius: '50%',
+            width: isUltraMobile ? '36px' : '40px',
+            height: isUltraMobile ? '36px' : '40px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', zIndex: 2,
+            border: '1px solid rgba(255,255,255,0.2)',
+            transition: 'all 0.2s',
+            opacity: isMobile ? 0.7 : 1,
           }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.25)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}
         >
-          <ChevronRight size={16} />
+          <ChevronRight size={isUltraMobile ? 14 : 18} />
         </button>
       </div>
 
       {/* Dot indicators */}
       <div style={{
-        position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)',
-        display: 'flex', gap: '6px', zIndex: 2,
+        position: 'absolute', bottom: isUltraMobile ? '8px' : '12px', left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', gap: isUltraMobile ? '4px' : '6px', zIndex: 2,
       }}>
         {SLIDES.map((s, i) => (
           <button
             key={s.id}
             onClick={() => goTo(i)}
             style={{
-              width: i === cur ? '20px' : '6px', height: '6px',
+              width: i === cur ? (isUltraMobile ? '14px' : '20px') : '5px',
+              height: '5px',
               borderRadius: '100px',
               background: i === cur ? '#fff' : 'rgba(255,255,255,0.4)',
               transition: 'all 0.3s',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
             }}
           />
         ))}

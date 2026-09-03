@@ -16,6 +16,9 @@ export const CategoryBar = () => {
   const { selectedCategory, setSelectedCategory, theme } = useShop();
   const isDark = theme === 'dark';
   const accent = '#6C63FF';
+  const isMobile = window.innerWidth < 768;
+  const isUltraMobile = window.innerWidth < 480;
+  const isExtraSmall = window.innerWidth < 360;
 
   return (
     <div
@@ -24,19 +27,24 @@ export const CategoryBar = () => {
         background: isDark ? '#0f172a' : '#ffffff',
         borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#e5e7eb'}`,
         position: 'sticky',
-        top: '60px',
+        top: isMobile ? '60px' : 0,
         zIndex: 200,
+        paddingTop: isMobile ? 'max(0px, env(safe-area-inset-top))' : 0,
       }}
     >
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         flexWrap: 'wrap',
-        padding: '10px 12px',
-        gap: '8px',
+        padding: isExtraSmall ? '6px 8px' : isUltraMobile ? '8px 10px' : isMobile ? '8px 12px' : '10px 12px',
+        gap: isExtraSmall ? '4px' : isUltraMobile ? '6px' : '8px',
         maxWidth: '1400px',
         margin: '0 auto',
+        overflowX: isExtraSmall ? 'auto' : 'visible',
+        overflowY: 'hidden',
+        scrollBehavior: 'smooth',
+        WebkitOverflowScrolling: 'touch',
       }}>
         {CATS.map(cat => {
           const active = selectedCategory === cat.id;
@@ -47,10 +55,10 @@ export const CategoryBar = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '7px 14px',
+                gap: isUltraMobile ? '4px' : '6px',
+                padding: isExtraSmall ? '5px 10px' : isUltraMobile ? '6px 12px' : '7px 14px',
                 borderRadius: '100px',
-                fontSize: '0.82rem',
+                fontSize: isExtraSmall ? '0.72rem' : isUltraMobile ? '0.76rem' : '0.82rem',
                 fontWeight: active ? 700 : 500,
                 whiteSpace: 'nowrap',
                 cursor: 'pointer',
@@ -62,10 +70,12 @@ export const CategoryBar = () => {
                 border: active ? 'none' : `1.5px solid ${isDark ? '#334155' : '#e5e7eb'}`,
                 boxShadow: active ? '0 4px 12px rgba(108,99,255,0.35)' : 'none',
                 transform: active ? 'scale(1.04)' : 'scale(1)',
+                flexShrink: 0,
+                minHeight: isUltraMobile ? '32px' : '36px',
               }}
             >
-              <span style={{ fontSize: '0.9rem' }}>{cat.emoji}</span>
-              {cat.label}
+              <span style={{ fontSize: isExtraSmall ? '0.75rem' : '0.9rem', flexShrink: 0 }}>{cat.emoji}</span>
+              {!isExtraSmall && cat.label}
             </button>
           );
         })}

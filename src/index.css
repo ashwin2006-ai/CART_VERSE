@@ -1296,3 +1296,408 @@ input:focus, select:focus, textarea:focus {
     padding: 6px !important;
   }
 }
+
+
+/* ── Task 3: Enhanced Product Grid & Cards for Mobile ── */
+
+@media (max-width: 768px) {
+  /* Product grid responsive sizing */
+  .product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    padding: 8px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box;
+  }
+
+  /* Product card adjustments */
+  .product-grid > div {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    padding: 6px !important;
+  }
+
+  /* Product card image aspect ratio - more compact */
+  [class*="product-card"],
+  .product-grid > div {
+    /* Aspect ratio will be controlled by padding-top in component */
+  }
+
+  /* Wishlist button sizing */
+  [class*="product"] button[aria-label*="wish"],
+  .product-grid button[style*="position: absolute"][style*="right"] {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Badge sizing on mobile */
+  [class*="product"] [style*="position: absolute"][style*="top: 8px"] {
+    font-size: 0.58rem !important;
+    padding: 2px 6px !important;
+  }
+
+  /* Product info padding */
+  [class*="product"] > div:last-child {
+    padding: 8px 10px 6px !important;
+    gap: 3px !important;
+  }
+
+  /* Product name text */
+  [class*="product"] > div:last-child > div:first-child {
+    font-size: 0.78rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Rating badge */
+  [class*="product"] [style*="display: inline-flex"][style*="gap: 2px"] {
+    font-size: 0.62rem !important;
+  }
+
+  /* Price styling */
+  [class*="product"] [style*="display: flex"][style*="gap: 5px"] {
+    font-size: 0.95rem !important;
+    margin-top: 2px !important;
+  }
+
+  /* Free delivery text */
+  [class*="product"] [style*="font-size: 0.62rem"][style*="color: #10b981"] {
+    font-size: 0.6rem !important;
+  }
+}
+
+@media (max-width: 374px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 4px !important;
+  }
+
+  /* Ultra-compact product cards */
+  [class*="product-card"],
+  .product-grid > div {
+    border-radius: 10px !important;
+  }
+
+  /* Smaller badges */
+  [class*="product"] [style*="position: absolute"][style*="top: 8px"] {
+    font-size: 0.52rem !important;
+    padding: 1px 5px !important;
+    top: 4px !important;
+    left: 4px !important;
+  }
+
+  /* Wishlist smaller */
+  [class*="product"] button[style*="position: absolute"][style*="right"] {
+    width: 24px !important;
+    height: 24px !important;
+    top: 4px !important;
+    right: 4px !important;
+  }
+
+  /* Very compact info */
+  [class*="product"] > div:last-child {
+    padding: 6px 8px 4px !important;
+  }
+
+  /* Minimal text sizing */
+  [class*="product"] > div:last-child > div:first-child {
+    font-size: 0.72rem !important;
+    line-height: 1.25 !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  /* Price very compact */
+  [class*="product"] [style*="display: flex"][style*="gap: 5px"] {
+    font-size: 0.85rem !important;
+  }
+}
+
+@media (max-width: 359px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    padding: 2px !important;
+  }
+
+  /* Minimal card padding */
+  [class*="product-card"],
+  .product-grid > div {
+    border-radius: 8px !important;
+  }
+}
+
+
+/* ── Task 5: Implement Responsive Spacing System ── */
+
+/* Responsive Spacing Using clamp() for fluid design */
+:root {
+  /* Responsive padding system: min → preferred → max */
+  --padding-xs: clamp(4px, 1vw, 8px);
+  --padding-sm: clamp(8px, 2vw, 12px);
+  --padding-md: clamp(12px, 3vw, 16px);
+  --padding-lg: clamp(16px, 4vw, 24px);
+  --padding-xl: clamp(20px, 5vw, 32px);
+  
+  /* Responsive margin system */
+  --margin-xs: clamp(2px, 0.5vw, 4px);
+  --margin-sm: clamp(4px, 1vw, 8px);
+  --margin-md: clamp(8px, 2vw, 12px);
+  --margin-lg: clamp(12px, 3vw, 20px);
+  --margin-xl: clamp(16px, 4vw, 28px);
+  
+  /* Responsive gaps */
+  --gap-xs: clamp(2px, 0.5vw, 4px);
+  --gap-sm: clamp(4px, 1vw, 8px);
+  --gap-md: clamp(8px, 2vw, 12px);
+  --gap-lg: clamp(12px, 3vw, 16px);
+  --gap-xl: clamp(16px, 4vw, 24px);
+  
+  /* Responsive font sizes */
+  --text-xs: clamp(0.65rem, 1.5vw, 0.75rem);
+  --text-sm: clamp(0.75rem, 2vw, 0.875rem);
+  --text-md: clamp(0.875rem, 2.5vw, 1rem);
+  --text-lg: clamp(1rem, 3vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 4vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 5vw, 2rem);
+  
+  /* Responsive border radius */
+  --radius-sm: clamp(6px, 1.5vw, 8px);
+  --radius-md: clamp(10px, 2vw, 14px);
+  --radius-lg: clamp(14px, 2.5vw, 20px);
+}
+
+/* Apply responsive spacing to common elements on mobile */
+@media (max-width: 768px) {
+  /* Sections and containers */
+  section, [role="region"] {
+    padding: var(--padding-md) !important;
+    margin-bottom: var(--margin-lg) !important;
+  }
+
+  /* Forms and inputs */
+  form, [role="form"] {
+    padding: var(--padding-md) !important;
+    gap: var(--gap-md) !important;
+  }
+
+  /* Form groups */
+  [class*="form-group"],
+  [class*="form-row"] {
+    gap: var(--gap-sm) !important;
+    margin-bottom: var(--margin-md) !important;
+  }
+
+  /* Input/Select/Textarea */
+  input, select, textarea {
+    padding: var(--padding-sm) !important;
+    min-height: 44px !important;
+    font-size: var(--text-md) !important;
+    border-radius: var(--radius-sm) !important;
+  }
+
+  /* Buttons */
+  button {
+    padding: var(--padding-sm) var(--padding-md) !important;
+    gap: var(--gap-xs) !important;
+    border-radius: var(--radius-sm) !important;
+    font-size: var(--text-sm) !important;
+    min-height: 44px !important;
+  }
+
+  /* Headers */
+  h1 { font-size: var(--text-2xl) !important; margin-bottom: var(--margin-md) !important; }
+  h2 { font-size: var(--text-xl) !important; margin-bottom: var(--margin-md) !important; }
+  h3 { font-size: var(--text-lg) !important; margin-bottom: var(--margin-sm) !important; }
+  h4, h5, h6 { font-size: var(--text-md) !important; margin-bottom: var(--margin-sm) !important; }
+
+  /* Paragraphs and text */
+  p {
+    font-size: var(--text-md) !important;
+    margin-bottom: var(--margin-sm) !important;
+    line-height: 1.5;
+  }
+
+  /* Card and box elements */
+  [class*="card"],
+  [class*="box"],
+  [role="article"] {
+    padding: var(--padding-md) !important;
+    gap: var(--gap-md) !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  /* Modals and dialogs */
+  .modal,
+  .modal-content,
+  [role="dialog"] {
+    padding: var(--padding-lg) !important;
+    border-radius: var(--radius-lg) !important;
+  }
+
+  /* Lists */
+  ul, ol, [role="list"] {
+    padding-left: var(--padding-lg) !important;
+    gap: var(--gap-md) !important;
+  }
+
+  li {
+    margin-bottom: var(--margin-sm) !important;
+  }
+
+  /* Flex containers */
+  [style*="display: flex"],
+  .flex {
+    gap: var(--gap-md) !important;
+  }
+
+  /* Grid containers */
+  [style*="display: grid"],
+  .grid {
+    gap: var(--gap-lg) !important;
+  }
+
+  /* Navigation */
+  nav {
+    padding: var(--padding-md) !important;
+  }
+
+  /* Footer */
+  footer {
+    padding: var(--padding-lg) var(--padding-md) !important;
+  }
+}
+
+/* Enhanced spacing for smaller screens */
+@media (max-width: 480px) {
+  :root {
+    /* Tighter spacing on ultra-mobile */
+    --padding-xs: clamp(3px, 0.8vw, 6px);
+    --padding-sm: clamp(6px, 1.5vw, 10px);
+    --padding-md: clamp(10px, 2.5vw, 14px);
+    --padding-lg: clamp(12px, 3vw, 18px);
+    
+    --margin-xs: clamp(1px, 0.3vw, 3px);
+    --margin-sm: clamp(3px, 0.8vw, 6px);
+    --margin-md: clamp(6px, 1.5vw, 10px);
+    --margin-lg: clamp(8px, 2vw, 14px);
+    
+    --gap-xs: clamp(1px, 0.3vw, 3px);
+    --gap-sm: clamp(3px, 0.8vw, 6px);
+    --gap-md: clamp(6px, 1.5vw, 10px);
+    --gap-lg: clamp(8px, 2vw, 12px);
+    
+    --text-xs: clamp(0.6rem, 1.2vw, 0.7rem);
+    --text-sm: clamp(0.7rem, 1.6vw, 0.8rem);
+    --text-md: clamp(0.8rem, 2vw, 0.95rem);
+    --text-lg: clamp(0.95rem, 2.5vw, 1.1rem);
+    --text-xl: clamp(1.1rem, 3.2vw, 1.35rem);
+    --text-2xl: clamp(1.3rem, 4vw, 1.6rem);
+  }
+
+  section, [role="region"] {
+    padding: var(--padding-md) !important;
+    margin-bottom: var(--margin-md) !important;
+  }
+
+  form {
+    padding: var(--padding-md) !important;
+  }
+
+  input, select, textarea {
+    padding: var(--padding-sm) !important;
+    font-size: var(--text-md) !important;
+  }
+
+  button {
+    padding: var(--padding-sm) var(--padding-md) !important;
+    font-size: var(--text-sm) !important;
+  }
+
+  [class*="card"],
+  [class*="box"] {
+    padding: var(--padding-md) !important;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 359px) {
+  :root {
+    /* Minimal spacing */
+    --padding-xs: clamp(2px, 0.5vw, 4px);
+    --padding-sm: clamp(4px, 1vw, 8px);
+    --padding-md: clamp(6px, 1.5vw, 10px);
+    --padding-lg: clamp(8px, 2vw, 12px);
+    
+    --margin-xs: clamp(1px, 0.2vw, 2px);
+    --margin-sm: clamp(2px, 0.5vw, 4px);
+    --margin-md: clamp(4px, 1vw, 8px);
+    --margin-lg: clamp(6px, 1.5vw, 10px);
+    
+    --gap-xs: clamp(1px, 0.2vw, 2px);
+    --gap-sm: clamp(2px, 0.5vw, 4px);
+    --gap-md: clamp(4px, 1vw, 6px);
+    --gap-lg: clamp(6px, 1.5vw, 10px);
+    
+    --text-xs: clamp(0.55rem, 1vw, 0.65rem);
+    --text-sm: clamp(0.65rem, 1.3vw, 0.75rem);
+    --text-md: clamp(0.75rem, 1.6vw, 0.85rem);
+    --text-lg: clamp(0.85rem, 2vw, 0.95rem);
+    --text-xl: clamp(0.95rem, 2.5vw, 1.1rem);
+    --text-2xl: clamp(1.1rem, 3vw, 1.4rem);
+  }
+
+  section {
+    padding: var(--padding-sm) !important;
+  }
+
+  form {
+    padding: var(--padding-sm) !important;
+  }
+}
+
+/* Ensure responsive sizing for app wrapper and main content */
+@media (max-width: 768px) {
+  #root,
+  main,
+  [role="main"] {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Responsive app wrapper padding for bottom nav */
+  #root {
+    padding-bottom: clamp(52px, 10vw, 68px) !important;
+  }
+}
+
+/* Ensure all sections and containers respect viewport */
+@media (max-width: 480px) {
+  * {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  section,
+  [role="region"],
+  main,
+  article {
+    width: 100%;
+    max-width: 100vw !important;
+    box-sizing: border-box;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
