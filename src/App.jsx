@@ -388,31 +388,7 @@ export function App() {
                     </section>
                   )}
 
-                  {/* Flash Deals Banner */}
-                  {dealProds.length > 0 && (
-                    <section style={{ marginBottom: '28px' }}>
-                      <div style={{
-                        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-                        borderRadius: '14px', padding: '14px 16px', marginBottom: '14px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      }}>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-                            <span style={{ fontSize: '1rem' }}>├ó┼í┬í</span>
-                            <span style={{ fontWeight: 900, color: '#fff', fontSize: '0.95rem' }}>Flash Deals</span>
-                            <span style={{ background: '#ef4444', color: '#fff', fontSize: '0.62rem', fontWeight: 800, padding: '2px 8px', borderRadius: '100px' }}>LIVE</span>
-                          </div>
-                          <p style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.55)', margin: 0 }}>Limited time ├óΓé¼ΓÇ¥ up to 80% off</p>
-                        </div>
-                        <button onClick={() => setSelectedCategory('all')} style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6C63FF', fontSize: '0.78rem', fontWeight: 700 }}>
-                          See all <ChevronRight size={13} />
-                        </button>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
-                        {dealProds.map(p => <ProductCard key={p.id} product={p} />)}
-                      </div>
-                    </section>
-                  )}
+
 
                   {/* Best Sellers */}
                   {bestSell.length > 0 && (
