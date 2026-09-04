@@ -19,7 +19,6 @@ import { Footer } from './components/Footer';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { CustomerAuthModal } from './components/CustomerAuthModal';
 import { SupportCenter } from './components/SupportCenter';
-import { DebugEnv } from './pages/DebugEnv';
 import { AdminLogin } from './components/AdminLogin';
 import { AdminPanel } from './components/AdminPanel';
 import {
@@ -262,10 +261,7 @@ export function App() {
   const newArrivals= useMemo(() => (products || []).filter(p => p && p.isNew).slice(0, 8), [products]);
   const recentProds= useMemo(() => (products || []).filter(p => p && recentlyViewed.includes(p.id)).slice(0, 4), [products, recentlyViewed]);
 
-  // Debug page for environment variables
-  if (currentView === 'debug-env') {
-    return <DebugEnv />;
-  }
+  // No debug page needed - using localStorage only
 
   // Admin routes
   const adminPath = window.location.pathname === '/admin' || window.location.pathname.endsWith('/admin');

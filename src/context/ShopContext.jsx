@@ -43,16 +43,13 @@ export const ShopProvider = ({ children }) => {
         setIsLoadingProducts(true);
 
         // Load categories from API
-        const categoriesResponse = await apiClient.getCategories();
+        const categoriesResponse = await apiClient.fetchCategories();
         if (categoriesResponse.data) {
           setCategories(categoriesResponse.data);
         }
 
         // Load products from API
-        const productsResponse = await apiClient.getProducts({
-          page: 1,
-          limit: 100,
-        });
+        const productsResponse = await apiClient.fetchProducts(1, 100);
         if (productsResponse.data) {
           setProducts(productsResponse.data);
           setTotalProducts(productsResponse.total || productsResponse.data.length);
@@ -124,7 +121,7 @@ export const ShopProvider = ({ children }) => {
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════
-  // CART STATE
+  // CART STATE & SYNC WITH DATABASE
   // ═══════════════════════════════════════════════════════════════════
   const [cartItems, setCartItems] = useState(() => {
     const saved = localStorage.getItem('cartverse-cart');
@@ -183,7 +180,7 @@ export const ShopProvider = ({ children }) => {
     setCartItems([]);
   }, []);
 
-  // Persist cart
+  // Persist cart to localStorage
   useEffect(() => {
     localStorage.setItem('cartverse-cart', JSON.stringify(cartItems));
   }, [cartItems]);
@@ -201,41 +198,100 @@ export const ShopProvider = ({ children }) => {
   }, [orders]);
 
   // ═══════════════════════════════════════════════════════════════════
-  // WISHLIST STATE
+  // WISHLIST STATE & SYNC WITH DATABASE
   // ═══════════════════════════════════════════════════════════════════
-  const [wishlist, setWishlist] = useState(() => {
+  const [wishlistItems, setWishlistItems] = useState(() => {
     const saved = localStorage.getItem('cartverse-wishlist');
     return saved ? JSON.parse(saved) : [];
   });
 
-  const addToWishlist = useCallback((productId) => {
-    setWishlist(prev => {
-      if (prev.includes(productId)) return prev;
-      return [...prev, productId];
-    });
-  }, []);
+  // Load wishlist from database when user logs in
+  useEffect(() => {
+    if (user?.id) {
+      const loadWishlistFromDB = async () => {
+        try {
+          const response = await apiClient.getWishlist();
+          if (response.success && response.items) {
+            // Store wishlist items (not just IDs)
+            setWishlistItems(response.items);
+          }
+        } catch (error) {
+          console.warn('Failed to load wishlist from database:', error);
+          // Keep local wishlist if API fails
+        }
+      };
+      loadWishlistFromDB();
+    }
+  }, [user?.id]);
 
-  const removeFromWishlist = useCallback((productId) => {
-    setWishlist(prev => prev.filter(id => id !== productId));
-  }, []);
-
-  const toggleWishlist = useCallback((productId) => {
-    setWishlist(prev => {
-      if (prev.includes(productId)) {
-        return prev.filter(id => id !== productId);
-      } else {
-        return [...prev, productId];
+  const addToWishlist = useCallback(async (productId) => {
+    if (user?.id) {
+      // Add to database
+      try {
+        const response = await apiClient.addToWishlist(productId);
+        if (response.success) {
+          // Reload wishlist from database
+          const wishlistResponse = await apiClient.getWishlist();
+          if (wishlistResponse.success) {
+            setWishlistItems(wishlistResponse.items);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to add to wishlist:', error);
+        addToast({ type: 'error', message: 'Failed to add to wishlist' });
       }
-    });
-  }, []);
+    } else {
+      // Add to local storage for unauthenticated users
+      setWishlistItems(prev => {
+        if (prev.some(item => item.id === productId || item.productId === productId)) {
+          return prev;
+        }
+        return [...prev, { productId }];
+      });
+    }
+  }, [user?.id, addToast]);
+
+  const removeFromWishlist = useCallback(async (wishlistItemIdOrProductId) => {
+    if (user?.id) {
+      // Remove from database
+      try {
+        const response = await apiClient.removeFromWishlist(wishlistItemIdOrProductId);
+        if (response.success) {
+          const wishlistResponse = await apiClient.getWishlist();
+          if (wishlistResponse.success) {
+            setWishlistItems(wishlistResponse.items);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to remove from wishlist:', error);
+        addToast({ type: 'error', message: 'Failed to remove from wishlist' });
+      }
+    } else {
+      // Remove from local storage
+      setWishlistItems(prev =>
+        prev.filter(item => item.id !== wishlistItemIdOrProductId && item.productId !== wishlistItemIdOrProductId)
+      );
+    }
+  }, [user?.id, addToast]);
+
+  const toggleWishlist = useCallback(async (productId) => {
+    const isInWishlist = wishlistItems.some(item => item.productId === productId || item.id === productId);
+    if (isInWishlist) {
+      const item = wishlistItems.find(item => item.productId === productId || item.id === productId);
+      await removeFromWishlist(item?.id || productId);
+    } else {
+      await addToWishlist(productId);
+    }
+  }, [wishlistItems, addToWishlist, removeFromWishlist]);
 
   const isInWishlist = useCallback((productId) => {
-    return wishlist.includes(productId);
-  }, [wishlist]);
+    return wishlistItems.some(item => item.productId === productId || item.id === productId);
+  }, [wishlistItems]);
 
+  // Persist wishlist to localStorage
   useEffect(() => {
-    localStorage.setItem('cartverse-wishlist', JSON.stringify(wishlist));
-  }, [wishlist]);
+    localStorage.setItem('cartverse-wishlist', JSON.stringify(wishlistItems));
+  }, [wishlistItems]);
 
   // ═══════════════════════════════════════════════════════════════════
   // RECENTLY VIEWED STATE
@@ -519,7 +575,8 @@ export const ShopProvider = ({ children }) => {
     getCartTotals,
 
     // Wishlist
-    wishlist,
+    wishlist: wishlistItems,
+    wishlistItems,
     addToWishlist,
     removeFromWishlist,
     toggleWishlist,

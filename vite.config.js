@@ -9,12 +9,5 @@ export default defineConfig({
     strictPort: true,
     open: false,
     allowedHosts: true,
-    proxy: {
-      '/api': {
-        target: process.env.VITE_API_PROXY_TARGET || 'http://localhost:5000',
-        changeOrigin: true,
-        rewrite: (path) => path,
-      }
-    }
   }
 });
